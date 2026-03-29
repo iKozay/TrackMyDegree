@@ -1,17 +1,14 @@
-import { unlink } from 'node:fs/promises';
 import { PredefinedSequenceTerm, ParsedData } from '../../types/transcript';
-import { CourseData } from '@shared/degree';
+import { CourseData, TimelineSemester, CourseStatus, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import { SEASONS } from '@utils/constants';
 import {getTermRanges} from "@utils/misc";
-import { TimelineSemester, CourseStatus } from '@shared/timeline';
-import { DegreeData, CoursePoolInfo } from '@shared/degree';
 import { getCoursesThatNeedCMinus, isPlaceholderCourse, normalizeCourseCode, validateGrade } from './courseHelper';
 import { getCourseData } from './dataLoader';
 
 export async function processSemestersFromParsedData(
   parsedData: ParsedData,
   degree: DegreeData,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -92,7 +89,7 @@ function getCourseStatus(
 }
 
 
-function getRequiredCourses(coursePools: CoursePoolInfo[]) {
+function getRequiredCourses(coursePools: CoursePoolData[]) {
   const requiredCourses: Set<string> = new Set<string>();
   for (const pool of coursePools) {
     if (!pool.name.toLowerCase().includes('elective')) {

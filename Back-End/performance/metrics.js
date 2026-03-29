@@ -20,3 +20,6 @@ export const delete_failed_rate           = new Rate("delete_failed_rate");
 export const timeline_save_failed_rate    = new Rate("timeline_save_failed_rate");
 export const timeline_update_failed_rate  = new Rate("timeline_update_failed_rate");
 export const iteration_success_rate       = new Rate("iteration_success_rate");
+export const schedule_failed_rate         = new Rate("schedule_failed_rate");
+export const schedule_iteration_success_rate = new Rate("schedule_iteration_success_rate");
+export const schedule_http_failed_rate    = new Rate("schedule_http_failed_rate");

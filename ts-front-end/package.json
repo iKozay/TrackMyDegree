@@ -4,7 +4,9 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 0.0.0.0 --port 5173",
+    "build:shared": "npm --prefix ../shared run build",
+    "dev": "npm run build:shared && npm run dev:frontend",
+    "dev:frontend": "vite --host 0.0.0.0 --port 5173",
     "build": "tsc -b && vite build",
     "start": "vite preview --host",
     "deploy": "npm run build",
@@ -14,6 +16,7 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@trackmydegree/shared": "*",
     "@dnd-kit/core": "^6.3.1",
     "@sentry/react": "^10.32.1",
     "@zumer/snapdom": "^2.0.1",

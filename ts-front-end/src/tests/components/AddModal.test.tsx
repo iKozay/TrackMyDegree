@@ -1,25 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { AddModal } from "../../components/AddModal";
-import { api } from "../../api/http-api-client";
-
-// Mock the api module
-vi.mock("../../api/http-api-client", () => ({
-  api: {
-    get: vi.fn(),
-  },
-}));
 
 describe("AddModal (content)", () => {
   const mockOnAdd = vi.fn();
 
   const defaultProps = {
     type: "exemption" as const,
+    courses: {
+      "COMP 248": {} as any,
+      "COMP 249": {} as any,
+      "SOEN 228": {} as any,
+      "MATH 203": {} as any,
+    },
     onAdd: mockOnAdd,
-  };
-
-  const mockCourses = {
-    courseCodes: ["COMP 248", "COMP 249", "SOEN 228", "MATH 203"],
   };
 
   beforeEach(() => {
@@ -38,14 +32,8 @@ describe("AddModal (content)", () => {
     ).toBeInTheDocument();
   });
 
-  it("fetches and displays courses on mount", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
+  it("displays courses from props", async () => {
     render(<AddModal {...defaultProps} />);
-
-    await waitFor(() => {
-      expect(api.get).toHaveBeenCalledWith("/courses/all-codes");
-    });
 
     expect(await screen.findByText("COMP 248")).toBeInTheDocument();
     expect(screen.getByText("COMP 249")).toBeInTheDocument();
@@ -53,41 +41,7 @@ describe("AddModal (content)", () => {
     expect(screen.getByText("MATH 203")).toBeInTheDocument();
   });
 
-  it("shows loading state while fetching courses", async () => {
-    vi.mocked(api.get).mockImplementationOnce(
-      () =>
-        new Promise((resolve) =>
-          setTimeout(() => resolve(mockCourses), 50),
-        ) as any,
-    );
-
-    render(<AddModal {...defaultProps} />);
-
-    expect(screen.getByText(/Loading courses.../i)).toBeInTheDocument();
-
-    await waitFor(() => {
-      expect(screen.queryByText(/Loading courses.../i)).not.toBeInTheDocument();
-    });
-  });
-
-  it("shows error message when API call fails", async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => {});
-    vi.mocked(api.get).mockRejectedValueOnce(new Error("Network error"));
-
-    render(<AddModal {...defaultProps} />);
-
-    expect(
-      await screen.findByText(/Failed to load courses\. Please try again\./i),
-    ).toBeInTheDocument();
-
-    consoleErrorSpy.mockRestore();
-  });
-
   it("filters courses based on search term", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
     render(<AddModal {...defaultProps} />);
 
     // wait for initial list
@@ -108,8 +62,6 @@ describe("AddModal (content)", () => {
   });
 
   it("performs case-insensitive filtering", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
     render(<AddModal {...defaultProps} />);
 
     expect(await screen.findByText("COMP 248")).toBeInTheDocument();
@@ -127,8 +79,6 @@ describe("AddModal (content)", () => {
   });
 
   it("shows 'no results' message when search has no matches", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
     render(<AddModal {...defaultProps} />);
 
     expect(await screen.findByText("COMP 248")).toBeInTheDocument();
@@ -144,10 +94,8 @@ describe("AddModal (content)", () => {
     ).toBeInTheDocument();
   });
 
-  it("shows 'no courses available' when API returns empty list and search is empty", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce({ courseCodes: [] } as any);
-
-    render(<AddModal {...defaultProps} />);
+  it("shows 'no courses available' when no courses are passed", async () => {
+    render(<AddModal {...defaultProps} courses={{}} />);
 
     expect(
       await screen.findByText(/No courses available\./i),
@@ -155,8 +103,6 @@ describe("AddModal (content)", () => {
   });
 
   it("resets filtered courses when search is cleared", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
     render(<AddModal {...defaultProps} />);
 
     expect(await screen.findByText("COMP 248")).toBeInTheDocument();
@@ -184,8 +130,6 @@ describe("AddModal (content)", () => {
   });
 
   it("calls onAdd with (course, type) when + button is clicked", async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockCourses as any);
-
     render(<AddModal {...defaultProps} />);
 
     expect(await screen.findByText("COMP 248")).toBeInTheDocument();
@@ -198,7 +142,7 @@ describe("AddModal (content)", () => {
   });
 
   it("renders correct copy when type is deficiency", () => {
-    render(<AddModal type="deficiency" onAdd={mockOnAdd} />);
+    render(<AddModal type="deficiency" courses={defaultProps.courses} onAdd={mockOnAdd} />);
     expect(screen.getByText(/deficiency - Add Course/i)).toBeInTheDocument();
     expect(
       screen.getByText(/Select a course to add to your deficiencys/i),

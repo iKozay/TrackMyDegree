@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { PoolHeader } from "./PoolHeader";
 import { PoolCoursesList } from "./PoolCoursesList";
-import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
+import type { CourseMap, CourseCode } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 interface CoursePoolProps {
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;

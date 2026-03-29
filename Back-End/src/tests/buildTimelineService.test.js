@@ -17,11 +17,30 @@ describe('timelineBuilder', () => {
   const mockDegreeData = { _id: 'deg1', name: 'Beng in Computer Engineering', coursePools: [] }
 
   const mockCourses = [
-    { _id: 'COMP 232', title: 'Discrete Math', rules: { prereq: [] }, credits: 3 },
-    { _id: 'COMP 248', title: 'Object Oriented Programming', rules: { prereq: [] }, credits: 3 },
-    { _id: 'COMP 249', title: 'Object Oriented Programming 2', rules: { prereq: [['COMP 248'], ['COMP 232']] }, credits: 3 },
-    { _id: 'MATH 204', title: 'Algebra', rules: { prereq: [] }, credits: 3 },
-    { _id: 'CHEM 206', title: 'General Chemistry', rules: { prereq: [] }, credits: 3 },
+    { _id: 'COMP 232', title: 'Discrete Math', rules: [], credits: 3 },
+    { _id: 'COMP 248', title: 'Object Oriented Programming', rules: [], credits: 3 },
+    { _id: 'MATH 204', title: 'Algebra', rules: [], credits: 3 },
+    { _id: 'CHEM 206', title: 'General Chemistry', rules: [], credits: 3 },
+    { _id: 'COMP 249', title: 'Object Oriented Programming 2',
+      rules: [
+        {
+          type: 'prerequisite',
+          params: {
+            courseList: ['COMP 232'],
+            minCourses: 1
+          },
+          message: ''
+        },
+        {
+          type: 'prerequisite',
+          params: {
+            courseList: ['COMP 248'],
+            minCourses: 1
+          },
+          message: ''
+        }
+      ],
+      credits: 3 },
   ]
 
 
@@ -421,7 +440,7 @@ describe('timelineBuilder', () => {
     courseController.getCourseByCode.mockResolvedValue({
       _id: 'MATH 999',
       title: 'Special Topics',
-      rules: { prereq: [] },
+      rules: [],
       credits: 3,
     });
 
@@ -520,13 +539,13 @@ describe('timelineBuilder', () => {
     parseFile.mockResolvedValue(mockParsedData);
 
     courseController.getCourseByCode
-      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
-      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
+      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0, rules: [] })
+      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0, rules: [] });
 
 
     courseController.getCourseByCode
-      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
-      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
+      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0, rules: [] })
+      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0, rules: [] });
 
   
     const result = await buildTimeline({
@@ -540,8 +559,8 @@ describe('timelineBuilder', () => {
 
   it('adds coop course pool when isCoop is true', async () => {
     courseController.getCourseByCode
-      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0 })
-      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0 });
+      .mockResolvedValueOnce({ _id: 'CWT 100', title: 'Work Term 1', credits: 0, rules: [] })
+      .mockResolvedValueOnce({ _id: 'CWT 101', title: 'Reflective Learning I', credits: 0, rules: [] });
 
     const formData = {
       type: 'form',

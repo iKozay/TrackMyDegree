@@ -8,9 +8,9 @@ import {
   saveTimeline,
   canAddCourse,
 } from "../../utils/timelineUtils";
+import { RuleType, type CoursePoolData, type Rule } from "@trackmydegree/shared";
 import type {
   Course,
-  Pool,
   CourseMap,
   Semester,
   SemesterId,
@@ -61,9 +61,8 @@ describe("timelineUtils", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "Introduction to programming",
-      offeredIN: ["FALL 2025" as SemesterId],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: ["FALL 2025" as SemesterId],
+      rules: [],
       status: {
         status: "incomplete",
         semester: null,
@@ -162,26 +161,26 @@ describe("timelineUtils", () => {
   describe("calculateEarnedCredits", () => {
     it("returns 0 for empty course map", () => {
       const courses: CourseMap = {};
-      const exemptionPool: Pool = {
+      const exemptionPool: CoursePoolData = {
         _id: "exemptions",
         name: "exemptions",
         creditsRequired: 0,
         courses: [],
+        rules: [],
       };
       const result = calculateEarnedCredits(courses, exemptionPool);
       expect(result).toBe(0);
     });
 
-    it("calculates total credits for completed courses only", () => {
+    it("calculates total credits for completed and planned courses", () => {
       const courses: CourseMap = {
         "COMP 248": {
           id: "COMP 248",
           title: "OOP I",
           credits: 3,
           description: "",
-          offeredIN: ["FALL 2025" as SemesterId],
-          prerequisites: [],
-          corequisites: [],
+          offeredIn: ["FALL 2025" as SemesterId],
+          rules: [],
           status: {
             status: "completed",
             semester: "FALL 2025" as SemesterId,
@@ -192,9 +191,8 @@ describe("timelineUtils", () => {
           title: "OOP II",
           credits: 3,
           description: "",
-          offeredIN: ["WINTER 2026" as SemesterId],
-          prerequisites: [],
-          corequisites: [],
+          offeredIn: ["WINTER 2026" as SemesterId],
+          rules: [],
           status: {
             status: "planned",
             semester: "WINTER 2026" as SemesterId,
@@ -205,9 +203,8 @@ describe("timelineUtils", () => {
           title: "Advanced Programming",
           credits: 4,
           description: "",
-          offeredIN: ["FALL 2026" as SemesterId],
-          prerequisites: [],
-          corequisites: [],
+          offeredIn: ["FALL 2026" as SemesterId],
+          rules: [],
           status: {
             status: "incomplete",
             semester: null,
@@ -215,14 +212,15 @@ describe("timelineUtils", () => {
         },
       };
 
-      const exemptionPool: Pool = {
+      const exemptionPool: CoursePoolData = {
         _id: "exemptions",
         name: "exemptions",
         creditsRequired: 0,
         courses: [],
+        rules: [],
       };
       const result = calculateEarnedCredits(courses, exemptionPool);
-      expect(result).toBe(3);
+      expect(result).toBe(6);
     });
   });
 
@@ -272,16 +270,23 @@ describe("timelineUtils", () => {
       title: "OOP I",
       credits: 3,
       description: "",
-      offeredIN: ["FALL 2025" as SemesterId],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: ["FALL 2025" as SemesterId],
+      rules: [],
       status: { status: "planned", semester: "FALL 2025" as SemesterId },
     };
 
     const baseState: TimelineState = {
       timelineName: "Test",
       degree: { name: "CS", totalCredits: 90, coursePools: [] },
-      pools: [],
+      pools: [
+        {
+          _id: "core-courses",
+          name: "Core Courses",
+          creditsRequired: 0,
+          courses: ["COMP 248", "COMP 249", "COMP 352"],
+          rules: [],
+        },
+      ],
       selectedCourse: null,
       history: [],
       future: [],
@@ -298,7 +303,7 @@ describe("timelineUtils", () => {
         "COMP 249": {
           ...baseCourse,
           id: "COMP 249",
-          status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+          status: { status: "incomplete", semester: null },
         },
       },
     };
@@ -325,21 +330,37 @@ describe("timelineUtils", () => {
     it("flags unmet prerequisites", () => {
       const course = {
         ...baseCourse,
-        prerequisites: [{ anyOf: ["COMP 249"] }],
+        rules: [{
+          type: "prerequisite",
+          level: "warning",
+          message: "At least 1 of the following courses must be completed previously: COMP 249.",
+          params: {
+            courseList: ["COMP 249"],
+            minCourses: 1
+          }
+        }],
       };
 
       const result = getCourseValidationMessage(course, baseState);
-      expect(result).toContain("Prerequisite");
+      expect(result).toContain("At least 1 of the following courses must be completed previously: COMP 249.");
     });
 
     it("flags unmet corequisites", () => {
       const course = {
         ...baseCourse,
-        corequisites: [{ anyOf: ["COMP 249"] }],
+        rules: [{
+          type: "corequisite",
+          level: "warning",
+          message: "At least 1 of the following courses must be completed previously or taken concurrently: COMP 249.",
+          params: {
+            courseList: ["COMP 249"],
+            minCourses: 1
+          }
+        }],
       };
 
       const result = getCourseValidationMessage(course, baseState);
-      expect(result).toContain("Corequisite");
+      expect(result).toContain("At least 1 of the following courses must be completed previously or taken concurrently: COMP 249.");
     });
 
     it("returns empty message when requisites are satisfied", () => {
@@ -359,18 +380,209 @@ describe("timelineUtils", () => {
 
       const course = {
         ...baseCourse,
-        prerequisites: [{ anyOf: ["COMP 249"] }],
+        rules: [{
+          type: "prerequisite",
+          level: "warning",
+          message: "At least 1 of the following courses must be completed previously: COMP 249.",
+          params: {
+            courseList: ["COMP 249"],
+            minCourses: 1
+          }
+        }],
       };
 
       expect(getCourseValidationMessage(course, state)).toBe("");
     });
 
-    it("ignores non-object requisite groups", () => {
+    it("ignores courses with empty rules array", () => {
       const course = {
         ...baseCourse,
-        prerequisites: "COMP 249",
-        corequisites: "COMP 249",
+        rules: [],
       };
+      expect(getCourseValidationMessage(course, baseState)).toBe("");
+    });
+
+    it("flags course that is not part of degree requirements", () => {
+      const state: TimelineState = {
+        ...baseState,
+        pools: [
+          {
+            _id: "core-courses",
+            name: "Core Courses",
+            creditsRequired: 0,
+            courses: ["COMP 249"],
+            rules: [],
+          },
+        ],
+      };
+
+      expect(getCourseValidationMessage(baseCourse, state)).toContain(
+        "Course is not part of the degree requirements.",
+      );
+    });
+
+    it("flags min credits from set when credits are below minimum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCreditsFromSet,
+            level: "warning",
+            message: "Need at least 6 credits from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], minCredits: 6 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("Need at least 6 credits from COMP 248/COMP 249.");
+    });
+
+    it("flags max credits from set when credits exceed maximum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MaxCreditsFromSet,
+            level: "warning",
+            message: "No more than 3 credits allowed from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], maxCredits: 3 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("No more than 3 credits allowed from COMP 248/COMP 249.");
+    });
+
+    it("flags min courses from set when course count is below minimum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCoursesFromSet,
+            level: "warning",
+            message: "Need at least 3 courses from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], minCourses: 3 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("Need at least 3 courses from COMP 248/COMP 249.");
+    });
+
+    it("flags max courses from set when course count exceeds maximum", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MaxCoursesFromSet,
+            level: "warning",
+            message: "No more than 1 course allowed from COMP 248/COMP 249.",
+            params: { courseList: ["COMP 352", "COMP 248", "COMP 249"], maxCourses: 1 },
+          } as Rule,
+        ],
+      };
+
+      const state: TimelineState = {
+        ...baseState,
+        courses: {
+          ...baseState.courses,
+          "COMP 352": {
+            ...baseCourse,
+            id: "COMP 352",
+            status: { status: "planned", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 248": {
+            ...baseState.courses["COMP 248"],
+            status: { status: "completed", semester: "FALL 2025" as SemesterId },
+          },
+          "COMP 249": {
+            ...baseState.courses["COMP 249"],
+            status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+          },
+        },
+      };
+
+      expect(getCourseValidationMessage(course, state)).toContain("No more than 1 course allowed from COMP 248/COMP 249.");
+    });
+
+    it("skips set-based rules when target course is not in courseList", () => {
+      const course: Course = {
+        ...baseCourse,
+        id: "COMP 352",
+        rules: [
+          {
+            type: RuleType.MinCoursesFromSet,
+            level: "warning",
+            message: "This should be skipped.",
+            params: { courseList: ["COMP 248", "COMP 249"], minCourses: 2 },
+          } as Rule,
+        ],
+      };
+
       expect(getCourseValidationMessage(course, baseState)).toBe("");
     });
   });
@@ -380,18 +592,8 @@ describe("timelineUtils", () => {
       timelineName: "Test",
       degree: { name: "CS", totalCredits: 90, coursePools: [] },
       pools: [
-        {
-          _id: "exemptions",
-          name: "exemptions",
-          creditsRequired: 0,
-          courses: [],
-        },
-        {
-          _id: "deficiencies",
-          name: "deficiencies",
-          creditsRequired: 0,
-          courses: [],
-        },
+        { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [], rules: [] },
+        { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [], rules: [] },
       ],
       courses: {
         "COMP 248": {
@@ -399,9 +601,8 @@ describe("timelineUtils", () => {
           title: "OOP",
           credits: 3,
           description: "",
-          offeredIN: [] as SemesterId[],
-          prerequisites: [],
-          corequisites: [],
+          offeredIn: [] as SemesterId[],
+          rules: [],
           status: { status: "completed", semester: "FALL 2025" as SemesterId },
         },
       },

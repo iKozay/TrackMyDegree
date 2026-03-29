@@ -7,12 +7,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 273; ENGR 213.",
-    "rules": {
-      "prereq": [["ENGR 213"], ["ELEC 273"]],
-      "coreq": [],
-      "not_taken": ["ELEC 264"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 273"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 273."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 264"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 264."
+      }
+    ]
   },
   {
     "_id": "ELEC 251",
@@ -22,12 +42,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 273; ENGR 233.",
-    "rules": {
-      "prereq": [["ENGR 233"], ["ELEC 273"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 273"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 273."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      }
+    ]
   },
   {
     "_id": "ELEC 273",
@@ -37,12 +69,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213.",
-    "rules": {
-      "prereq": [["PHYS 205"], ["ENGR 213"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 205."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      }
+    ]
   },
   {
     "_id": "ELEC 275",
@@ -52,12 +96,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: PHYS 205. The following course must be completed previously or concurrently: ENGR 213.",
-    "rules": {
-      "prereq": [["PHYS 205"], ["ENGR 213"]],
-      "coreq": [["ENGR 213"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 205."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 213."
+      }
+    ]
   },
   {
     "_id": "ELEC 311",
@@ -67,12 +123,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 273.",
-    "rules": {
-      "prereq": [["ELEC 273"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 273"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 273."
+      }
+    ]
   },
   {
     "_id": "ELEC 312",
@@ -82,12 +142,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 311; ELEC 242 or ELEC 364.",
-    "rules": {
-      "prereq": [["ELEC 311"], ["ELEC 242", "ELEC 364"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 242", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 242, ELEC 364."
+      }
+    ]
   },
   {
     "_id": "ELEC 321",
@@ -97,12 +169,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: CHEM 205; ENGR 213.",
-    "rules": {
-      "prereq": [["CHEM 205"], ["ENGR 213"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CHEM 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CHEM 205."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      }
+    ]
   },
   {
     "_id": "ELEC 331",
@@ -112,12 +196,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 251, ELEC 273.",
-    "rules": {
-      "prereq": [["ELEC 273"], ["ELEC 251"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 251"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 251."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 273"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 273."
+      }
+    ]
   },
   {
     "_id": "ELEC 342",
@@ -127,12 +223,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 242 or ELEC 264.",
-    "rules": {
-      "prereq": [["ELEC 242", "ELEC 264"]],
-      "coreq": [],
-      "not_taken": ["ELEC 364"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 242", "ELEC 264"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 242, ELEC 264."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 364"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 364."
+      }
+    ]
   },
   {
     "_id": "ELEC 351",
@@ -142,12 +250,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 242, ELEC 251.",
-    "rules": {
-      "prereq": [["ELEC 242"], ["ELEC 251"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 242"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 242."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 251"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 251."
+      }
+    ]
   },
   {
     "_id": "ELEC 365",
@@ -157,12 +277,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
-    "rules": {
-      "prereq": [["ENGR 213"], ["ENGR 233"]],
-      "coreq": [],
-      "not_taken": ["ELEC 261", "ELEC 262"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 261", "ELEC 362"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 261, ELEC 362."
+      }
+    ]
   },
   {
     "_id": "ELEC 366",
@@ -172,12 +312,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 352; ELEC 342 or ELEC 364; ENGR 371.",
-    "rules": {
-      "prereq": [["COEN 352"], ["ELEC 342", "ELEC 364"], ["ENGR 371"]],
-      "coreq": [],
-      "not_taken": ["COEN 366", "COEN 445", "ELEC 463"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 352."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 366", "COEN 445", "ELEC 463"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 366, COEN 445, ELEC 463."
+      }
+    ]
   },
   {
     "_id": "ELEC 367",
@@ -187,12 +355,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 342 or ELEC 364; ENGR 371.",
-    "rules": {
-      "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
-      "coreq": [],
-      "not_taken": ["ELEC 462"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 462"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 462."
+      }
+    ]
   },
   {
     "_id": "ELEC 372",
@@ -202,12 +390,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 242 or ELEC 364.",
-    "rules": {
-      "prereq": [["ELEC 242", "ELEC 364"]],
-      "coreq": [],
-      "not_taken": ["AERO 371", "ENGR 372", "MECH 371"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 242", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 242, ELEC 364."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["AERO 371", "ENGR 372", "MECH 371"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: AERO 371, ENGR 372, MECH 371."
+      }
+    ]
   },
   {
     "_id": "ELEC 390",
@@ -217,12 +417,39 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 45 credits in the BEng (Electrical) prior to enrolling, including the following courses: COEN 352; ELEC 311; ENGR 290.",
-    "rules": {
-      "prereq": [["COEN 352"], ["ELEC 311"], ["ENGR 290"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 45.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 352."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 290"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 290."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 45.0
+        },
+        "message": "Students must complete at least 45.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ELEC 413",
@@ -232,12 +459,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 312.",
-    "rules": {
-      "prereq": [["ELEC 312"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 312."
+      }
+    ]
   },
   {
     "_id": "ELEC 421",
@@ -247,12 +478,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 321.",
-    "rules": {
-      "prereq": [["ELEC 321"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 321."
+      }
+    ]
   },
   {
     "_id": "ELEC 422",
@@ -262,12 +497,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 421.",
-    "rules": {
-      "prereq": [["ELEC 421"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 421"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 421."
+      }
+    ]
   },
   {
     "_id": "ELEC 423",
@@ -277,12 +516,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 312.",
-    "rules": {
-      "prereq": [["ELEC 312"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 312."
+      }
+    ]
   },
   {
     "_id": "ELEC 424",
@@ -292,12 +535,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 311, ELEC 321.",
-    "rules": {
-      "prereq": [["ELEC 321"], ["ELEC 311"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 321."
+      }
+    ]
   },
   {
     "_id": "ELEC 425",
@@ -307,12 +562,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 321, ELEC 351.",
-    "rules": {
-      "prereq": [["ELEC 351"], ["ELEC 321"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 321."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      }
+    ]
   },
   {
     "_id": "ELEC 430",
@@ -322,12 +589,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 431",
@@ -337,12 +608,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 432",
@@ -352,12 +627,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331, ELEC 372.",
-    "rules": {
-      "prereq": [["ELEC 372"], ["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372."
+      }
+    ]
   },
   {
     "_id": "ELEC 433",
@@ -367,12 +654,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 311, ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"], ["ELEC 311"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 434",
@@ -382,12 +681,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 435",
@@ -397,12 +700,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 436",
@@ -412,12 +719,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 437",
@@ -427,12 +738,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": ["ELEC 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 498."
+      }
+    ]
   },
   {
     "_id": "ELEC 438",
@@ -442,12 +765,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 439",
@@ -457,12 +784,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 440",
@@ -472,12 +803,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 331, ELEC 372.",
-    "rules": {
-      "prereq": [["ELEC 331"], ["ELEC 372"]],
-      "coreq": [],
-      "not_taken": ["ELEC 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 498."
+      }
+    ]
   },
   {
     "_id": "ELEC 441",
@@ -487,12 +838,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 342 or ELEC 364.",
-    "rules": {
-      "prereq": [["ELEC 342", "ELEC 364"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      }
+    ]
   },
   {
     "_id": "ELEC 442",
@@ -502,12 +857,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 342 or ELEC 364; ENGR 371.",
-    "rules": {
-      "prereq": [["ELEC 342", "ELEC 364"], ["ENGR 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      }
+    ]
   },
   {
     "_id": "ELEC 443",
@@ -517,12 +884,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 331.",
-    "rules": {
-      "prereq": [["ELEC 331"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 331"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 331."
+      }
+    ]
   },
   {
     "_id": "ELEC 444",
@@ -532,12 +903,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 342 or ELEC 364.",
-    "rules": {
-      "prereq": [["ELEC 342", "ELEC 364"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      }
+    ]
   },
   {
     "_id": "ELEC 445",
@@ -547,12 +922,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 342.",
-    "rules": {
-      "prereq": [["ELEC 342"]],
-      "coreq": [],
-      "not_taken": ["ELEC 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 498."
+      }
+    ]
   },
   {
     "_id": "ELEC 446",
@@ -562,12 +949,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 431.",
-    "rules": {
-      "prereq": [["ELEC 431"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 431"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 431."
+      }
+    ]
   },
   {
     "_id": "ELEC 447",
@@ -577,12 +968,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "ELEC 342",
-    "rules": {
-      "prereq": [["ELEC 342"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342."
+      }
+    ]
   },
   {
     "_id": "ELEC 453",
@@ -592,12 +987,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
-    "rules": {
-      "prereq": [["ELEC 351"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      }
+    ]
   },
   {
     "_id": "ELEC 455",
@@ -607,12 +1006,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
-    "rules": {
-      "prereq": [["ELEC 351"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      }
+    ]
   },
   {
     "_id": "ELEC 456",
@@ -622,12 +1025,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
-    "rules": {
-      "prereq": [["ELEC 351"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      }
+    ]
   },
   {
     "_id": "ELEC 457",
@@ -637,12 +1044,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 453.",
-    "rules": {
-      "prereq": [["ELEC 453"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 453"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 453."
+      }
+    ]
   },
   {
     "_id": "ELEC 458",
@@ -652,12 +1063,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 351.",
-    "rules": {
-      "prereq": [["ELEC 351"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      }
+    ]
   },
   {
     "_id": "ELEC 464",
@@ -667,12 +1082,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 367.",
-    "rules": {
-      "prereq": [["ELEC 367"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 367"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 367."
+      }
+    ]
   },
   {
     "_id": "ELEC 465",
@@ -682,12 +1101,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 366 or COEN 445 or ELEC 366 or ELEC 463.",
-    "rules": {
-      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
-      "coreq": [],
-      "not_taken": ["SOEN 321"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 366, COEN 445, ELEC 366, ELEC 463."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["SOEN 321"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: SOEN 321."
+      }
+    ]
   },
   {
     "_id": "ELEC 466",
@@ -697,12 +1128,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 351, ELEC 367.",
-    "rules": {
-      "prereq": [["ELEC 351"], ["ELEC 367"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 351."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 367"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 367."
+      }
+    ]
   },
   {
     "_id": "ELEC 470",
@@ -712,12 +1155,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 363 or ELEC 367.",
-    "rules": {
-      "prereq": [["ELEC 363", "ELEC 367"]],
-      "coreq": [],
-      "not_taken": ["ELEC 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 363", "ELEC 367"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 363, ELEC 367."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 498."
+      }
+    ]
   },
   {
     "_id": "ELEC 472",
@@ -727,12 +1182,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 366 or COEN 445 or ELEC 366 or ELEC 463.",
-    "rules": {
-      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 366, COEN 445, ELEC 366, ELEC 463."
+      }
+    ]
   },
   {
     "_id": "ELEC 473",
@@ -742,12 +1201,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ELEC 372; ENGR 371.",
-    "rules": {
-      "prereq": [["ELEC 372"], ["ENGR 371"]],
-      "coreq": [],
-      "not_taken": ["ELEC 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 498."
+      }
+    ]
   },
   {
     "_id": "ELEC 481",
@@ -757,12 +1236,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 371 or ELEC 372 or MECH 371.",
-    "rules": {
-      "prereq": [["AERO 371", "ELEC 372", "MECH 371"]],
-      "coreq": [],
-      "not_taken": ["ENGR 471"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "ELEC 372", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, ELEC 372, MECH 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 471"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 471."
+      }
+    ]
   },
   {
     "_id": "ELEC 482",
@@ -772,12 +1263,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 391 or EMAT 391.",
-    "rules": {
-      "prereq": [["ENGR 391", "EMAT 391"]],
-      "coreq": [],
-      "not_taken": ["ENGR 472"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391", "EMAT 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391, EMAT 391."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 472"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 472."
+      }
+    ]
   },
   {
     "_id": "ELEC 483",
@@ -787,12 +1290,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: AERO 371 or ELEC 372; ELEC 342 or ELEC 364.",
-    "rules": {
-      "prereq": [["AERO 371", "ELEC 372"], ["ELEC 342", "ELEC 364"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "ELEC 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, ELEC 372."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      }
+    ]
   },
   {
     "_id": "ELEC 490",
@@ -802,12 +1317,55 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 301, ENGR 371; COEN 311; ELEC 342 or 364; ELEC 390. Students must complete a minimum of 75 credits in the BEng (Electrical), as well as the C.Edge work term or one co-op work term prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 311"], ["ELEC 342", "ELEC 364"], ["ELEC 390"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 342, ELEC 364."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 390."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ELEC 498",
@@ -817,11 +1375,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

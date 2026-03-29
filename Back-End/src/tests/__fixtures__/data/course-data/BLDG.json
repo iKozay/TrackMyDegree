@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "BLDG 341",
@@ -22,12 +17,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BCEE 231.",
-    "rules": {
-      "prereq": [["BCEE 231"]],
-      "coreq": [["BCEE 231"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BCEE 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BCEE 231."
+      }
+    ]
   },
   {
     "_id": "BLDG 365",
@@ -37,12 +36,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 251.",
-    "rules": {
-      "prereq": [["ENGR 251"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 251"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 251."
+      }
+    ]
   },
   {
     "_id": "BLDG 366",
@@ -52,12 +55,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 243.",
-    "rules": {
-      "prereq": [["ENGR 243"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      }
+    ]
   },
   {
     "_id": "BLDG 371",
@@ -67,12 +74,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 365.",
-    "rules": {
-      "prereq": [["BLDG 365"]],
-      "coreq": [["BLDG 365"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 365"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 365."
+      }
+    ]
   },
   {
     "_id": "BLDG 390",
@@ -82,12 +93,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BLDG 341; ENCS 282. The following course must be completed previously or concurrently: BCEE 344.",
-    "rules": {
-      "prereq": [["BLDG 341"], ["ENCS 282"], ["BCEE 344"]],
-      "coreq": [["BCEE 344"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 341."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BCEE 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BCEE 344."
+      }
+    ]
   },
   {
     "_id": "BLDG 462",
@@ -97,12 +128,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 321.",
-    "rules": {
-      "prereq": [["CIVI 321"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 321."
+      }
+    ]
   },
   {
     "_id": "BLDG 463",
@@ -112,12 +147,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 365.",
-    "rules": {
-      "prereq": [["BLDG 365"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 365"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 365."
+      }
+    ]
   },
   {
     "_id": "BLDG 465",
@@ -127,12 +166,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 365.",
-    "rules": {
-      "prereq": [["BLDG 365"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 365"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 365."
+      }
+    ]
   },
   {
     "_id": "BLDG 471",
@@ -142,12 +185,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 371. The following course must be completed previously or concurrently: BLDG 476.",
-    "rules": {
-      "prereq": [["BLDG 371"], ["BLDG 476"]],
-      "coreq": [["BLDG 476"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 371."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 476"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 476."
+      }
+    ]
   },
   {
     "_id": "BLDG 472",
@@ -157,12 +212,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 471.",
-    "rules": {
-      "prereq": [["BLDG 471"]],
-      "coreq": [["BLDG 471"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 471"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 471."
+      }
+    ]
   },
   {
     "_id": "BLDG 473",
@@ -172,12 +231,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 366.",
-    "rules": {
-      "prereq": [["BLDG 366"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 366"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 366."
+      }
+    ]
   },
   {
     "_id": "BLDG 474",
@@ -187,12 +250,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 366.",
-    "rules": {
-      "prereq": [["BLDG 366"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 366"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 366."
+      }
+    ]
   },
   {
     "_id": "BLDG 475",
@@ -202,12 +269,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 371.",
-    "rules": {
-      "prereq": [["BLDG 371"]],
-      "coreq": [["BLDG 371"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 371."
+      }
+    ]
   },
   {
     "_id": "BLDG 476",
@@ -217,12 +288,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BLDG 365; ENGR 361.",
-    "rules": {
-      "prereq": [["BLDG 365"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 365"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 365."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      }
+    ]
   },
   {
     "_id": "BLDG 477",
@@ -232,12 +315,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 371.",
-    "rules": {
-      "prereq": [["BLDG 371"]],
-      "coreq": [["BLDG 371"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 371."
+      }
+    ]
   },
   {
     "_id": "BLDG 479",
@@ -247,12 +334,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 471.",
-    "rules": {
-      "prereq": [["BLDG 471"]],
-      "coreq": [["BLDG 471"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 471"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 471."
+      }
+    ]
   },
   {
     "_id": "BLDG 480",
@@ -262,12 +353,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "BLDG 481",
@@ -277,12 +363,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "BLDG 482",
@@ -292,12 +373,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete 20 courses in the BEng program prior to enrolling.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "BLDG 483",
@@ -307,12 +383,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "BLDG 484",
@@ -322,12 +393,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BLDG 463.",
-    "rules": {
-      "prereq": [["BLDG 463"]],
-      "coreq": [["BLDG 463"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BLDG 463"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BLDG 463."
+      }
+    ]
   },
   {
     "_id": "BLDG 490",
@@ -337,12 +412,63 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 75 credits in the BEng (Bldg) program prior to enrolling, including ENCS 282; BCEE 344, BCEE 345; BLDG 371, BLDG 390; ENGR 301.",
-    "rules": {
-      "prereq": [["ENCS 282"], ["BCEE 344"], ["BCEE 345"], ["BLDG 371"], ["BLDG 390"], ["ENGR 301"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 344."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 345"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 345."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 390."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "BLDG 498",
@@ -352,11 +478,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

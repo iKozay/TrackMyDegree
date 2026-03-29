@@ -140,6 +140,7 @@ const TimeLinePage: React.FC = () => {
                   : null
               }
               courses={state.courses}
+              semesters={state.semesters}
               onRemoveCourse={actions.removeFromSemester}
               onChangeCourseStatus={actions.changeCourseStatus}
             />

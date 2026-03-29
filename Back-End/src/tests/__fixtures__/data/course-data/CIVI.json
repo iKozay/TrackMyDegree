@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "CIVI 231",
@@ -22,12 +17,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "CIVI 321",
@@ -37,12 +27,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CHEM 205 or equivalent.",
-    "rules": {
-      "prereq": [["CHEM 205"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CHEM 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CHEM 205."
+      }
+    ]
   },
   {
     "_id": "CIVI 341",
@@ -52,12 +46,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: BCEE 231.",
-    "rules": {
-      "prereq": [["BCEE 231"]],
-      "coreq": [["BCEE 231"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BCEE 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BCEE 231."
+      }
+    ]
   },
   {
     "_id": "CIVI 361",
@@ -67,12 +65,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 361.",
-    "rules": {
-      "prereq": [["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 372",
@@ -82,12 +84,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BCEE 371; CIVI 341.",
-    "rules": {
-      "prereq": [["BCEE 371"], ["CIVI 341"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 341."
+      }
+    ]
   },
   {
     "_id": "CIVI 381",
@@ -97,12 +111,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 361, ENGR 391.",
-    "rules": {
-      "prereq": [["ENGR 391"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391."
+      }
+    ]
   },
   {
     "_id": "CIVI 382",
@@ -112,12 +138,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: CIVI 381; ENGR 391 or EMAT 391.",
-    "rules": {
-      "prereq": [["CIVI 381"], ["ENGR 391", "EMAT 391"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 381"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 381."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391", "EMAT 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391, EMAT 391."
+      }
+    ]
   },
   {
     "_id": "CIVI 390",
@@ -127,12 +165,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENCS 282. The following courses must be completed previously or concurrently: CIVI 361; BCEE 344; BCEE 345.",
-    "rules": {
-      "prereq": [["ENCS 282"], ["CIVI 361"], ["BCEE 344"], ["BCEE 345"]],
-      "coreq": [["CIVI 361"], ["BCEE 344"], ["BCEE 345"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: CIVI 361."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BCEE 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BCEE 344."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["BCEE 345"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: BCEE 345."
+      }
+    ]
   },
   {
     "_id": "CIVI 435",
@@ -142,12 +208,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 432.",
-    "rules": {
-      "prereq": [["BCEE 432"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 432"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 432."
+      }
+    ]
   },
   {
     "_id": "CIVI 437",
@@ -157,12 +227,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 432.",
-    "rules": {
-      "prereq": [["BCEE 432"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 432"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 432."
+      }
+    ]
   },
   {
     "_id": "CIVI 440",
@@ -172,12 +246,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 231. Students must complete 75 credits in the program prior to enrolling.",
-    "rules": {
-      "prereq": [["BCEE 231"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 231."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "CIVI 453",
@@ -187,12 +272,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 345. The following course must be completed previously or concurrently: CIVI 390 or BLDG 390.",
-    "rules": {
-      "prereq": [["BCEE 345"], ["CIVI 390", "BLDG 390"]],
-      "coreq": [["CIVI 390", "BLDG 390"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 345"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 345."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["CIVI 390", "BLDG 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: CIVI 390, BLDG 390."
+      }
+    ]
   },
   {
     "_id": "CIVI 454",
@@ -202,12 +299,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 344. The following course must be completed previously or concurrently: CIVI 390 or BLDG 390.",
-    "rules": {
-      "prereq": [["BCEE 344"], ["CIVI 390", "BLDG 390"]],
-      "coreq": [["CIVI 390", "BLDG 390"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 344."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["CIVI 390", "BLDG 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: CIVI 390, BLDG 390."
+      }
+    ]
   },
   {
     "_id": "CIVI 464",
@@ -217,12 +326,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 465",
@@ -232,12 +345,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 466",
@@ -247,12 +364,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 467",
@@ -262,12 +383,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 468",
@@ -277,12 +402,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 469",
@@ -292,12 +421,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously:CIVI 361.",
-    "rules": {
-      "prereq": [["CIVI 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      }
+    ]
   },
   {
     "_id": "CIVI 471",
@@ -307,12 +440,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BCEE 371; CIVI 321.",
-    "rules": {
-      "prereq": [["BCEE 371"], ["CIVI 321"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 321."
+      }
+    ]
   },
   {
     "_id": "CIVI 474",
@@ -322,12 +467,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 372.",
-    "rules": {
-      "prereq": [["CIVI 372"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 372."
+      }
+    ]
   },
   {
     "_id": "CIVI 483",
@@ -337,12 +486,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 381.",
-    "rules": {
-      "prereq": [["CIVI 381"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 381"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 381."
+      }
+    ]
   },
   {
     "_id": "CIVI 484",
@@ -352,12 +505,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: CIVI 381.",
-    "rules": {
-      "prereq": [["CIVI 381"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 381"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 381."
+      }
+    ]
   },
   {
     "_id": "CIVI 490",
@@ -367,12 +524,55 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 75 credits in the BEng (Civil) including the following courses: ENGR 301; CIVI 361, CIVI 390; BCEE 344, BCEE 345.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["CIVI 361"], ["CIVI 390"], ["BCEE 344"], ["BCEE 345"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["CIVI 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: CIVI 390."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 344."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 345"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 345."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "CIVI 498",
@@ -382,11 +582,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]
