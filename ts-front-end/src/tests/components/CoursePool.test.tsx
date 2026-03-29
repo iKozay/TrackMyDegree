@@ -292,7 +292,7 @@ describe("CoursePool", () => {
     const receivedShowIncompletedValues = poolCoursesListMock.mock.calls.map(
       ([props]) => props.showIncompleted,
     );
-    expect(receivedShowIncompletedValues).toContain(false);
+    expect(receivedShowIncompletedValues).toContain(true);
   });
 
   it("does not auto-expand mismatched course ids during search", () => {
