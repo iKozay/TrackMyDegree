@@ -88,6 +88,7 @@ export const options = {
         job_time_to_done_ms:                                ["p(95)<8000"],
         "http_req_duration{name:POST /api/upload/file}":    ["p(95)<500"],
         "http_req_duration{name:GET /api/jobs/:jobId}":     ["p(95)<2000"],
+        "http_req_duration{name:GET /api/timeline/:id}":    ["p(95)<2000"],
         "http_req_duration{name:POST /api/timeline}":       ["p(95)<1000"],
         "http_req_duration{name:PUT /api/timeline/:id}":    ["p(95)<350"],
         "http_req_duration{name:DELETE /api/timeline/:id}": ["p(95)<550"],
