@@ -29,9 +29,8 @@ const baseCourse = (status: CourseStatusValue): Course => ({
   title: "Object-Oriented Programming I",
   credits: 3,
   description: "Intro OOP",
-  offeredIN: [] as SemesterId[],
-  prerequisites: [],
-  corequisites: [],
+  offeredIn: [] as SemesterId[],
+  rules: [],
   status: {
     status,
     semester: null,

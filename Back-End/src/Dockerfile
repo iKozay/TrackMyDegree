@@ -3,30 +3,34 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Copy workspace configuration
+COPY package.json ./
+COPY package-lock.json ./
 COPY tsconfig.base.json ./
+
+# Copy shared module
 COPY shared ./shared
 
+# Copy backend source
 COPY Back-End/src/package*.json ./Back-End/src/
 COPY Back-End/src/tsconfig.json ./Back-End/src/
 COPY Back-End/src ./Back-End/src
 
-WORKDIR /app/Back-End/src
-
+# Install workspace dependencies (this will link the shared module)
 RUN npm ci --ignore-scripts
 
-RUN npx ts-patch install -s
-
+# Build shared module first
+WORKDIR /app/shared
 RUN npm run build
 
-# ---------- Deps stage ----------
-FROM node:22-alpine AS deps
+# Build backend
+WORKDIR /app/Back-End/src
+RUN npx ts-patch install -s
+RUN npm run build
 
+# Create required directories and set permissions
 WORKDIR /app
-
-COPY Back-End/src/package*.json ./
-
-RUN npm ci --omit=dev --ignore-scripts \
-    && mkdir -p /app/data /app/tmp/pdf-uploads \
+RUN mkdir -p /app/data /app/tmp/pdf-uploads \
     && chown -R 65532:65532 /app/data /app/tmp
 
 # ---------- Runtime stage ----------
@@ -34,12 +38,15 @@ FROM gcr.io/distroless/nodejs22-debian12:nonroot
 
 WORKDIR /app
 
-COPY --from=deps    --chown=65532:65532 /app/node_modules ./node_modules
-COPY --from=deps    --chown=65532:65532 /app/data         ./data
-COPY --from=deps    --chown=65532:65532 /app/tmp          ./tmp
+# Copy everything from builder - this includes node_modules with workspace links
+COPY --from=builder --chown=65532:65532 /app/node_modules ./node_modules
+COPY --from=builder --chown=65532:65532 /app/Back-End/src/node_modules ./node_modules
+COPY --from=builder --chown=65532:65532 /app/shared       ./shared
 COPY --from=builder --chown=65532:65532 /app/Back-End/src/dist ./dist
+COPY --from=builder --chown=65532:65532 /app/data         ./data
+COPY --from=builder --chown=65532:65532 /app/tmp          ./tmp
 COPY --from=builder --chown=65532:65532 /app/Back-End/src/public ./dist/Back-End/src/public
 
 EXPOSE 8000
 
-CMD ["dist/Back-End/src/index.js"]
+CMD ["dist/index.js"]

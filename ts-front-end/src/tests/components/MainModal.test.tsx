@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MainModal } from "../../components/MainModal";
-import type { Pool, CourseMap } from "../../types/timeline.types";
+import type { CoursePoolData } from "@trackmydegree/shared";
+import type { CourseMap } from "../../types/timeline.types";
 
 vi.mock("../../components/BaseModal", () => ({
   BaseModal: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
@@ -41,12 +42,13 @@ describe("MainModal", () => {
   const mockOnAdd = vi.fn();
   const mockOnClose = vi.fn();
 
-  const mockPools: Pool[] = [
+  const mockPools: CoursePoolData[] = [
     {
       _id: "pool-cs-core",
       name: "Computer Science Core",
       courses: ["COMP 248", "COMP 249"],
       creditsRequired: 30,
+      rules: [],
     },
   ];
 
@@ -56,9 +58,8 @@ describe("MainModal", () => {
       title: "OOP I",
       description: "Test",
       credits: 3,
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
   };

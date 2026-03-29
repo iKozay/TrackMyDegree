@@ -11,12 +11,12 @@ import type {
   SemesterId,
   TimelineJobResponse,
   JobStatus,
-  Pool,
   CourseMap,
   SemesterList,
   CourseStatusValue,
   Degree,
 } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 import { api } from "../api/http-api-client.ts";
 
 type TimelineDispatch = Dispatch<TimelineActionType>;
@@ -25,7 +25,7 @@ export interface TimelineActions {
   initTimelineState: (
     timelineName: string,
     degree: Degree,
-    pools: Pool[],
+    pools: CoursePoolData[],
     courses: CourseMap,
     semesters: SemesterList,
   ) => void;

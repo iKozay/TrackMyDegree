@@ -12,13 +12,6 @@ export interface Degree {
 
 export type CourseCode = string;
 
-export interface Pool {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses: CourseCode[];
-}
-
 export type Term = "FALL" | "WINTER" | "SUMMER"; // TODO: add FALL/WINTER
 export type SemesterId = `${Term} ${number}`; // e.g. "FALL 2025"
 
@@ -33,11 +26,6 @@ export type Semester = {
 };
 
 export type SemesterList = Semester[];
-
-// One “group” of requisites like { anyOf: ["COMP 248", "COMP 249"] }
-export interface RequisiteGroup {
-  anyOf: string[]; // can be course codes or special strings like "Cegep Mathematics 103"
-}
 
 // Course status
 export type CourseStatusValue = "incomplete" | "completed" | "planned";
@@ -54,11 +42,9 @@ export interface Course {
   credits: number | null;
   description: string;
 
-  // keeping the backend field name as-is; in UI you might rename to `offeredIn`
-  offeredIN: SemesterId[];
+  offeredIn: SemesterId[];
 
-  prerequisites: RequisiteGroup[] | string;
-  corequisites: RequisiteGroup[] | string;
+  rules: Rule[];
 
   status: CourseStatus;
 }
@@ -69,7 +55,7 @@ export type CourseMap = Record<CourseCode, Course>;
 export interface TimelineResult {
   timelineName?: string;
   degree: Degree;
-  pools: Pool[];
+  pools: CoursePoolData[];
   semesters: SemesterList;
   courses: CourseMap;
 }
@@ -93,7 +79,7 @@ type modalState = {
 export interface TimelineState {
   timelineName: string;
   degree: Degree;
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   semesters: SemesterList;
   selectedCourse: CourseCode | null;
@@ -110,8 +96,6 @@ export type TimelinePartialUpdate = {
   timelineName?: string;
 };
 
-import { TimelineActionConstants } from "./actions";
-
 /**
  * Typed union of all actions the reducer understands.
  */
@@ -121,7 +105,7 @@ export type TimelineActionType =
       payload: {
         timelineName: string;
         degree: Degree;
-        pools: Pool[];
+        pools: CoursePoolData[];
         courses: CourseMap;
         semesters: SemesterList;
       };

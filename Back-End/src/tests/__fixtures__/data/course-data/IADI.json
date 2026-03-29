@@ -7,12 +7,15 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 24 credits within their respective Engineering program prior to enrolling.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 24.0
-    }
+    "rules": [
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 24.0
+        },
+        "message": "Students must complete at least 24.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "IADI 401",
@@ -22,12 +25,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: IADI 301 with a grade of Pass.",
-    "rules": {
-      "prereq": [["IADI 301"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["IADI 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: IADI 301."
+      }
+    ]
   },
   {
     "_id": "IADI 420",
@@ -37,11 +44,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

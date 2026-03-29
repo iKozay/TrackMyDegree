@@ -58,9 +58,8 @@ describe("DroppableSemester", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "OOP I",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -68,9 +67,8 @@ describe("DroppableSemester", () => {
       title: "System Hardware",
       credits: 4,
       description: "Hardware",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };

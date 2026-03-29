@@ -4,7 +4,10 @@ import re
 from unidecode import unidecode
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from models import CourseRules
+from models import (Rule, RuleType,
+                    MinCoursesFromSetParams, MaxCoursesFromSetParams,
+                    CourseAdditionParams, CourseRemovalParams, CourseSubstitutionParams, MinCreditsCompletedParams,
+                    OverrideCoursePoolCoursesParams)
 
 SPACE_REPLACEMENT = r'\1 \2'
 REGEX_ALL = r".*"
@@ -101,13 +104,14 @@ def expand_course_shorthand(match):
 def extract_prereq_coreq_from_sentence(sentences):
     prereq_parts = []
     coreq_parts = []
+    prereq_or_coreq_parts = []
     patterns = [
         # (pattern, action)
-        (r'must be completed? previously or concurrently[: ]+([^.]+)', lambda m: (m, m)),
-        (r'must be completed? previously[: ]+([^.]+)', lambda m: (m, None)),
-        (r'must be completed? concurrently[: ]+([^.]+)', lambda m: (None, m)),
-        (r'by passing ([A-Z]{4}\s+\d{3})', lambda m: (m, None)),
-        (r'must complete.*?including the following courses?[: ]+([^.]+)', lambda m: (m, None)),
+        (r'must be completed? previously or concurrently[: ]+([^.]+)', lambda m: (None, None, m)),
+        (r'must be completed? previously[: ]+([^.]+)', lambda m: (m, None, None)),
+        (r'must be completed? concurrently[: ]+([^.]+)', lambda m: (None, m, None)),
+        (r'by passing ([A-Z]{4}\s+\d{3})', lambda m: (m, None, None)),
+        (r'must complete.*?including the following courses?[: ]+([^.]+)', lambda m: (m, None, None)),
     ]
     for sentence in sentences:
         sentence = sentence.strip()
@@ -118,25 +122,27 @@ def extract_prereq_coreq_from_sentence(sentences):
             if match:
                 course_text = clean_text(match.group(1))
                 if course_text:
-                    prereq_val, coreq_val = act(course_text)
+                    prereq_val, coreq_val, prereq_or_coreq_val = act(course_text)
                     if prereq_val:
                         prereq_parts.append(prereq_val)
                     if coreq_val:
                         coreq_parts.append(coreq_val)
+                    if prereq_or_coreq_val:
+                        prereq_or_coreq_parts.append(prereq_or_coreq_val)
                 break
-    return prereq_parts, coreq_parts
-    
+    return prereq_parts, coreq_parts, prereq_or_coreq_parts
+
 def parse_prereq_coreq(text):
     """Extract prerequisites and corequisites from text."""
     if not text:
-        return "", ""
+        return "", "", ""
         
     # Split the text by sentences (periods followed by capital letters or end)
     sentences = re.split(r'\.\s*(?=[A-Z]|$)', text)
-    prereq_parts, coreq_parts = extract_prereq_coreq_from_sentence(sentences)
+    prereq_parts, coreq_parts, prereq_or_coreq_parts = extract_prereq_coreq_from_sentence(sentences)
  
     # if no previously/concurrently patterns found, assume all are prerequisites
-    if not prereq_parts and not coreq_parts:
+    if not prereq_parts and not coreq_parts and not prereq_or_coreq_parts:
         # Avoid adding eligibility statements as prerequisites (see ENGR 490)
         if not re.search(r'must be eligible to register in[: ]+([^:]+)', text, re.I):
             prereq_parts.append(text)
@@ -144,8 +150,8 @@ def parse_prereq_coreq(text):
     # Join all parts with semicolons to separate different requirements
     prereq = "; ".join(prereq_parts)
     coreq = "; ".join(coreq_parts)
-    
-    return prereq.strip(), coreq.strip()
+    prereq_or_coreq = "; ".join(prereq_or_coreq_parts)
+    return prereq.strip(), coreq.strip(), prereq_or_coreq.strip()
 
 def make_prereq_coreq_into_array(s):
     if not s or not s.strip():
@@ -166,40 +172,40 @@ def make_prereq_coreq_into_array(s):
     
     for main_group in main_groups:
         all_courses = re.findall(COURSE_REGEX, main_group)
-        
+
         if not all_courses:
             continue
-        
-        # Check if this group contains 'or' keywords (alternatives)
-        if re.search(r'\bor\b', main_group, re.I):
-            # Split by 'or' to find alternatives
-            or_parts = re.split(r'\s+or\s+', main_group, flags=re.I)
-            alternatives = []
-            
-            for part in or_parts:
-                # Find courses in this part
-                part_courses = re.findall(COURSE_REGEX, part)
-                alternatives.extend(part_courses)
-            
-            if alternatives:
-                # Remove duplicates while preserving order
-                unique_alternatives = []
-                for alt in alternatives:
-                    if alt not in unique_alternatives:
-                        unique_alternatives.append(alt)
-                result.append(unique_alternatives)
-        else:
-            # No 'or' in this group - check if comma-separated individual requirements
-            if ',' in main_group:
-                # Split by commas for individual requirements
-                comma_parts = [part.strip() for part in main_group.split(',') if part.strip()]
-                for part in comma_parts:
-                    part_courses = re.findall(COURSE_REGEX, part)
-                    for course in part_courses:
-                        result.append([course])
+
+        # Split by commas first to separate distinct requirements
+        comma_parts = [part.strip() for part in main_group.split(',') if part.strip()]
+
+        for comma_part in comma_parts:
+            part_courses = re.findall(COURSE_REGEX, comma_part)
+
+            if not part_courses:
+                continue
+
+            # Check if this part contains 'or' keywords (alternatives within this requirement)
+            if re.search(r'\bor\b', comma_part, re.I):
+                # Split by 'or' to find alternatives
+                or_parts = re.split(r'\s+or\s+', comma_part, flags=re.I)
+                alternatives = []
+
+                for or_part in or_parts:
+                    # Find courses in this part
+                    or_part_courses = re.findall(COURSE_REGEX, or_part)
+                    alternatives.extend(or_part_courses)
+
+                if alternatives:
+                    # Remove duplicates while preserving order
+                    unique_alternatives = []
+                    for alt in alternatives:
+                        if alt not in unique_alternatives:
+                            unique_alternatives.append(alt)
+                    result.append(unique_alternatives)
             else:
-                # Single requirement or multiple courses in same requirement
-                for course in all_courses:
+                # No 'or' in this part - each course is a separate requirement
+                for course in part_courses:
                     result.append([course])
     
     return result
@@ -209,6 +215,9 @@ def get_not_taken(s):
         return []
     
     tokens = re.findall(COURSE_REGEX, s)
+    # remove duplicates while preserving order
+    seen = set()
+    tokens = [x for x in tokens if not (x in seen or seen.add(x))]
     return tokens
 
 def parse_minimum_credits(s):
@@ -217,14 +226,53 @@ def parse_minimum_credits(s):
         return float(match.group(1))
     return 0.0
 
-def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> CourseRules:
-    prereq, coreq = parse_prereq_coreq(prereq_coreq_text)
-    return CourseRules(
-        prereq=make_prereq_coreq_into_array(prereq),
-        coreq=make_prereq_coreq_into_array(coreq),
-        not_taken=get_not_taken(notes_text),
-        min_credits=parse_minimum_credits(prereq_coreq_text)
-    )
+def parse_course_rules(prereq_coreq_text: str, notes_text: str) -> list[Rule]:
+    prereq_text, coreq_text, prereq_or_coreq_text = parse_prereq_coreq(prereq_coreq_text)
+
+    prereq, coreq, pre_coreq = make_prereq_coreq_into_array(prereq_text), make_prereq_coreq_into_array(coreq_text), make_prereq_coreq_into_array(prereq_or_coreq_text)
+    not_taken_list=get_not_taken(notes_text)
+    min_credits=parse_minimum_credits(prereq_coreq_text)
+
+    rules = []
+    if prereq:
+        for group in prereq:
+            rules.append(Rule(
+                type=RuleType.PREREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be completed previously: " + ", ".join(group) + "."
+            ))
+    
+    if coreq:
+        for group in coreq:
+            rules.append(Rule(
+                type=RuleType.COREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be taken concurrently: " + ", ".join(group) + "."
+            ))
+    
+    if pre_coreq:
+        for group in pre_coreq:
+            rules.append(Rule(
+                type=RuleType.PREREQUISITE_OR_COREQUISITE,
+                params=MinCoursesFromSetParams(courseList=group, minCourses=1),
+                message="At least 1 of the following courses must be completed previously or taken concurrently: " + ", ".join(group) + "."
+            ))
+    
+    if not_taken_list:
+        rules.append(Rule(
+            type=RuleType.NOT_TAKEN,
+            params=MaxCoursesFromSetParams(courseList=not_taken_list, maxCourses=0),
+            message="Students cannot take this course if they have taken any of the following courses: " + ", ".join(not_taken_list) + "."
+        ))
+    
+    if min_credits > 0:
+        rules.append(Rule(
+            type=RuleType.MIN_CREDITS,
+            params=MinCreditsCompletedParams(minCredits=min_credits),
+            message=f"Students must complete at least {min_credits} credits before taking this course."
+        ))
+    
+    return rules
 
 def parse_course_components(component_text: str) -> list[str]:
     if not component_text:
@@ -234,9 +282,273 @@ def parse_course_components(component_text: str) -> list[str]:
     return components
 
 def get_course_sort_key(course_id: str):
-    match = re.match(r'([A-Z]{3,4})\s+(\d{3})', course_id)
+    match = re.fullmatch(r'([A-Z]{3,4})\s+(\d{3,4})', course_id.strip())
     if match:
         dept = match.group(1)
-        num = int(match.group(2))
-        return (dept, num)
-    return ("", float('inf'))
+        course_num = match.group(2)
+        num = int(course_num)
+        # Group by the first 3 digits so 4-digit variants sort between base and next base (e.g. 308 < 3081 < 309).
+        base_num = int(course_num[:3])
+        return (dept, base_num, len(course_num), num)
+    return ("", float('inf'), float('inf'), float('inf'))
+
+_WORD_TO_NUM: dict[str, int] = {
+    'zero': 0, 'one': 1, 'two': 2, 'three': 3, 'four': 4,
+    'five': 5, 'six': 6, 'seven': 7, 'eight': 8, 'nine': 9, 'ten': 10
+}
+
+# Helpers for BEng degree matching used in parse_coursepool_rules
+_BENG_SINGLE_RE = r'(?:(?:the\s+)?BEng in \w+ Engineering)'
+_BENG_LIST_RE = (
+    r'((?:the\s+)?BEng in \w+ Engineering'
+    r'(?:\s*,\s*' + _BENG_SINGLE_RE + r')*'
+    r'(?:\s+and\s+' + _BENG_SINGLE_RE + r')?)'
+)
+
+
+def _word_or_num_to_int(s: str) -> int:
+    """Convert a word (e.g. 'three') or digit string to an integer."""
+    s = s.strip().lower()
+    if s in _WORD_TO_NUM:
+        return _WORD_TO_NUM[s]
+    try:
+        return int(s)
+    except ValueError:
+        return 1
+
+
+def parse_coursepool_rules(coursepool_notes: str) -> list[Rule]:
+    """
+    Parses rule/note text extracted from a course pool page into a list of Rule objects.
+
+    Supported patterns
+    ------------------
+    1. Replace pattern
+       "Students may replace DEPT NNN with DEPT NNN"
+       → MAX_COURSES_FROM_SET(courseList=[A, B], maxCourses=1)
+
+    2. No more than one of the following courses (inline list)
+       "Students may take no more than one of the following courses: A, B, ..."
+       → MAX_COURSES_FROM_SET(courseList=[...], maxCourses=1)
+
+    3. Cannot receive credit for both
+       "Students cannot receive credit for both A and B; C and D; ..."
+       → one MAX_COURSES_FROM_SET per semicolon-separated pair
+
+    4a. Must take at least N courses from the following list (with bullets or inline)
+        "Students must take at least <N|word> courses from the following list: ..."
+        → MIN_COURSES_FROM_SET(courseList=[...], minCourses=N)
+
+    4b. May take no more than N course(s) from the following list
+        "Students may take no more than <N|word> course(s) from the following list: ..."
+        → MAX_COURSES_FROM_SET(courseList=[...], maxCourses=N)
+
+    5. Degree-specific course removal
+       "students in the BEng in X Engineering[, BEng in Y Engineering ...] ... are not required to take DEPT NNN"
+       → one COURSE_REMOVAL per degree in the list
+
+    6a. Degree-specific course substitution (mandatory)
+        "Students in [the] BEng in X Engineering [and ...] shall replace DEPT NNN with DEPT MMM"
+        → one COURSE_SUBSTITUTION per degree in the list
+
+    6b. Degree-specific optional course substitution
+        "Students in [the] BEng in X Engineering may replace DEPT NNN with DEPT MMM"
+        → COURSE_ADDITION(new course, degreeId) + MAX_COURSES_FROM_SET([old, new], 1) per degree
+
+    7. Degree-specific course pool override (elective)
+       "Students in [the] BEng in X Engineering shall take DEPT NNN as their ... elective"
+       → OVERRIDE_COURSEPOOL_COURSES(coursePoolId=GENERAL_ELECTIVES, newCourseList=[DEPT NNN], degreeId=degree)
+
+    Args:
+        coursepool_notes (str): Text extracted from the course pool div.
+
+    Returns:
+        list[Rule]: Parsed rules.
+    """
+    if not coursepool_notes or not coursepool_notes.strip():
+        return []
+
+    rules: list[Rule] = []
+
+    # ------------------------------------------------------------------ #
+    # Pattern 1 – "Students may replace X with Y"                         #
+    # ------------------------------------------------------------------ #
+    replace_re = re.compile(
+        r'Students may replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in replace_re.finditer(coursepool_notes):
+        a, b = m.group(1).strip(), m.group(2).strip()
+        rules.append(Rule(
+            type=RuleType.MAX_COURSES_FROM_SET,
+            params=MaxCoursesFromSetParams(courseList=[a, b], maxCourses=1),
+            message=f"Students may replace {a} with {b}."
+        ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 2 – "no more than one of the following courses: A, B, ..." #
+    # ------------------------------------------------------------------ #
+    no_more_one_of_re = re.compile(
+        r'Students may take no more than one of the following courses?\s*:\s*([^.]+)',
+        re.I
+    )
+    for m in no_more_one_of_re.finditer(coursepool_notes):
+        courses = re.findall(COURSE_REGEX, m.group(1))
+        if courses:
+            msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
+                message=msg
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 3 – "cannot receive credit for both A and B; C and D"      #
+    # ------------------------------------------------------------------ #
+    cannot_credit_re = re.compile(
+        r'Students cannot receive credit for both\s+(.+?)(?=\.\s|$)',
+        re.I | re.DOTALL
+    )
+    for m in cannot_credit_re.finditer(coursepool_notes):
+        for pair_text in m.group(1).split(';'):
+            pair_text = pair_text.strip()
+            courses = re.findall(COURSE_REGEX, pair_text)
+            if len(courses) >= 2:
+                msg = "Students may take no more than one of the following courses: " + ", ".join(courses) + "."
+                rules.append(Rule(
+                    type=RuleType.MAX_COURSES_FROM_SET,
+                    params=MaxCoursesFromSetParams(courseList=courses, maxCourses=1),
+                    message=msg
+                ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 4a – "must take at least N courses from the following list" #
+    # ------------------------------------------------------------------ #
+    min_courses_re = re.compile(
+        r'Students must take at least\s+([a-z]+|\d+)\s+courses?\s+from the following list\s*:\s*'
+        r'(.+?)(?=Students (?:must|may) take|\Z)',
+        re.I | re.DOTALL
+    )
+    for m in min_courses_re.finditer(coursepool_notes):
+        count_str = m.group(1)
+        courses = sorted(re.findall(COURSE_REGEX, m.group(2)), key=get_course_sort_key)
+        if courses:
+            min_count = _word_or_num_to_int(count_str)
+            msg = (f"Students must take at least {count_str} courses from the following list: "
+                   + ", ".join(courses) + ".")
+            rules.append(Rule(
+                type=RuleType.MIN_COURSES_FROM_SET,
+                params=MinCoursesFromSetParams(courseList=courses, minCourses=min_count),
+                message=msg
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 4b – "may take no more than N course(s) from the following" #
+    # ------------------------------------------------------------------ #
+    max_courses_list_re = re.compile(
+        r'Students may take no more than\s+([a-z]+|\d+)\s+courses?\s+from the following list\s*:\s*'
+        r'(.+?)(?=Students (?:must|may) take|\Z)',
+        re.I | re.DOTALL
+    )
+    for m in max_courses_list_re.finditer(coursepool_notes):
+        count_str = m.group(1)
+        courses = sorted(re.findall(COURSE_REGEX, m.group(2)), key=get_course_sort_key)
+        if courses:
+            max_count = _word_or_num_to_int(count_str)
+            msg = (f"Students may take no more than {count_str} course from the following list: "
+                   + ", ".join(courses) + ".")
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=courses, maxCourses=max_count),
+                message=msg
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 5 – degree-specific course removal                          #
+    # "students in [BEng in X, ...] ... are not required to take COURSE" #
+    # ------------------------------------------------------------------ #
+    not_required_re = re.compile(
+        r'students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'(?:[^.]|\.\d)*?are not required to take\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in not_required_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        course = re.sub(r'\s+', ' ', m.group(2).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            rules.append(Rule(
+                type=RuleType.COURSE_REMOVAL,
+                params=CourseRemovalParams(courseId=course, degreeId=degree_id),
+                message=f"Students in {degree_id} are not required to take {course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 6a – degree-specific course substitution (mandatory)        #
+    # "Students in [BEng in X ...] shall replace COURSE_A with COURSE_B" #
+    # ------------------------------------------------------------------ #
+    shall_replace_re = re.compile(
+        r'Students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'\s+shall\s+replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in shall_replace_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        old_course = re.sub(r'\s+', ' ', m.group(2).strip())
+        new_course = re.sub(r'\s+', ' ', m.group(3).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            rules.append(Rule(
+                type=RuleType.COURSE_SUBSTITUTION,
+                params=CourseSubstitutionParams(oldCourseId=old_course, newCourseId=new_course, degreeId=degree_id),
+                message=f"Students in {degree_id} shall replace {old_course} with {new_course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 6b – degree-specific optional substitution                  #
+    # "Students in [BEng in X] may replace COURSE_A with COURSE_B"       #
+    # → COURSE_ADDITION(new, degreeId) + MAX_COURSES_FROM_SET([old,new]) #
+    # ------------------------------------------------------------------ #
+    may_replace_re = re.compile(
+        r'Students in (?:the\s+)?' + _BENG_LIST_RE +
+        r'\s+may\s+replace\s+(' + COURSE_REGEX + r')\s+with\s+(' + COURSE_REGEX + r')',
+        re.I
+    )
+    for m in may_replace_re.finditer(coursepool_notes):
+        degrees_text = m.group(1)
+        old_course = re.sub(r'\s+', ' ', m.group(2).strip())
+        new_course = re.sub(r'\s+', ' ', m.group(3).strip())
+        for degree_id in re.findall(r'BEng in \w+ Engineering', degrees_text, re.I):
+            rules.append(Rule(
+                type=RuleType.COURSE_ADDITION,
+                params=CourseAdditionParams(courseId=new_course, degreeId=degree_id),
+                message=f"Students in {degree_id} may replace {old_course} with {new_course}."
+            ))
+            rules.append(Rule(
+                type=RuleType.MAX_COURSES_FROM_SET,
+                params=MaxCoursesFromSetParams(courseList=[old_course, new_course], maxCourses=1),
+                message=f"Students may take no more than one of the following courses: {old_course}, {new_course}."
+            ))
+
+    # ------------------------------------------------------------------ #
+    # Pattern 7 – degree-specific course pool override (elective)        #
+    # "Students in [BEng in X] shall take COURSE as their ... elective"  #
+    # ------------------------------------------------------------------ #
+    _GENERAL_ELECTIVES_POOL_ID = "General Education Humanities and Social Sciences Electives"
+    shall_take_elective_re = re.compile(
+        r'Students in (?:the\s+)?(BEng in \w+ Engineering)'
+        r'\s+shall\s+take\s+(' + COURSE_REGEX + r')\s+as\s+their General Education elective',
+        re.I
+    )
+    for m in shall_take_elective_re.finditer(coursepool_notes):
+        degree_id = m.group(1).strip()
+        course = re.sub(r'\s+', ' ', m.group(2).strip())
+        rules.append(Rule(
+            type=RuleType.OVERRIDE_COURSEPOOL_COURSES,
+            params=OverrideCoursePoolCoursesParams(
+                coursePoolId=_GENERAL_ELECTIVES_POOL_ID,
+                newCourseList=[course],
+                degreeId=degree_id
+            ),
+            message=f"Students in {degree_id} shall take {course} as their General Education elective."
+        ))
+
+    return rules

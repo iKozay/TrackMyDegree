@@ -6,7 +6,7 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../..")))
 
 from models import (
-    serialize, Course, CourseRules, DegreeType, AnchorLink
+    serialize, DegreeType, AnchorLink, RuleType, Rule, MaxCoursesFromSetParams
 )
 
 
@@ -26,24 +26,26 @@ class TestSerialize(unittest.TestCase):
         # Simple dataclass
         link = AnchorLink(text="Test", url="http://test.com")
         assert serialize(link) == {"text": "Test", "url": "http://test.com"}
-        
-        # Complex dataclass with nested objects
-        rules = CourseRules(prereq=[["MATH 205"]], coreq=[], not_taken=["COMP 200"])
-        course = Course(_id="COMP 248", title="Programming", credits=3.5, 
-                       description="Test", offered_in=["Fall"], prereqCoreqText="",
-                       rules=rules, notes="", components=[])
-        
-        result = serialize(course)
-        assert result["_id"] == "COMP 248"
-        assert result["rules"]["prereq"] == [["MATH 205"]]
-        assert result["rules"]["not_taken"] == ["COMP 200"]
-        
+
+        # Nested dataclass
+        rule = Rule(
+            type=RuleType.MAX_COURSES_FROM_SET,
+            params=MaxCoursesFromSetParams(courseList=["COMP 367", "MAST 332"], maxCourses=1),
+            message="Students can take at most 1 of the following courses: COMP 367, MAST 332."
+        )
+
+        assert serialize(rule)["type"] == "max_courses_from_set"
+        assert serialize(rule)["params"] == {
+            "courseList": ["COMP 367", "MAST 332"],
+            "maxCourses": 1,
+        }
+
+
         # List of objects
         assert serialize([link, link]) == [{"text": "Test", "url": "http://test.com"}] * 2
         
         # Empty collections
         assert serialize([]) == []
-        assert serialize(CourseRules())["prereq"] == []
 
 
 if __name__ == '__main__':

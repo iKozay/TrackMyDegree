@@ -1,6 +1,5 @@
-import type { TimelineActionType } from "../types/timeline.types";
+import type { TimelineActionType, TimelineState } from "../types/timeline.types";
 import { TimelineActionConstants} from "../types/actions";
-import type { TimelineState } from "../types/timeline.types";
 import {
   initTimelineState,
   selectCourse,
@@ -24,7 +23,8 @@ export function timelineReducer(
 
   switch (action.type) {
     case TimelineActionConstants.Init:
-      return initTimelineState(state, action.payload);
+      nextState = initTimelineState(state, action.payload);
+      break;
 
     case TimelineActionConstants.SelectCourse:
       return selectCourse(state, action.payload);

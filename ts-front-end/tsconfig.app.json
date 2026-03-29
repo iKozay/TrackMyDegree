@@ -18,10 +18,10 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
-    "baseUrl": ".",
-    "paths": {
-      "@shared/*": ["../shared/types/*"]
-    }
+    "baseUrl": "."
   },
-  "include": ["src", "vitest.config.ts"]
+  "include": ["src", "vitest.config.ts"],
+  "exclude": [
+    "src/tests/**",
+  ]
 }

@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the GCS is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENGR 201",
@@ -22,12 +17,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENGR 202",
@@ -37,12 +27,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENGR 208",
@@ -52,12 +37,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 108. Permission of the GCS is required.",
-    "rules": {
-      "prereq": [["ENGR 108"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 108"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 108."
+      }
+    ]
   },
   {
     "_id": "ENGR 213",
@@ -67,12 +56,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: MATH 204 (Cegep Mathematics 105). The following course must be completed previously: MATH 205 (Cegep Mathematics 203).",
-    "rules": {
-      "prereq": [["MATH 204"], ["MATH 205"]],
-      "coreq": [["MATH 204"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 205."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MATH 204."
+      }
+    ]
   },
   {
     "_id": "ENGR 233",
@@ -82,12 +83,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105); MATH 205 (Cegep Mathematics 203).",
-    "rules": {
-      "prereq": [["MATH 204"],["MATH 205"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 205."
+      }
+    ]
   },
   {
     "_id": "ENGR 242",
@@ -97,12 +110,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: ENGR 213. The following courses must be completed previously PHYS 204; MATH 204.",
-    "rules": {
-      "prereq": [["ENGR 213"],["PHYS 204"],["MATH 204"]],
-      "coreq": [["ENGR 213"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 204."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 213."
+      }
+    ]
   },
   {
     "_id": "ENGR 243",
@@ -112,12 +145,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 242.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 242"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 242"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 242."
+      }
+    ]
   },
   {
     "_id": "ENGR 244",
@@ -127,12 +172,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213; ENGR 242 or ENGR 245. The following courses must be completed previously or concurrently: ENGR 233.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 242"],["ENGR 245"], ["ENGR 233"]],
-      "coreq": [["ENGR 233"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 242", "ENGR 245"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 242, ENGR 245."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 233."
+      }
+    ]
   },
   {
     "_id": "ENGR 245",
@@ -142,12 +207,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: PHYS 204. The following course must be completed previously or concurrently: ENGR 213.",
-    "rules": {
-      "prereq": [["PHYS 204"], ["ENGR 213"]],
-      "coreq": [["ENGR 213"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 204."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 213."
+      }
+    ]
   },
   {
     "_id": "ENGR 251",
@@ -157,12 +234,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 203 (Cegep Mathematics 103).",
-    "rules": {
-      "prereq": [["MATH 203"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 203"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 203."
+      }
+    ]
   },
   {
     "_id": "ENGR 290",
@@ -172,12 +253,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 243; ENCS 282; ENGR 213, ENGR 233.",
-    "rules": {
-      "prereq": [["COEN 243"],["ENGR 213"],["ENCS 282"],["ENGR 233"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 243."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      }
+    ]
   },
   {
     "_id": "ENGR 301",
@@ -187,12 +296,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENGR 308",
@@ -202,12 +306,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 208. Permission of the GCS is required.",
-    "rules": {
-      "prereq": [["ENGR 208"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 208"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 208."
+      }
+    ]
   },
   {
     "_id": "ENGR 311",
@@ -217,12 +325,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 233"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      }
+    ]
   },
   {
     "_id": "ENGR 361",
@@ -232,12 +352,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 251 or AERO 253.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 233"],["ENGR 251", "AERO 253"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 251", "AERO 253"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 251, AERO 253."
+      }
+    ]
   },
   {
     "_id": "ENGR 371",
@@ -247,12 +387,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 233"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      }
+    ]
   },
   {
     "_id": "ENGR 391",
@@ -262,12 +414,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233; COMP 248 or COEN 243 or MECH 215 or MIAE 215 or BCEE 231.",
-    "rules": {
-      "prereq": [["ENGR 213"],["ENGR 233"], ["COMP 248", "COEN 243", "MECH 215", "MIAE 215", "BCEE 231"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 248", "COEN 243", "MECH 215", "MIAE 215", "BCEE 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 248, COEN 243, MECH 215, MIAE 215, BCEE 231."
+      }
+    ]
   },
   {
     "_id": "ENGR 392",
@@ -277,12 +449,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENCS 282; ENGR 201, ENGR 202.",
-    "rules": {
-      "prereq": [["ENCS 282"],["ENGR 201"],["ENGR 202"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 201."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 202"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 202."
+      }
+    ]
   },
   {
     "_id": "ENGR 411",
@@ -292,12 +484,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENCS 282. Permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": ["ENGR 410"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 410"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 410."
+      }
+    ]
   },
   {
     "_id": "ENGR 412",
@@ -307,12 +511,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENCS 282. Students must complete a minimum 75 credits in the BEng program with a cumulative GPA of 3.00 or better prior to enrolling. Permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ENGR 472",
@@ -322,12 +537,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
-    "rules": {
-      "prereq": [["ELEC 372", "MECH 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372, MECH 371."
+      }
+    ]
   },
   {
     "_id": "ENGR 490",
@@ -337,12 +556,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must be eligible to register in one of the following courses: AERO 490; BLDG 490; CIVI 490; COEN 490; ELEC 490; INDU 490; MECH 490; COMP 490 or SOEN 490.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENGR 498",
@@ -352,11 +566,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the GCS is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

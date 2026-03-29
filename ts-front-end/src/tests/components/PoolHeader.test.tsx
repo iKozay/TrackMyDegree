@@ -1,19 +1,16 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { PoolHeader } from "../../components/PoolHeader";
-import type {
-  Pool,
-  CourseCode,
-  CourseMap,
-  SemesterId,
-} from "../../types/timeline.types";
+import type { CoursePoolData } from "@trackmydegree/shared";
+import type { CourseCode, CourseMap, SemesterId } from "../../types/timeline.types";
 
 describe("PoolHeader", () => {
-  const pool: Pool = {
+  const pool: CoursePoolData = {
     _id: "pool-soen-header",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287", "SOEN 321"] as CourseCode[],
+    rules: [],
   };
 
   const courses: CourseMap = {
@@ -22,9 +19,8 @@ describe("PoolHeader", () => {
       title: "Engineering Mechanics",
       credits: 3,
       description: "",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "completed", semester: null },
     },
     "ENGR 233": {
@@ -32,9 +28,8 @@ describe("PoolHeader", () => {
       title: "Applied Advanced Calculus",
       credits: 3,
       description: "",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -42,9 +37,8 @@ describe("PoolHeader", () => {
       title: "System Hardware",
       credits: 4,
       description: "",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "completed", semester: null },
     },
     "SOEN 287": {
@@ -52,9 +46,8 @@ describe("PoolHeader", () => {
       title: "Web Programming",
       credits: 3,
       description: "",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };

@@ -1,0 +1,147 @@
+{
+  "coursePools": [
+    {
+      "_id": "INDU_Engineering Core",
+      "courses": [
+        "ENCS 282",
+        "ENGR 201",
+        "ENGR 202",
+        "ENGR 213",
+        "ENGR 233",
+        "ENGR 301",
+        "ENGR 371",
+        "ENGR 391",
+        "ENGR 392"
+      ],
+      "creditsRequired": 24.0,
+      "name": "Engineering Core",
+      "rules": []
+    },
+    {
+      "_id": "INDU_Industrial Engineering Core",
+      "courses": [
+        "ENGR 245",
+        "ENGR 251",
+        "ENGR 311",
+        "ENGR 490",
+        "INDU 211",
+        "INDU 311",
+        "INDU 320",
+        "INDU 321",
+        "INDU 323",
+        "INDU 324",
+        "INDU 330",
+        "INDU 342",
+        "INDU 371",
+        "INDU 372",
+        "INDU 412",
+        "INDU 421",
+        "INDU 423",
+        "INDU 490",
+        "MIAE 211",
+        "MIAE 215",
+        "MIAE 221",
+        "MIAE 311",
+        "MIAE 312",
+        "MIAE 313",
+        "MIAE 380",
+        "MIAE 383"
+      ],
+      "creditsRequired": 81.0,
+      "name": "Industrial Engineering Core",
+      "rules": [
+        {
+          "level": "warning",
+          "message": "Students may replace INDU 490 with ENGR 490.",
+          "params": {
+            "courseList": [
+              "INDU 490",
+              "ENGR 490"
+            ],
+            "maxCourses": 1
+          },
+          "type": "max_courses_from_set"
+        }
+      ]
+    },
+    {
+      "_id": "INDU_Industrial Engineering Electives",
+      "courses": [
+        "BANA 478",
+        "BTM 480",
+        "ENGR 411",
+        "ENGR 412",
+        "INDU 410",
+        "INDU 411",
+        "INDU 424",
+        "INDU 431",
+        "INDU 441",
+        "INDU 466",
+        "INDU 475",
+        "INDU 480",
+        "INDU 498",
+        "MANA 300"
+      ],
+      "creditsRequired": 12.0,
+      "name": "Industrial Engineering Electives",
+      "rules": [
+        {
+          "level": "warning",
+          "message": "Students must take at least three courses from the following list: INDU 410, INDU 411, INDU 424, INDU 431, INDU 441, INDU 466, INDU 475, INDU 480, INDU 498.",
+          "params": {
+            "courseList": [
+              "INDU 410",
+              "INDU 411",
+              "INDU 424",
+              "INDU 431",
+              "INDU 441",
+              "INDU 466",
+              "INDU 475",
+              "INDU 480",
+              "INDU 498"
+            ],
+            "minCourses": 3
+          },
+          "type": "min_courses_from_set"
+        },
+        {
+          "level": "warning",
+          "message": "Students may take no more than one course from the following list: BANA 478, BTM 480, ENGR 411, ENGR 412, MANA 300.",
+          "params": {
+            "courseList": [
+              "BANA 478",
+              "BTM 480",
+              "ENGR 411",
+              "ENGR 412",
+              "MANA 300"
+            ],
+            "maxCourses": 1
+          },
+          "type": "max_courses_from_set"
+        }
+      ]
+    },
+    {
+      "_id": "INDU_General Education Humanities and Social Sciences Electives",
+      "courses": [
+        "ACCO 220"
+      ],
+      "creditsRequired": 3.0,
+      "name": "General Education Humanities and Social Sciences Electives",
+      "rules": []
+    }
+  ],
+  "degree": {
+    "_id": "BEng in Industrial Engineering",
+    "coursePools": [
+      "INDU_Engineering Core",
+      "INDU_Industrial Engineering Core",
+      "INDU_Industrial Engineering Electives",
+      "INDU_General Education Humanities and Social Sciences Electives"
+    ],
+    "degreeType": "Standalone",
+    "ecpDegreeId": "Extended Credit Program - Engineering",
+    "name": "BEng in Industrial Engineering",
+    "totalCredits": 120.0
+  }
+}

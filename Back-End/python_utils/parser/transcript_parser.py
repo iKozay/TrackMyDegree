@@ -6,12 +6,7 @@ This script parses academic transcripts and outputs JSON.
 import sys
 import re
 from collections import defaultdict
-
-try:
-    import fitz  # PyMuPDF
-except ImportError:
-    print("ERROR: PyMuPDF not installed. Run: pip install pymupdf", file=sys.stderr)
-    sys.exit(1)
+import fitz  # PyMuPDF
 
 # Constants
 BIRTHDATE = 'Birthdate:'

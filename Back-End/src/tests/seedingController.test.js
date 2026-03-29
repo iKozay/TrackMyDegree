@@ -40,6 +40,10 @@ describe('seedingController', () => {
   describe('seedDegreeData', () => {
     beforeEach(() => {
       jest.clearAllMocks();
+      DegreeControllerModule.degreeController.createDegree = jest.fn();
+      DegreeControllerModule.degreeController.updateDegree = jest.fn();
+      CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools = jest.fn();
+      CourseControllerModule.courseController.bulkCreateCourses = jest.fn();
     });
 
     it('returns early for invalid degree name', async () => {
@@ -59,17 +63,10 @@ describe('seedingController', () => {
       pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      createDegreeMock.mockResolvedValue(true);
+      bulkCreateCoursePoolsMock.mockResolvedValue(true);
 
       const result = await seedDegreeData('Test Degree');
 
@@ -88,19 +85,12 @@ describe('seedingController', () => {
       pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
-      const createDegreeMock = jest.fn().mockResolvedValue(false);
-      const updateDegreeMock = jest.fn().mockResolvedValue(fakeData.degree);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-        updateDegree: updateDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      const updateDegreeMock = DegreeControllerModule.degreeController.updateDegree;
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      createDegreeMock.mockResolvedValue(false);
+      updateDegreeMock.mockResolvedValue(fakeData.degree);
+      bulkCreateCoursePoolsMock.mockResolvedValue(true);
 
       const result = await seedDegreeData('Test Degree');
 
@@ -120,11 +110,8 @@ describe('seedingController', () => {
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
       const error = new Error('Degree creation failed');
-      const createDegreeMock = jest.fn().mockRejectedValue(error);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      createDegreeMock.mockRejectedValue(error);
 
       const result = await seedDegreeData('Test Degree');
 
@@ -143,18 +130,11 @@ describe('seedingController', () => {
       pythonUtilsApi.getDegreeNames.mockResolvedValue(['Test Degree']);
       pythonUtilsApi.parseDegree.mockResolvedValue(fakeData);
 
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
       const error = new Error('Course pool creation failed');
-      const bulkCreateCoursePoolsMock = jest.fn().mockRejectedValue(error);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      createDegreeMock.mockResolvedValue(true);
+      bulkCreateCoursePoolsMock.mockRejectedValue(error);
 
       const result = await seedDegreeData('Test Degree');
 
@@ -166,6 +146,10 @@ describe('seedingController', () => {
   describe('seedAllDegreeData', () => {
     beforeEach(() => {
       jest.clearAllMocks();
+      DegreeControllerModule.degreeController.createDegree = jest.fn();
+      DegreeControllerModule.degreeController.updateDegree = jest.fn();
+      CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools = jest.fn();
+      CourseControllerModule.courseController.bulkCreateCourses = jest.fn();
     });
 
     it('runs seedAllDegreeData for all degrees and courses', async () => {
@@ -187,21 +171,12 @@ describe('seedingController', () => {
       pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
       pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
 
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      const bulkCreateCoursesMock = CourseControllerModule.courseController.bulkCreateCourses;
+      createDegreeMock.mockResolvedValue(true);
+      bulkCreateCoursePoolsMock.mockResolvedValue(true);
+      bulkCreateCoursesMock.mockResolvedValue(true);
 
       const result = await seedAllDegreeData();
 
@@ -232,23 +207,14 @@ describe('seedingController', () => {
       pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
       pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
 
-      const createDegreeMock = jest.fn()
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      const bulkCreateCoursesMock = CourseControllerModule.courseController.bulkCreateCourses;
+      createDegreeMock
         .mockResolvedValueOnce(true) // First degree succeeds
         .mockRejectedValueOnce(new Error('Database error')); // Second degree fails
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockResolvedValue(true);
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
+      bulkCreateCoursePoolsMock.mockResolvedValue(true);
+      bulkCreateCoursesMock.mockResolvedValue(true);
 
       const result = await seedAllDegreeData();
 
@@ -275,21 +241,12 @@ describe('seedingController', () => {
       pythonUtilsApi.parseAllDegrees.mockResolvedValue(mockDegreeData);
       pythonUtilsApi.getAllCourses.mockResolvedValue(mockCourses);
 
-      const createDegreeMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursePoolsMock = jest.fn().mockResolvedValue(true);
-      const bulkCreateCoursesMock = jest.fn().mockRejectedValue(new Error('Course creation failed'));
-
-      DegreeControllerModule.DegreeController.mockImplementation(() => ({
-        createDegree: createDegreeMock,
-      }));
-      CoursePoolControllerModule.CoursePoolController.mockImplementation(
-        () => ({
-          bulkCreateCoursePools: bulkCreateCoursePoolsMock,
-        }),
-      );
-      CourseControllerModule.CourseController.mockImplementation(() => ({
-        bulkCreateCourses: bulkCreateCoursesMock,
-      }));
+      const createDegreeMock = DegreeControllerModule.degreeController.createDegree;
+      const bulkCreateCoursePoolsMock = CoursePoolControllerModule.coursepoolController.bulkCreateCoursePools;
+      const bulkCreateCoursesMock = CourseControllerModule.courseController.bulkCreateCourses;
+      createDegreeMock.mockResolvedValue(true);
+      bulkCreateCoursePoolsMock.mockResolvedValue(true);
+      bulkCreateCoursesMock.mockRejectedValue(new Error('Course creation failed'));
 
       const result = await seedAllDegreeData();
 

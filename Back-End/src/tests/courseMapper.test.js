@@ -9,7 +9,9 @@ describe('courseMapper', () => {
         credits: 3,
         description: 'desc',
         offeredIn: ['FALL'],
-        rules: { prereq: [['MATH 100']], coreq: [] },
+        rules: [
+          {type: 'prerequisite', params: { courseList: ['MATH 100'], minCourses: 1 }, message: "At least 1 of the following courses must be completed previously: MATH 100"}
+        ],
       },
     };
     const statusMap = {
@@ -20,6 +22,6 @@ describe('courseMapper', () => {
     expect(mapped['COMP 101'].id).toBe('COMP 101');
     expect(mapped['COMP 101'].title).toBe('Intro');
     expect(mapped['COMP 101'].status.status).toBe('completed');
-    expect(mapped['COMP 101'].prerequisites[0].anyOf).toContain('MATH 100');
+    expect(mapped['COMP 101'].rules[0].params.courseList[0]).toBe('MATH 100');
   });
 });

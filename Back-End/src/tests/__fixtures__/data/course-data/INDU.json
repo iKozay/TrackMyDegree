@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "INDU 311",
@@ -22,12 +17,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
-    "rules": {
-      "prereq": [["ENGR 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      }
+    ]
   },
   {
     "_id": "INDU 320",
@@ -37,12 +36,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 323.",
-    "rules": {
-      "prereq": [["INDU 323"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 323"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 323."
+      }
+    ]
   },
   {
     "_id": "INDU 321",
@@ -52,12 +55,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 320.",
-    "rules": {
-      "prereq": [["INDU 320"]],
-      "coreq": [],
-      "not_taken": ["INDU 420"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 320."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["INDU 420"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: INDU 420."
+      }
+    ]
   },
   {
     "_id": "INDU 323",
@@ -67,12 +82,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 213, ENGR 233; INDU 211; MIAE 215",
-    "rules": {
-      "prereq": [["ENGR 213"], ["ENGR 233"], ["INDU 211"], ["MIAE 215"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 211"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 211."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MIAE 215"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MIAE 215."
+      }
+    ]
   },
   {
     "_id": "INDU 324",
@@ -82,12 +125,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 323.",
-    "rules": {
-      "prereq": [["INDU 323"]],
-      "coreq": [],
-      "not_taken": ["INDU 430"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 323"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 323."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["INDU 430"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: INDU 430."
+      }
+    ]
   },
   {
     "_id": "INDU 330",
@@ -97,12 +152,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENCS 282. The following course must be completed previously or concurrently: ENGR 301.",
-    "rules": {
-      "prereq": [["ENCS 282"], ["ENGR 301"]],
-      "coreq": [["ENGR 301"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 301."
+      }
+    ]
   },
   {
     "_id": "INDU 342",
@@ -112,12 +179,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 324.",
-    "rules": {
-      "prereq": [["INDU 324"]],
-      "coreq": [],
-      "not_taken": ["INDU 442"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 324"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 324."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["INDU 442"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: INDU 442."
+      }
+    ]
   },
   {
     "_id": "INDU 371",
@@ -127,12 +206,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
-    "rules": {
-      "prereq": [["ENGR 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      }
+    ]
   },
   {
     "_id": "INDU 372",
@@ -142,12 +225,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
-    "rules": {
-      "prereq": [["ENGR 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      }
+    ]
   },
   {
     "_id": "INDU 410",
@@ -157,12 +244,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
-      "coreq": [["MIAE 312"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MIAE 312."
+      }
+    ]
   },
   {
     "_id": "INDU 411",
@@ -172,12 +271,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
-      "coreq": [["MIAE 312"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MIAE 312."
+      }
+    ]
   },
   {
     "_id": "INDU 412",
@@ -187,12 +298,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 371.",
-    "rules": {
-      "prereq": [["ENGR 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      }
+    ]
   },
   {
     "_id": "INDU 421",
@@ -202,12 +317,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: INDU 311. The following course must be completed previously: INDU 320.",
-    "rules": {
-      "prereq": [["INDU 311"], ["INDU 320"]],
-      "coreq": [["INDU 311"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["INDU 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: INDU 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 320."
+      }
+    ]
   },
   {
     "_id": "INDU 423",
@@ -217,12 +344,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 320.",
-    "rules": {
-      "prereq": [["INDU 320"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 320."
+      }
+    ]
   },
   {
     "_id": "INDU 424",
@@ -232,12 +363,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 320.",
-    "rules": {
-      "prereq": [["INDU 320"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 320."
+      }
+    ]
   },
   {
     "_id": "INDU 431",
@@ -247,12 +382,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously:INDU 324.",
-    "rules": {
-      "prereq": [["INDU 324"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 324"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 324."
+      }
+    ]
   },
   {
     "_id": "INDU 441",
@@ -262,12 +401,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 372.",
-    "rules": {
-      "prereq": [["INDU 372"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 372."
+      }
+    ]
   },
   {
     "_id": "INDU 466",
@@ -277,12 +420,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 371; INDU 320.",
-    "rules": {
-      "prereq": [["ENGR 371"], ["INDU 320"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 320."
+      }
+    ]
   },
   {
     "_id": "INDU 475",
@@ -292,12 +447,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: INDU 372.",
-    "rules": {
-      "prereq": [["INDU 372"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 372."
+      }
+    ]
   },
   {
     "_id": "INDU 480",
@@ -307,12 +466,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: INDU 311, INDU 324.",
-    "rules": {
-      "prereq": [["INDU 311"], ["INDU 324"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["INDU 324"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: INDU 324."
+      }
+    ]
   },
   {
     "_id": "INDU 490",
@@ -322,12 +493,39 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 301; MIAE 380. The following courses must be completed previously or concurrently: INDU 421. Students must complete 75 credits in the program prior to enrolling.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["MIAE 380"], ["INDU 421"]],
-      "coreq": [["INDU 421"]],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MIAE 380"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MIAE 380."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["INDU 421"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: INDU 421."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "INDU 498",
@@ -337,11 +535,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department Chair is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

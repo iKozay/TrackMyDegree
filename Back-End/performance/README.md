@@ -51,7 +51,7 @@ When the test duration ends, k6 does not kill VUs instantly. It gives each VU ti
 - **`gracefulStop`** (`30s` in this test): time the entire test waits after the scenario ends for any VU still mid-iteration to finish.
 - **`gracefulRampDown`** (`30s` in this test): same, but applied when ramping VUs down to 0 mid-scenario.
 
-If an iteration takes longer than these windows (e.g., polling for up to `POLL_MAX_SECONDS=60s` while the grace window is only `30s`), k6 forcibly terminates it. You will see:
+If an iteration takes longer than these windows (e.g., polling for up to `POLL_MAX_SECONDS=25s` while the grace window is only `30s`), k6 forcibly terminates it. You will see:
 
 ```
 N complete and M interrupted iterations
@@ -65,10 +65,12 @@ in the summary. Those `M` interrupted iterations do **not** appear in `iteration
 
 k6 has a built-in metric `http_req_failed` which counts requests that k6 considers failed. By default this means any non-2xx response **unless** you set `expected_response: false` on the request.
 
-In this test, **all requests set `expected_response: false`** so that non-2xx responses can be handled explicitly (e.g., a `410` from the jobs endpoint is normal during polling). As a result:
+In the polling-based tests (`k6-timeline.js`, `k6-coop-validation.js`, `k6-degree-audit.js`), **all requests set `expected_response: false`** so that non-2xx responses can be handled explicitly (e.g., a `410` from the jobs endpoint is normal during polling). As a result:
 
 - `http_req_failed` will show a high percentage (often 20–70%+) — this is **expected and misleading on its own**. It counts every poll response that was not 2xx, including normal `410` returns.
 - The **custom rate metrics** (`upload_failed_rate`, `timeline_save_failed_rate`, etc.) are what actually measure real failures. Use those panels in Grafana, not `http_req_failed`.
+
+In `k6-schedule.js`, `expected_response` is left at its default (`true`), so `http_req_failed` correctly reflects only real HTTP errors for that test.
 
 ### `status=0` — what it means and why it appears
 
@@ -141,6 +143,7 @@ Back-End/performance/
 ├── k6-timeline.js              # Entry point: timeline CRUD flow (options, setup, teardown, default)
 ├── k6-coop-validation.js       # Entry point: coop validation flow (options, setup, teardown, default)
 ├── k6-degree-audit.js          # Entry point: degree audit flow (options, setup, teardown, default)
+├── k6-schedule.js              # Entry point: course schedule flow (GET /api/section/schedule)
 ├── config.js                   # Env vars, shared constants, PDF file map, getPdfForVU, pollJobUntilDone
 ├── metrics.js                  # All custom k6 metric declarations
 ├── users.js                    # createTestUser / deleteTestUser (setup/teardown)
@@ -150,7 +153,8 @@ Back-End/performance/
 │   └── dashboards/
 │       ├── k6-timeline-dashboard.json        # Grafana dashboard for k6-timeline.js
 │       ├── k6-coop-validation-dashboard.json # Grafana dashboard for k6-coop-validation.js
-│       └── k6-degree-audit-dashboard.json    # Grafana dashboard for k6-degree-audit.js
+│       ├── k6-degree-audit-dashboard.json    # Grafana dashboard for k6-degree-audit.js
+│       └── k6-schedule-dashboard.json        # Grafana dashboard for k6-schedule.js
 └── test-pdfs/
     ├── transcripts/
     │   ├── transcript-coop.pdf
@@ -171,19 +175,20 @@ Back-End/performance/
 > sized for local development (`BASE_URL=http://localhost:8000`, `BACKEND_PORT=8000`) and
 > match the values in `secrets/.env`, so no extra flags are needed for a standard local run.
 
-| Variable                | Default                 | Description                                              |
-|-------------------------|-------------------------|----------------------------------------------------------|
-| `BASE_URL`              | `http://localhost:8000` | Backend base URL                                         |
-| `TIMELINE_NAME_PREFIX`  | `k6-poc`                | Prefix for generated timeline names                      |
-| `PEAK_VUS`              | `6`                     | Number of VUs at peak load (use a multiple of 6 for even PDF coverage) |
-| `RAMP_DURATION`         | `1m`                    | Duration of each ramp-up and ramp-down stage             |
-| `STEADY_DURATION`       | `3m`                    | Duration of the steady peak load stage                   |
-| `POLL_MAX_SECONDS`      | `60`                    | Max seconds to poll a job before timeout                 |
-| `POLL_INTERVAL_SECONDS` | `1`                     | Seconds between poll attempts                            |
-| `POLL_REQUEST_TIMEOUT`  | `5s`                    | Per-request timeout for poll calls                       |
-| `DEBUG`                 | `0`                     | Set to `1` to enable verbose logging                     |
-| `DOC_TYPE`              | *(rotation)*            | Pin to `transcript` or `acceptance_letter` (see below)   |
-| `FILE_NAME`             | *(rotation)*            | Pin to a specific file prefix e.g. `transcript-coop`     |
+| Variable                | Default                 | Description                                                                                                 | Notes (based on 120 VU test data)                                                                                                                      |
+|-------------------------|-------------------------|-------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `BASE_URL`              | `http://localhost:8000` | Backend base URL                                                                                            | —                                                                                                                                                      |
+| `TIMELINE_NAME_PREFIX`  | `k6-poc`                | Prefix for generated timeline names                                                                         | —                                                                                                                                                      |
+| `PEAK_VUS`              | varies by script        | Number of VUs at peak load — see the [Running the tests](#running-the-tests) table for per-script defaults  | Local dev stack (single Redis, worker concurrency=2) sustains up to ~96 VUs before backlog builds. 120 VUs is the observed infrastructure ceiling.     |
+| `RAMP_DURATION`         | `1m`                    | Duration of each ramp-up and ramp-down stage                                                                | Sufficient at all tested load levels.                                                                                                                  |
+| `STEADY_DURATION`       | `3m`                    | Duration of the steady peak load stage                                                                      | Sufficient to observe stable-state behaviour at peak.                                                                                                  |
+| `POLL_MAX_SECONDS`      | `25`                    | Max seconds to poll a job before timeout                                                                    | At 120 VUs (clean Redis), `job_time_to_done_ms` p(95)=7.64s — 25s gives ~3× headroom so only genuinely stuck jobs trigger a timeout. |
+| `POLL_INTERVAL_SECONDS` | `3`                     | Seconds between poll attempts                                                                               | Avg job time at 120 VUs is ~5s. 3s means ~2 polls before the average job is ready; ≤8 attempts within POLL_MAX_SECONDS=25s. Reduced from 4s to shave one unnecessary wait cycle off p(95) jobs. |
+| `POLL_REQUEST_TIMEOUT`  | `10s`                   | Per-request timeout for each individual poll HTTP request                                                   | Increased from 5s — under sustained load Redis response latency spikes and 5s caused false poll_network_error hits (status=0). Observed max was 749ms at 120 VUs (clean Redis); 10s is a safety net only. |
+| `DEBUG`                 | `0`                     | Set to `1` to enable verbose logging                                                                        | —                                                                                                                                                      |
+| `DOC_TYPE`              | *(rotation)*            | Pin to `transcript` or `acceptance_letter` (see below)                                                      | —                                                                                                                                                      |
+| `FILE_NAME`             | *(rotation)*            | Pin to a specific file prefix e.g. `transcript-coop`                                                        | —                                                                                                                                                      |
+| `SCHEDULE_PAIRS`        | *(defaults)*            | Only applies to `k6-schedule.js`. CSV of `SUBJECT:CATALOG` pairs for schedule test e.g. `COMP:248,SOEN:490` | —                                                                                                                                                      |
 
 ---
 
@@ -294,6 +299,7 @@ k6 run --out influxdb=http://localhost:8086/k6 <script>
 | Timeline CRUD | `k6-timeline.js` | `6`                | Use multiples of 6 for even PDF coverage across all 6 files |
 | Coop Validation | `k6-coop-validation.js` | `10`               | Single shared timeline; stresses retrieval job + validation logic |
 | Degree Audit | `k6-degree-audit.js` | `6`                | Use multiples of 3 for even coverage across all transcript types (coop, ecp, regular) |
+| Course Schedule | `k6-schedule.js` | `10`               | Stateless read-only flow; no setup/teardown required |
 
 **Smoke test** — quick sanity check with a short run (works for any script):
 ```bash
@@ -385,29 +391,6 @@ With more than 6 VUs the pattern repeats (VU 7 = same as VU 1, etc.).
 - **End-to-end latency** across upload → processing → save → retrieve → delete
 - **Error handling and recovery** (tracks all failure modes: 200, 410, 404, timeouts, network errors)
 - **Resource cleanup** (ensures test data is properly deleted after each iteration)
-
-### Custom metrics tracked
-
-**Trends (timing)**
-- `job_time_to_done_ms` — end-to-end time from upload accepted to job `status=done`, includes queue wait + worker processing (p95 < 3s target)
-- `polls_per_job` — number of `GET /api/jobs/:jobId` attempts before a job completed
-
-**Rates (pass/fail thresholds)**
-- `iteration_success_rate` — rate of iterations that completed all steps without any error or network failure (> 95% target)
-- `poll_network_error_rate` — rate of poll attempts that received no HTTP response (`status=0`), covers request timeouts and connection errors (< 5% target)
-- `job_timeout_rate` — rate of poll loops that exhausted the full `POLL_MAX_SECONDS` deadline without the job completing; distinct from network errors — fires only when the job itself never finishes (< 5% target)
-- `upload_failed_rate` — rate of `POST /api/upload/file` responses that were not `200` (< 1% target)
-- `delete_failed_rate` — rate of `DELETE /api/timeline/:id` responses that were not `200` (< 1% target)
-- `timeline_save_failed_rate` — rate of `POST /api/timeline` responses that were not `201` (< 1% target)
-- `timeline_update_failed_rate` — rate of `PUT /api/timeline/:id` responses that were not `200` (< 1% target)
-
-**Counters (raw event counts)**
-- `poll_200_count` — poll attempts that returned `200 status=done`
-- `poll_410_count` — poll attempts that returned `410` (job result expired or not ready)
-- `poll_404_count` — poll attempts that returned `404`
-- `poll_network_error_count` — poll attempts that received no response (`status=0`)
-- `poll_timeout_count` — poll loops that hit the `POLL_MAX_SECONDS` deadline
-- `poll_other_count` — poll attempts with any other unexpected status code
 
 ---
 
@@ -584,3 +567,86 @@ Open the **"k6 Degree Audit Performance Test"** dashboard (`uid: k6-degree-audit
 | Job Processing | Retrieval Job Time p95/avg, Poll Attempts Per Retrieval Job p95/avg |
 | Endpoint Latency | All routes overview (p95), then one panel each for Audit by Job / Timeline / User (p95 + avg) |
 | Poll Status Breakdown | Cumulative poll status counts, per-second stacked poll rate |
+
+---
+
+## `k6-schedule.js` test flow
+
+This script load-tests the course schedule endpoint. Unlike the other flows, it is **entirely stateless** — no setup, no teardown, no test users, no PDFs. Each iteration is a single `GET` request. This makes it the simplest flow to run and the most focused for measuring raw read throughput.
+
+### Why stateless matters
+
+The schedule endpoint reads directly from the database (or a cache layer) with no side effects. Because there is no shared state between VUs and no async job processing, the full concurrency of all VUs hits the endpoint simultaneously from the first iteration. This makes it an effective test for:
+
+- **Database read throughput** under concurrent load
+- **Response serialisation cost** for large result sets (courses with many sections)
+
+### Flow per iteration
+
+1. **Select a course pair** from `SCHEDULE_PAIRS` using a prime-offset rotation so consecutive VUs never hit the same course simultaneously:
+   ```
+   pairIdx = ((__VU - 1) * 3 + __ITER) % SCHEDULE_PAIRS.length
+   ```
+2. **Fetch the schedule**
+   - `GET /api/section/schedule?subject=SUBJECT&catalog=CATALOG`
+   - Tagged as `name: "GET /api/section/schedule"` for InfluxDB / Grafana.
+   - No `termCode` parameter — the backend returns all historical sections for the course; term filtering is the frontend's responsibility.
+
+3. **Run 1 check:**
+
+   | Check | Metric | What it catches |
+   |---|---|---|
+   | HTTP 200 | `schedule_http_failed_rate` | Backend errors, wrong routes, infra failures |
+
+4. **Record outcome** in `schedule_iteration_success_rate` and `schedule_failed_rate`.
+
+If the HTTP check fails, the failure is recorded against `schedule_http_failed_rate` and the aggregate `schedule_failed_rate`, and `schedule_iteration_success_rate` is marked 0.
+
+### Course fixture pairs
+
+The default set covers 6 distinct courses across 3 subjects. Rules for choosing pairs:
+
+1. Must be offered **every semester** (Summer, Fall, Winter) — no capstones or niche courses that only run once a year
+2. Spread across subjects to avoid hammering the same DB partition
+3. Mix of high-enrolment (large result sets) and mid-enrolment to exercise both the serialisation cost and the fast path
+
+| Subject | Catalog | Course | Notes |
+|---|---|---|---|
+| COMP | 248 | OBJ-ORIENTED PROGRAMMING I | High enrolment — large result set |
+| COMP | 346 | Operating Systems | High enrolment, every term |
+| COEN | 212 | Digital Systems Design I | Every term, cross-department |
+| SOEN | 287 | Web Programming | Every term, mixed sections |
+| ENGR | 201 | Engineering and Society | Every term, cross-faculty |
+| COMP | 472 | Artificial Intelligence | Upper year, every term |
+
+Override via env var:
+```bash
+k6 run -e SCHEDULE_PAIRS="COMP:248,SOEN:490,COMP:346" k6-schedule.js
+```
+
+### Custom metrics tracked
+
+**Rates (pass/fail thresholds)**
+- `schedule_iteration_success_rate` — rate of iterations where the HTTP 200 check passed (> 95% target). Schedule-specific — does **not** write to the shared `iteration_success_rate` used by the other three tests. This prevents contamination of the shared metric when tests run against the same InfluxDB instance.
+- `schedule_failed_rate` — aggregate failure rate: HTTP check failed (< 1% target)
+- `schedule_http_failed_rate` — rate of responses that were not HTTP 200 — 5xx from the backend or an infra failure (< 1% target)
+
+**Built-in**
+- `http_req_failed{name:GET /api/section/schedule}` — network-level failures, threshold filtered to this endpoint only (< 1% target)
+- `http_req_duration{name:GET /api/section/schedule}` — latency (p95 < 8000ms, p99 < 9000ms)
+
+
+### What this stresses under load
+
+- **Database read throughput** — 6 distinct courses rotate across VUs, maximising cache-miss coverage
+- **Response serialisation** — courses with many sections (COMP 248 can return 10–20 section objects) stress JSON marshalling under concurrency
+
+### Grafana dashboard
+
+Open the **"k6 Schedule Performance Test"** dashboard (`uid: k6-schedule`) in Grafana:
+
+| Section | Panels |
+|---|---|
+| Overview | Virtual Users, HTTP Requests Rate |
+| Health Rates | Iteration Success Rate, Schedule Failed Rate, HTTP Failed Rate |
+| Endpoint Latency | p95, p99, avg for `GET /api/section/schedule` |
