@@ -2,6 +2,7 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import mongoose from 'mongoose';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -60,26 +61,14 @@ const DOES_NOT_EXIST = 'does not exist';
  *         description: Internal server error
  */
 router.post('/', async (req: Request, res: Response) => {
-  try {
     const userData = req.body;
 
     if (!userData.email || !userData.fullname || !userData.type) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Email, fullname, and type are required',
-      });
-      return;
+      throw new BadRequestError('Email, fullname, and type are required');
     }
 
     const user = await userController.createUser(userData);
     res.status(HTTP.CREATED).json(user);
-  } catch (error) {
-    console.error('Error in POST /users', error);
-    if (error instanceof Error && error.message.includes('already exists')) {
-      res.status(HTTP.CONFLICT).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -116,25 +105,14 @@ router.post('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.get('/:id', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const user = await userController.getUserById(id as string);
     res.status(HTTP.OK).json(user);
-  } catch (error) {
-    console.error('Error in GET /users/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -164,13 +142,8 @@ router.get('/:id', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.get('/', async (req: Request, res: Response) => {
-  try {
     const users = await userController.getAllUsers();
     res.status(HTTP.OK).json(users);
-  } catch (error) {
-    console.error('Error in GET /users', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -214,26 +187,15 @@ router.get('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.put('/:id', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
     const updates = req.body;
 
      if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+        throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const user = await userController.updateUser(id as string, updates);
     res.status(HTTP.OK).json(user);
-  } catch (error) {
-    console.error('Error in PUT /users/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -267,25 +229,14 @@ router.put('/:id', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.delete('/:id', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const message = await userController.deleteUser(id as string);
     res.status(HTTP.OK).json(message);
-  } catch (error) {
-    console.error('Error in DELETE /users/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -319,25 +270,14 @@ router.delete('/:id', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.get('/:id/data', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const userData = await userController.getUserData(id as string);
     res.status(HTTP.OK).json(userData);
-  } catch (error) {
-    console.error('Error in GET /users/:id/data', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 export default router;

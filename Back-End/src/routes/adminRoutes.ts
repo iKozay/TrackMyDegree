@@ -22,9 +22,7 @@ router.use(adminCheckMiddleware);
 // ADMIN ROUTES
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COLLECTION_NAME_REQUIRED = 'Collection name is required';
-const NOT_AVAILABLE = 'not available';
 
 /**
  * @openapi
@@ -61,24 +59,11 @@ const NOT_AVAILABLE = 'not available';
  *         description: Server error.
  */
 router.get('/collections', async (req: Request, res: Response) => {
-  try {
     const collections = await adminController.getCollections();
     res.status(HTTP.OK).json({
       success: true,
       data: collections,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/collections', error);
-    if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: error.message });
-    } else {
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -141,7 +126,6 @@ router.get('/collections', async (req: Request, res: Response) => {
 router.get(
   '/collections/:collectionName/documents',
   async (req: Request, res: Response) => {
-    try {
       const { collectionName } = req.params;
       const { keyword, page, limit } = req.query;
 
@@ -166,15 +150,6 @@ router.get(
         success: true,
         data: documents,
       });
-    } catch (error) {
-      console.error(
-        'Error in GET /admin/collections/:collectionName/documents',
-        error,
-      );
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: INTERNAL_SERVER_ERROR });
-    }
   },
 );
 
@@ -214,7 +189,6 @@ router.get(
 router.delete(
   '/collections/:collectionName/clear',
   async (req: Request, res: Response) => {
-    try {
       const { collectionName } = req.params;
 
       if (!collectionName) {
@@ -230,21 +204,6 @@ router.delete(
         success: true,
         message: `${count} documents cleared successfully`,
       });
-    } catch (error) {
-      console.error(
-        'Error in DELETE /admin/collections/:collectionName/clear',
-        error,
-      );
-      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res
-          .status(HTTP.SERVER_ERR)
-          .json({ success: false, message: error.message });
-      } else {
-        res
-          .status(HTTP.SERVER_ERR)
-          .json({ success: false, message: INTERNAL_SERVER_ERROR });
-      }
-    }
   },
 );
 
@@ -269,32 +228,21 @@ router.delete(
  *         description: Server error.
  */
 router.get('/connection-status', (req: Request, res: Response) => {
-  try {
     const status = adminController.getConnectionStatus();
     res.status(HTTP.OK).json({
       message: 'Connection status retrieved successfully',
       ...status,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/connection-status', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 router.get('/seed-data', async (req: Request, res: Response) => {
-  try {
     const result = await seedAllDegreeData();
     res.status(HTTP.OK).json({
       message: result,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
-  try {
     const { degreeName } = req.params;
 
     if (!degreeName) {
@@ -308,10 +256,6 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json({
       message: result,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 export default router;

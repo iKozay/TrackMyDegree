@@ -1,6 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Timeline } from '@models';
 import { TimelineResult, TimelineDocument, CourseStatus} from '@shared/timeline';
+import { BadRequestError } from '@utils/errors';
 
 
 export class TimelineController extends BaseMongoController<any> {
@@ -13,11 +14,10 @@ export class TimelineController extends BaseMongoController<any> {
    * Optimized with single database operation
    */
   async saveTimeline(userId:string, timelineName:string, timeline:TimelineResult){
-    try {
       const { _id, degree, semesters, isExtendedCredit, isCoop, courses, pools } = timeline;
 
       if (!userId || !timelineName || !degree?._id) {
-        throw new Error('User ID, timeline name, and degree ID are required');
+        throw new BadRequestError('User ID, timeline name, and degree ID are required');
       }
       
       //creates a map to store only completed and planned courses
@@ -50,73 +50,30 @@ export class TimelineController extends BaseMongoController<any> {
           deficiencies
         }
 
-      let result;
       if (_id)
-        result = await this.updateById(_id, record);
+        return await this.updateById(_id, record);
       else
-        result = await this.create(record)
-     
-
-      if (!result?.success) {
-        const message = result.error ?? "Failed to save timeline"
-        throw new Error(message);
-      }
-
-      return result.data;
-    } catch (error) {
-      this.handleError(error, 'saveTimeline');
-    }
+        return await this.create(record)
+   
   }
   /**
    * Remove a timeline by ID
    */
   async deleteTimeline(timeline_id: string) {
-    try {
-      const result = await this.deleteById(timeline_id);
-
-       if (!result?.success) {
-        throw new Error(`Timeline with this id does not exist`);
-      }
-
-      return result.message;
-    } catch (error) {
-      this.handleError(error, 'deleteTimeline');
-    }
+    return await this.deleteById(timeline_id);
   }
     /**
    * Update timeline
    */
   async updateTimeline( timeline_id: string, updates: Partial<TimelineDocument>) {
-    try {
-      const result = await this.updateById(timeline_id, updates);
-
-      if (!result.success) {
-       const message = result.error ?? 'Timeline not found';
-        throw new Error(message);
-      }
-
-      return result.data;
-    } catch (error) {
-      this.handleError(error, 'updateTimeline');
-    }
+      return await this.updateById(timeline_id, updates);
   }
 
   /**
    * Delete all timelines for a user
    */
   async deleteAllUserTimelines(user_id: string): Promise<number> {
-    try {
-      const result = await this.deleteMany({ userId: user_id });
-
-      if (!result.success) {
-        throw new Error('Failed to delete timelines');
-      }
-
-      return result.data || 0;
-    } catch (error) {
-      this.handleError(error, 'deleteAllUserTimelines');
-    }
+      return await this.deleteMany({ userId: user_id });
   }
 }
-
 export const timelineController = new TimelineController();

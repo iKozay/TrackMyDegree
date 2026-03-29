@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import { degreeController } from '@controllers/degreeController';
 
 import { cacheGET } from '@middleware/cacheGet';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -10,9 +11,7 @@ const router = express.Router();
 // DEGREE ROUTES (READ ONLY)
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const DEGREE_ID_REQUIRED = 'Degree ID is required';
-const DOES_NOT_EXIST = 'does not exist';
 
 //Cache Time To Live
 const DEGREE_CACHE_TTL = 1800; // 30 minutes
@@ -62,27 +61,15 @@ const DEGREE_CACHE_TTL = 1800; // 30 minutes
  *         description: Internal server error.
  */
 router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
     const cleanId = (id as string)?.trim();
     if (!cleanId) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
-      });
-      return;
+      throw new BadRequestError(DEGREE_ID_REQUIRED);
     }
 
     const degree = await degreeController.readDegree(id as string);
     res.status(HTTP.OK).json(degree);
-  } catch (error) {
-    console.error('Error in GET /degree/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -114,13 +101,8 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
  *         description: Internal server error.
  */
 router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const degrees = await degreeController.readAllDegrees();
     res.status(HTTP.OK).json(degrees);
-  } catch (error) {
-    console.error('Error in GET /degree', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -160,29 +142,17 @@ router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) 
  *         description: Internal server error.
  */
 router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
     const cleanId = (id as string)?.trim();
     if (!cleanId) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
-      });
-      return;
+      throw new BadRequestError(DEGREE_ID_REQUIRED);
     }
 
     const credits = await degreeController.getCreditsForDegree(id as string);
     res.status(HTTP.OK).json({
       totalCredits: credits,
     });
-  } catch (error) {
-    console.error('Error in GET /degree/:id/credits', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -225,26 +195,14 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
  *         description: Internal server error.
  */
 router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
     const cleanId = (id as string)?.trim();
     if (!cleanId) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: DEGREE_ID_REQUIRED,
-      });
-      return;
+      throw new BadRequestError(DEGREE_ID_REQUIRED);
     }
 
     const coursePools = await degreeController.getCoursePoolsForDegree(id as string);
     res.status(HTTP.OK).json(coursePools);
-  } catch (error) {
-    console.error('Error in GET /degree/:id/coursepools', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 export default router;

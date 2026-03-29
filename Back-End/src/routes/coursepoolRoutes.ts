@@ -2,6 +2,7 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { cacheGET } from '@middleware/cacheGet';
+import { NotFoundError, INTERNAL_SERVER_ERROR } from '@utils/errors';
 
 const router = express.Router();
 
@@ -9,7 +10,6 @@ const router = express.Router();
 // COURSE POOL ROUTES
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 
 
@@ -49,18 +49,11 @@ const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
  *         description: Server error
  */
 router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const coursePool = await coursepoolController.getCoursePool(req.params.id as string);
     if (!coursePool) {
-      return res
-        .status(HTTP.NOT_FOUND)
-        .json({ error: 'Course pool not found' });
+      throw new NotFoundError('Course pool not found');
     }
     return res.status(HTTP.OK).json(coursePool);
-  } catch (error) {
-    console.error('Error fetching course pool:', error);
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -86,13 +79,8 @@ router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Res
  *         description: Server error
  */
 router.get('/', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const coursePools = await coursepoolController.getAllCoursePools();
     return res.status(HTTP.OK).json(coursePools);
-  } catch (error) {
-    console.error('Error fetching course pools:', error);
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 export default router;

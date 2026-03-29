@@ -2,33 +2,26 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
+import { BadRequestError, UnauthorizedError } from '@utils/errors';
 
 const router = express.Router();
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const EMPTY_REQUEST_BODY = 'Request body cannot be empty';
 
 /**
  * POST /auth/login - User login
  */
 router.post('/login', async (req: Request, res: Response) => {
-  try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Email and password are required',
-      });
-      return;
+      throw new BadRequestError('Email and password are required');
     }
 
     const user = await authController.authenticate(email, password);
 
     if (!user) {
-      res.status(HTTP.UNAUTHORIZED).json({
-        error: 'Incorrect email or password',
-      });
-      return;
+      throw new UnauthorizedError('Incorrect email or password');
     }
 
     const accessToken = jwtService.generateToken({
@@ -60,10 +53,6 @@ router.post('/login', async (req: Request, res: Response) => {
       },
       token: accessToken,
     });
-  } catch (error) {
-    console.error('Error in POST /auth/login', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -72,23 +61,16 @@ router.post('/login', async (req: Request, res: Response) => {
 router.post('/refresh', async (req: Request, res: Response) => {
   const token = req.cookies?.refresh_token;
   if (!token)
-    return res
-      .status(HTTP.UNAUTHORIZED)
-      .json({ error: 'Missing refresh token' });
+    throw new UnauthorizedError('Missing refresh token');
 
-  try {
     const payload = jwtService.verifyRefreshToken(token);
     if (!payload)
-      return res
-        .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'Invalid or expired refresh token' });
+      throw new UnauthorizedError('Invalid or expired refresh token');
 
     // Validate user still exists
     const user = await authController.getUserById(payload.userId);
     if (!user) {
-      return res
-        .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'User does not exist' });
+      throw new UnauthorizedError('User does not exist');
     }
 
     const newAccessToken = jwtService.generateToken({
@@ -120,10 +102,6 @@ router.post('/refresh', async (req: Request, res: Response) => {
       },
       token: token,
     });
-  } catch (error) {
-    console.error('Error in POST /auth/refresh', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -142,21 +120,16 @@ router.post('/logout', (req: Request, res: Response) => {
 router.get('/me', async (req: Request, res: Response) => {
   const token = req.cookies?.access_token;
   if (!token)
-    return res.status(HTTP.UNAUTHORIZED).json({ error: 'Missing access token' });
+    throw new UnauthorizedError('Missing access token');  
   
-  try { 
     const payload = jwtService.verifyAccessToken(token);
     if (!payload)
-      return res
-        .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'Invalid or expired access token' });
+      throw new UnauthorizedError('Invalid or expired access token');
 
     // Validate user still exists
     const user = await authController.getUserById(payload.userId);
     if (!user) {
-      return res
-        .status(HTTP.UNAUTHORIZED)
-        .json({ error: 'User does not exist' });
+      throw new UnauthorizedError('User does not exist');
     }
     res.status(HTTP.OK).json({
       user: {
@@ -167,22 +140,14 @@ router.get('/me', async (req: Request, res: Response) => {
       },
       token: token,
     });
-  } catch (error) {
-    console.error('Error in GET /auth/me', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
  * POST /auth/signup - User registration
  */
 router.post('/signup', async (req: Request, res: Response) => {
-  try {
     if (!req.body || Object.keys(req.body).length === 0) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: EMPTY_REQUEST_BODY,
-      });
-      return;
+      throw new BadRequestError(EMPTY_REQUEST_BODY);
     }
 
     const email = req.body.email;
@@ -191,18 +156,12 @@ router.post('/signup', async (req: Request, res: Response) => {
     const type = UserType.STUDENT; // Default to student for this implementation
 
     if (!email || !password || !fullname || !type) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Email, password, fullname, and type are required',
-      });
-      return;
+      throw new BadRequestError('Email, password, fullname, and type are required');  
     }
 
     // Validate user type
     if (!Object.values(UserType).includes(type)) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Invalid user type',
-      });
-      return;
+      throw new BadRequestError('Invalid user type');
     }
 
     const userInfo = {
@@ -214,104 +173,70 @@ router.post('/signup', async (req: Request, res: Response) => {
 
     const user = await authController.registerUser(userInfo, password);
 
-    if (user) {
-      const accessToken = jwtService.generateToken({
+    const accessToken = jwtService.generateToken({
+      orgId: process.env.JWT_ORG_ID!,
+      userId: user._id,
+      type: user.type as UserType,
+    });
+    const refreshToken = jwtService.generateToken(
+      {
         orgId: process.env.JWT_ORG_ID!,
         userId: user._id,
         type: user.type as UserType,
-      });
-      const refreshToken = jwtService.generateToken(
-        {
-          orgId: process.env.JWT_ORG_ID!,
-          userId: user._id,
-          type: user.type as UserType,
-        },
-        true,
-      );
+      },
+      true,
+    );
 
-      const accessCookie = jwtService.setAccessCookie(accessToken);
-      const refreshCookie = jwtService.setRefreshCookie(refreshToken);
+    const accessCookie = jwtService.setAccessCookie(accessToken);
+    const refreshCookie = jwtService.setRefreshCookie(refreshToken);
 
-      res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
-      res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
+    res.cookie(accessCookie.name, accessCookie.value, accessCookie.config);
+    res.cookie(refreshCookie.name, refreshCookie.value, refreshCookie.config);
 
-      res.status(HTTP.CREATED).json({
-        user: {
-          id: user._id,
-          email: user.email,
-          name: user.fullname,
-          role: user.type,
-        },
-        token: accessToken,
-      });
-    } else {
-      res.status(HTTP.CONFLICT).json({
-        error: 'User with this email already exists',
-      });
-    }
-  } catch (error) {
-    console.error('Error in POST /auth/signup', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
+    res.status(HTTP.CREATED).json({
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.fullname,
+        role: user.type,
+      },
+      token: accessToken,
+    });
 });
 
 /**
  * POST /auth/forgot-password - Initiate password reset
  */
 router.post('/forgot-password', async (req: Request, res: Response) => {
-  try {
     if (!req.body?.email) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: EMPTY_REQUEST_BODY,
-      });
-      return;
+      throw new BadRequestError(EMPTY_REQUEST_BODY); 
     }
 
     const { email } = req.body;
     const result = await authController.forgotPassword(email);
 
     res.status(HTTP.ACCEPTED).json(result);
-  } catch (error) {
-    console.error('Error in POST /auth/forgot-password', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
  * POST /auth/reset-password - Reset password with URL token
  */
 router.post('/reset-password', async (req: Request, res: Response) => {
-  try {
     if (!req.body) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: EMPTY_REQUEST_BODY,
-      });
-      return;
+      throw new BadRequestError(EMPTY_REQUEST_BODY);
     }
 
     const { resetToken, newPassword } = req.body;
 
     if (!resetToken || !newPassword) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Token and newPassword are required',
-      });
-      return;
+      throw new BadRequestError('Token and newPassword are required');
     }
 
-    const result = await authController.resetPassword(resetToken, newPassword);
-    if (result) {
-      res.status(HTTP.ACCEPTED).json({
-        message: 'Password reset successfully',
-      });
-    } else {
-      res.status(HTTP.UNAUTHORIZED).json({
-        error: 'Invalid or expired reset link',
-      });
-    }
-  } catch (error) {
-    console.error('Error in POST /auth/reset-password', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
+    await authController.resetPassword(resetToken, newPassword);
+    res.status(HTTP.ACCEPTED).json({
+      message: 'Password reset successfully',
+    });
+
 });
 
 export default router;

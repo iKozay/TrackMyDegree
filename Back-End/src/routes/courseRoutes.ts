@@ -4,6 +4,7 @@ import { courseController } from '@controllers/courseController';
 import { degreeController } from '@controllers/degreeController';
 
 import { cacheGET } from '@middleware/cacheGet';
+import { BadRequestError, NotFoundError } from '@utils/errors';
 
 const router = express.Router();
 const INTERNAL_SERVER_ERROR = 'Internal server error';
@@ -87,7 +88,6 @@ const COURSE_BY_DEGREE_CACHE_TTL = 1800; // 30 minutes
 router.get('/',
   cacheGET(COURSE_CACHE_TTL), 
   async (req: Request, res: Response) => {
-    try {
       const { pool, search, page, limit, sort } = req.query;
 
       const courses = await courseController.getAllCourses({
@@ -98,35 +98,22 @@ router.get('/',
         sort: sort as string,
     });
       res.status(HTTP.OK).json(courses);
-    } catch (error) {
-      console.error('Error in GET /courses', error);
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
   });
 
 router.get('/all-codes', async (req: Request, res: Response) => {
-  try {
     const courseCodes = await courseController.getAllCourseCodes();
     res.status(HTTP.OK).json({ courseCodes });
-  } catch (error) {
-    console.error('Error in GET /courses/all-codes', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
  * GET /courses/by-degree/:degreeId - Get courses grouped by pools for a degree
  */
 router.get('/by-degree/:degreeId', cacheGET(COURSE_BY_DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const { degreeId } = req.params;
 
     const cleanId = (degreeId as string)?.trim();
     if (!cleanId) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree ID is required',
-      });
-      return;
+      throw new BadRequestError('Degree ID is required');
     }
     const coursePools =
       await degreeController.getCoursePoolsForDegree(cleanId);
@@ -154,10 +141,6 @@ router.get('/by-degree/:degreeId', cacheGET(COURSE_BY_DEGREE_CACHE_TTL), async (
     );
     
     res.status(HTTP.OK).json(populatedPools);
-  } catch (error) {
-    console.error('Error in GET /courses/by-degree/:degreeId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -198,27 +181,15 @@ router.get('/by-degree/:degreeId', cacheGET(COURSE_BY_DEGREE_CACHE_TTL), async (
  *         description: Internal server error.
  */
 router.get('/:code', cacheGET(COURSE_CACHE_TTL), async (req: Request, res: Response) => {
-  try {
     const { code } = req.params;
 
     const cleanCode = (code as string)?.trim();
     if (!cleanCode) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Course code is required',
-      });
-      return;
+      throw new BadRequestError('Course code is required');
     }
 
     const course = await courseController.getCourseByCode(cleanCode);
     res.status(HTTP.OK).json(course);
-  } catch (error) {
-    console.error('Error in GET /courses/:code', error);
-    if (error instanceof Error && error.message.includes('not found')) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 export default router;

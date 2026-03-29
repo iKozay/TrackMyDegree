@@ -1,3 +1,4 @@
+import { Not } from './../../../node_modules/mongoose/types/expressions.d';
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { timelineController } from '@controllers/timelineController';
@@ -6,6 +7,7 @@ import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
 import { getJobResult } from '../lib/cache';
 import { TimelineResult } from '@shared/timeline';
+import { BadRequestError, NotFoundError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -64,30 +66,21 @@ const DOES_NOT_EXIST = 'does not exist';
  */
 
 router.post('/', async (req: Request, res: Response) => {
-  try {
-    const { userId, timelineName, jobId } = req.body;
+  const { userId, timelineName, jobId } = req.body;
 
-    if (!userId || !timelineName || !jobId) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID, timeline name, and job ID are required',
-      });
-      return;
-    }
-
-// get result from cache
-    const cached = await getJobResult<TimelineResult>(jobId);
-
-    if (!cached) {
-      return res.status(410).json({ error: 'result expired' });
-    }
-    const cachedTimeline = cached.payload.data;
-
-    const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
-    res.status(HTTP.CREATED).json(timeline);
-  } catch (error) {
-    console.error('Error in POST /timeline', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  if (!userId || !timelineName || !jobId) {
+    throw new BadRequestError('User ID, timeline name, and job ID are required');
   }
+
+  // get result from cache
+  const cached = await getJobResult<TimelineResult>(jobId);
+  if (!cached) {
+    throw new NotFoundError('Timeline data not found for the provided job ID');
+  }
+
+  const cachedTimeline = cached.payload.data;
+  const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
+  res.status(HTTP.CREATED).json(timeline);
 });
 
 /**
@@ -125,19 +118,15 @@ router.post('/', async (req: Request, res: Response) => {
  */
 // routes/timeline.ts
 router.get('/:id', assignJobId, async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
     const { jobId } = req as RequestWithJobId;
 
      if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     if (!jobId) {
-      res.status(500).json({ error: 'Job ID missing' });
-      return;
+      throw new Error("Job ID wasn't assigned to the request by middleware");
     }
 
       await queue.add('processData', {
@@ -150,10 +139,6 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
       jobId,
       status: 'processing',
     });
-  } catch (error) {
-    console.error('Error in GET /timeline/:id', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 /**
@@ -202,9 +187,7 @@ router.put('/:id', async (req: Request, res: Response) => {
     const updates = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const timeline = await timelineController.updateTimeline(id as string, updates);
@@ -251,9 +234,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
 
    if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const result = await timelineController.deleteTimeline(id as string);
@@ -302,9 +283,7 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
     const { userId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(userId as string)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: INVALID_ID_FORMAT,
-      });
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     const count = await timelineController.deleteAllUserTimelines(userId as string);

@@ -7,19 +7,9 @@ import {
 import { DegreeAuditData, GenerateAuditParams } from '@shared/audit';
 import { getJobResult } from '../lib/cache';
 import { TimelineResult } from '@shared/timeline';
+import { NotFoundError } from '@utils/errors';
 
 export class DegreeAuditController {
-  private handleError(error: unknown, operation: string): never {
-    Sentry.captureException(error, {
-      tags: {
-        model: 'DegreeAudit',
-        operation,
-      },
-    });
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`[DegreeAudit] Error in ${operation}:`, errorMessage);
-    throw error;
-  }
 
   /**
    * Generate a degree audit for a specific timeline
@@ -28,33 +18,25 @@ export class DegreeAuditController {
     timelineId: string,
     userId: string,
   ): Promise<DegreeAuditData> {
-    try {
       const params: GenerateAuditParams = {
         timelineId,
         userId,
       };
       return await generateDegreeAudit(params);
-    } catch (error) {
-      this.handleError(error, 'getAuditByTimeline');
-    }
   }
 
   async getAuditByCachedTimeline(
   jobId: string,
 ): Promise<DegreeAuditData> {
-  try {
     const cached = await getJobResult<TimelineResult>(jobId);
 
     if (!cached) {
-      throw new Error('RESULT_EXPIRED');
+      throw new NotFoundError('No cached result found for job ID: ' + jobId);
     }
 
     return generateDegreeAuditFromTimeline(
       cached.payload.data,
     );
-  } catch (error) {
-    this.handleError(error, 'getAuditByCachedTimelineJob');
-  }
 }
 
 
@@ -62,11 +44,7 @@ export class DegreeAuditController {
    * Generate a degree audit for the user's most recent timeline
    */
   async getAuditForUser(userId: string): Promise<DegreeAuditData> {
-    try {
       return await generateDegreeAuditForUser(userId);
-    } catch (error) {
-      this.handleError(error, 'getAuditForUser');
-    }
   }
 }
 

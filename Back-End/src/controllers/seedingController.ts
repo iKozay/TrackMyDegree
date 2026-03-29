@@ -63,13 +63,14 @@ async function saveDegreeRequirementsToDB(
 ): Promise<void> {
   const degreeController = new DegreeController();
   const coursepoolController = new CoursePoolController();
-
-  const degreeCreated = await degreeController.createDegree(data.degree);
-  if (degreeCreated) {
-    console.log(`Degree ${data.degree._id} created successfully.`);
-  } else {
+  
+  const exists = await degreeController.exists({ _id: data.degree._id });
+  if (exists) {
     await degreeController.updateDegree(data.degree._id, data.degree);
     console.log(`Degree ${data.degree._id} already exists. Updated existing degree.`);
+  } else {
+    await degreeController.createDegree(data.degree);
+    console.log(`Degree ${data.degree._id} created successfully.`);
   }
 
   await coursepoolController.bulkCreateCoursePools(data.coursePools);

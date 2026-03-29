@@ -1,3 +1,4 @@
+
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'node:path';
@@ -12,6 +13,7 @@ import {
     creditFormDownloadLimiter,
     creditFormUploadLimiter,
 } from '@middleware/rateLimiter';
+import { INTERNAL_SERVER_ERROR } from '@utils/errors';
 
 const router = express.Router();
 
@@ -60,8 +62,6 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
-const NOT_FOUND_PREFIX = 'NOT_FOUND:';
 
 /**
  * @openapi
@@ -99,13 +99,8 @@ const NOT_FOUND_PREFIX = 'NOT_FOUND:';
  *                         type: string
  */
 router.get('/', async (_req: Request, res: Response) => {
-    try {
-        const forms = await creditFormController.getAllForms();
-        res.status(HTTP.OK).json({ forms });
-    } catch (error) {
-        console.error('Error in GET /credit-forms', error);
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
+    const forms = await creditFormController.getAllForms();
+    res.status(HTTP.OK).json({ forms });
 });
 
 /**
@@ -133,26 +128,21 @@ router.get('/', async (_req: Request, res: Response) => {
  */
 // IMPORTANT: This route must be defined BEFORE /:id to prevent 'file' being treated as an id
 router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Response) => {
-    try {
-        const { filename } = req.params;
-        // Strip directory components before resolving (defense-in-depth against path traversal, CWE-22)
-        const safeFilename = path.basename(filename as string);
-        const filePath = creditFormController.resolveFilePath(safeFilename);
+    const { filename } = req.params;
+    // Strip directory components before resolving (defense-in-depth against path traversal, CWE-22)
+    const safeFilename = path.basename(filename as string);
+    const filePath = creditFormController.resolveFilePath(safeFilename);
 
-        if (!filePath) {
-            res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
-            return;
-        }
-
-        // Sanitize the filename for the Content-Disposition header to prevent header injection
-        const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `inline; filename="${headerSafeFilename}"`);
-        res.sendFile(filePath);
-    } catch (error) {
-        console.error('Error in GET /credit-forms/file/:filename', error);
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    if (!filePath) {
+        res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
+        return;
     }
+
+    // Sanitize the filename for the Content-Disposition header to prevent header injection
+    const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${headerSafeFilename}"`);
+    res.sendFile(filePath);
 });
 
 /**
@@ -174,20 +164,15 @@ router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Res
  *         description: Form not found
  */
 router.get('/:id', async (req: Request, res: Response) => {
-    try {
-        const { id } = req.params;
-        const form = await creditFormController.getFormById(id as string);
+    const { id } = req.params;
+    const form = await creditFormController.getFormById(id as string);
 
-        if (!form) {
-            res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
-            return;
-        }
-
-        res.status(HTTP.OK).json(form);
-    } catch (error) {
-        console.error('Error in GET /credit-forms/:id', error);
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    if (!form) {
+        res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
+        return;
     }
+
+    res.status(HTTP.OK).json(form);
 });
 
 /**
@@ -238,52 +223,43 @@ router.post(
     adminCheckMiddleware,
     handleUpload,
     async (req: Request, res: Response) => {
-        try {
-            const { programId, title, subtitle } = req.body;
-            const file = req.file;
+        const { programId, title, subtitle } = req.body;
+        const file = req.file;
 
-            if (!programId || !title || !subtitle) {
-                if (file) {
-                    const fs = await import('node:fs');
-                    const safeFilename = path.basename(file.path);
-                    const filePath = path.join(UPLOAD_DIR, safeFilename);
-                    if (fs.existsSync(filePath)) 
-                        fs.unlinkSync(filePath);
-                }
-                res.status(HTTP.BAD_REQUEST).json({
-                    error: 'programId, title, and subtitle are required',
-                });
-                return;
+        if (!programId || !title || !subtitle) {
+            if (file) {
+                const fs = await import('node:fs');
+                const safeFilename = path.basename(file.path);
+                const filePath = path.join(UPLOAD_DIR, safeFilename);
+                if (fs.existsSync(filePath)) 
+                    fs.unlinkSync(filePath);
             }
-
-            if (!file) {
-                res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
-                return;
-            }
-
-            const userId = (req as any).user?.userId ?? null;
-
-            const result = await creditFormController.createForm({
-                programId,
-                title,
-                subtitle,
-                filename: file.filename,
-                uploadedBy: userId,
+            res.status(HTTP.BAD_REQUEST).json({
+                error: 'programId, title, and subtitle are required',
             });
-
-            const message = result.reactivated
-                ? 'Credit form reactivated and updated successfully'
-                : 'Credit form created successfully';
-
-            res.status(HTTP.CREATED).json({ message, form: result.form });
-        } catch (error) {
-            if (error instanceof Error && error.message.startsWith('CONFLICT:')) {
-                res.status(HTTP.CONFLICT).json({ error: error.message.replace('CONFLICT: ', '') });
-            } else {
-                console.error('Error in POST /credit-forms', error);
-                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-            }
+            return;
         }
+
+        if (!file) {
+            res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
+            return;
+        }
+
+        const userId = (req as any).user?.userId ?? null;
+
+        const result = await creditFormController.createForm({
+            programId,
+            title,
+            subtitle,
+            filename: file.filename,
+            uploadedBy: userId,
+        });
+
+        const message = result.reactivated
+            ? 'Credit form reactivated and updated successfully'
+            : 'Credit form created successfully';
+
+        res.status(HTTP.CREATED).json({ message, form: result.form });
     },
 );
 
@@ -331,31 +307,22 @@ router.put(
     adminCheckMiddleware,
     handleUpload,
     async (req: Request, res: Response) => {
-        try {
-            const { id } = req.params;
-            const { title, subtitle } = req.body;
-            const file = req.file;
-            const userId = (req as any).user?.userId ?? null;
+        const { id } = req.params;
+        const { title, subtitle } = req.body;
+        const file = req.file;
+        const userId = (req as any).user?.userId ?? null;
 
-            const form = await creditFormController.updateForm(id as string, {
-                title,
-                subtitle,
-                filename: file?.filename,
-                uploadedBy: userId,
-            });
+        const form = await creditFormController.updateForm(id as string, {
+            title,
+            subtitle,
+            filename: file?.filename,
+            uploadedBy: userId,
+        });
 
-            res.status(HTTP.OK).json({
-                message: 'Credit form updated successfully',
-                form,
-            });
-        } catch (error) {
-            if (error instanceof Error && error.message.startsWith(NOT_FOUND_PREFIX)) {
-                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace(`${NOT_FOUND_PREFIX} `, '') });
-            } else {
-                console.error('Error in PUT /credit-forms/:id', error);
-                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-            }
-        }
+        res.status(HTTP.OK).json({
+            message: 'Credit form updated successfully',
+            form,
+        });
     },
 );
 
@@ -389,18 +356,9 @@ router.delete(
     authMiddleware,
     adminCheckMiddleware,
     async (req: Request, res: Response) => {
-        try {
-            const { id } = req.params;
-            await creditFormController.deleteForm(id as string);
-            res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
-        } catch (error) {
-            if (error instanceof Error && error.message.startsWith(NOT_FOUND_PREFIX)) {
-                res.status(HTTP.NOT_FOUND).json({ error: error.message.replace(`${NOT_FOUND_PREFIX} `, '') });
-            } else {
-                console.error('Error in DELETE /credit-forms/:id', error);
-                res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-            }
-        }
+        const { id } = req.params;
+        await creditFormController.deleteForm(id as string);
+        res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
     },
 );
 

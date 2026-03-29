@@ -2,10 +2,10 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { degreeAuditController } from '@controllers/degreeAuditController';
 import mongoose from 'mongoose';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const INVALID_ID_FORMAT = 'Invalid id format';
 
 /**
@@ -99,26 +99,19 @@ const INVALID_ID_FORMAT = 'Invalid id format';
  *         description: Internal server error
  */
 router.get('/timeline/:timelineId', async (req: Request, res: Response) => {
-  try {
     const timelineId = req.params.timelineId as string;
     const userId = req.query.userId as string | undefined;
 
     if (!timelineId || !mongoose.Types.ObjectId.isValid(timelineId)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: `${INVALID_ID_FORMAT}: timelineId`,
-      });
+      throw new BadRequestError(`${INVALID_ID_FORMAT}: timelineId`);
     }
 
     if (!userId) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: 'User ID is required as a query parameter',
-      });
+      throw new BadRequestError('User ID is required as a query parameter');
     }
 
     if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: `${INVALID_ID_FORMAT}: userId`,
-      });
+      throw new BadRequestError(`${INVALID_ID_FORMAT}: userId`);
     }
 
     const audit = await degreeAuditController.getAuditByTimeline(
@@ -126,41 +119,20 @@ router.get('/timeline/:timelineId', async (req: Request, res: Response) => {
       userId,
     );
     return res.status(HTTP.OK).json(audit);
-  } catch (error) {
-    console.error('Error in GET /audit/timeline/:timelineId', error);
-
-    if (error instanceof Error) {
-      if (error.message.includes('not found')) {
-        return res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      }
-      if (error.message.includes('Unauthorized')) {
-        return res.status(HTTP.UNAUTHORIZED).json({ error: error.message });
-      }
-    }
-
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 
 router.get('/timeline/job/:jobId', async (req, res) => {
-  try {
     const { jobId } = req.params;
 
     if (!jobId) {
-      return res.status(HTTP.BAD_REQUEST).json({ error: 'jobId is required' });
+      throw new BadRequestError('jobId is required');
     }
 
     const audit =
       await degreeAuditController.getAuditByCachedTimeline(jobId);
 
     return res.status(HTTP.OK).json(audit);
-  } catch (error) {
-    console.error('Error in GET /audit/timeline/job/:jobId', error);
-    return res
-      .status(HTTP.SERVER_ERR)
-      .json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 
@@ -192,31 +164,15 @@ router.get('/timeline/job/:jobId', async (req, res) => {
  *         description: Internal server error
  */
 router.get('/user/:userId', async (req: Request, res: Response) => {
-  try {
     const userId = req.params.userId as string;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: `${INVALID_ID_FORMAT}: userId`,
-      });
+      throw new BadRequestError(`${INVALID_ID_FORMAT}: userId`);
     }
 
     const audit = await degreeAuditController.getAuditForUser(userId);
     return res.status(HTTP.OK).json(audit);
-  } catch (error) {
-    console.error('Error in GET /audit/user/:userId', error);
 
-    if (error instanceof Error) {
-      if (
-        error.message.includes('not found') ||
-        error.message.includes('No timeline')
-      ) {
-        return res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      }
-    }
-
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 export default router;

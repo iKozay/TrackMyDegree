@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { BaseMongoController } from './baseMongoController';
-import * as Sentry from '@sentry/node';
-import { DATABASE_CONNECTION_NOT_AVAILABLE } from '@utils/constants';
+import { DatabaseConnectionError } from '@utils/errors';
 
 export class AdminController extends BaseMongoController<any> {
   constructor() {
@@ -13,24 +12,13 @@ export class AdminController extends BaseMongoController<any> {
    * Get all collections in the database
    */
   async getCollections(): Promise<string[]> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const collections = await db.listCollections().toArray();
       return collections.map((col) => col.name);
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error fetching collections');
-    }
   }
 
   /**
@@ -46,10 +34,9 @@ export class AdminController extends BaseMongoController<any> {
       select?: string[];
     } = {},
   ): Promise<any[]> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const collection = db.collection(collectionName);
@@ -93,40 +80,19 @@ export class AdminController extends BaseMongoController<any> {
         .toArray();
 
       return documents as any[];
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error fetching documents from collection');
-    }
   }
 
   /**
    * Clear all documents from a collection (dangerous - use with caution)
    */
   async clearCollection(collectionName: string): Promise<number> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const result = await db.collection(collectionName).deleteMany({});
       return result.deletedCount || 0;
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error clearing collection');
-    }
   }
 
   /**

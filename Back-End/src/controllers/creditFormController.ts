@@ -3,6 +3,7 @@ import { CreditForm } from '@models/creditForm';
 import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@shared/creditForm';
 import path from 'node:path';
 import fs from 'node:fs';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 
 const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
 const UPLOAD_DIR = path.join(DATA_DIR, 'credit-forms');
@@ -80,7 +81,7 @@ export async function createForm(
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
-            throw new Error('CONFLICT: A form with this program ID already exists. Use the edit function instead.');
+            throw new AlreadyExistsError('A form with this program ID already exists. Use the edit function instead.');
         }
 
         // Form exists but was soft-deleted — reactivate it with new data
@@ -151,7 +152,7 @@ export async function updateForm(
                 fs.unlinkSync(filePath);
             }
         }
-        throw new Error('NOT_FOUND: Form not found');
+        throw new NotFoundError('Form not found');
     }
 
     if (input.title) form.title = input.title;
@@ -186,7 +187,7 @@ export async function updateForm(
 export async function deleteForm(programId: string): Promise<void> {
     const form = await CreditForm.findOne({ programId });
     if (!form) {
-        throw new Error('NOT_FOUND: Form not found');
+        throw new NotFoundError('Form not found');
     }
 
     form.isActive = false;

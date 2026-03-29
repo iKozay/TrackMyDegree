@@ -32,9 +32,12 @@ export async function adminCheckMiddleware(
 ) {
   await authMiddleware(req, res, async () => {
     const user = (req as any).user;
-    const isAdmin = await authController.isAdmin(user.userId);
-    if (!isAdmin)
-      return res.status(HTTP.FORBIDDEN).json({ error: 'Admins only' });
-    next();
+      const isAdmin = await authController.isAdmin(user.userId);
+
+      if (!isAdmin) {
+        return res.status(HTTP.FORBIDDEN).json({ error: 'Admins only' });
+      }
+
+      next();
   });
 }
