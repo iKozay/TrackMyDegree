@@ -54,7 +54,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
     if (name.startsWith("ECP_")) {
       return name.replace("ECP_", "ECP ").replace(/_/g, " ");
     }
-    return name; // Return the name unchanged for non-ECP course pools
+    return name.charAt(0).toUpperCase() + name.slice(1); // Return the name unchanged for non-ECP course pools
   };
 
   return (
