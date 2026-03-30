@@ -73,7 +73,7 @@ export class CoursePoolController extends BaseMongoController<any> {
   /**
    * Get a specific course pool by ID
    */
-  async getCoursePool(pool_id: string): Promise<CoursePoolData | undefined> {
+  async getCoursePool(pool_id: string): Promise<CoursePoolData> {
       const result = await this.findById(pool_id);
 
       return {

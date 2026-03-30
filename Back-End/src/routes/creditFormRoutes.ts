@@ -13,7 +13,7 @@ import {
     creditFormDownloadLimiter,
     creditFormUploadLimiter,
 } from '@middleware/rateLimiter';
-import { INTERNAL_SERVER_ERROR } from '@utils/errors';
+import { BadRequestError} from '@utils/errors';
 
 const router = express.Router();
 
@@ -234,15 +234,11 @@ router.post(
                 if (fs.existsSync(filePath)) 
                     fs.unlinkSync(filePath);
             }
-            res.status(HTTP.BAD_REQUEST).json({
-                error: 'programId, title, and subtitle are required',
-            });
-            return;
+            throw new BadRequestError('programId, title, and subtitle are required');
         }
 
         if (!file) {
-            res.status(HTTP.BAD_REQUEST).json({ error: 'PDF file is required' });
-            return;
+            throw new BadRequestError('PDF file is required');
         }
 
         const userId = (req as any).user?.userId ?? null;

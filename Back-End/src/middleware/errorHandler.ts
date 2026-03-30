@@ -33,11 +33,13 @@ export const errorHandler = (
   // This prevents exposing internal error details for unexpected errors.
   const isApiError = err instanceof APIError;
   const status = isApiError ? err.status : HTTP.SERVER_ERR;
+  const errorName = isApiError ? err.name : 'InternalServerError';
   const message = isApiError ? err.message : INTERNAL_SERVER_ERROR;
   
 
   res.status(status).json({
-    error: message,
+    error: errorName,
+    message,
     status,
   });
 };
