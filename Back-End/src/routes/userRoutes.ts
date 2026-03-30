@@ -285,8 +285,6 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
   }
 });
 
-// TODO: sanitize req.body — currently accepts any field, including sensitive ones
-// planned: allowlist fields (fullname, email, type) before passing to updateUser
 router.put('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
