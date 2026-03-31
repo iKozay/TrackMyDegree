@@ -15,9 +15,9 @@ const AdminPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdminTab>("metrics");
   const [degreeTabKey, setDegreeTabKey] = useState(0);
 
-  //if (!isAuthenticated) {
-    //return <p>Please log in to see your data.</p>;
-  //}
+  if (!isAuthenticated) {
+    return <p>Please log in to see your data.</p>;
+  }
 
   const handleTabSelect = (k: string | null) => {
     const tab = (k ?? "metrics") as AdminTab;

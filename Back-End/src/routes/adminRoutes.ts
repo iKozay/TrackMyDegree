@@ -16,8 +16,8 @@ const router = express.Router();
 // MIDDLEWARE
 // ==========================
 
-//router.use(authMiddleware);
-//router.use(adminCheckMiddleware);
+router.use(authMiddleware);
+router.use(adminCheckMiddleware);
 
 // ==========================
 // ADMIN ROUTES

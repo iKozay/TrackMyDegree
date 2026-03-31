@@ -3,7 +3,6 @@ import { BaseMongoController } from './baseMongoController';
 import * as Sentry from '@sentry/node';
 import { DATABASE_CONNECTION_NOT_AVAILABLE } from '@utils/constants';
 import * as BackupService from '@services/backup';
-import { backup } from 'node:sqlite';
 
 export class AdminController extends BaseMongoController<any> {
   constructor() {
