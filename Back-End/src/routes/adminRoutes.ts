@@ -10,6 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
+import path from 'path';
 const router = express.Router();
 
 // ==========================
@@ -466,7 +467,8 @@ router.post('/restore-backup', async (req: Request, res: Response) => {
       });
     }
 
-    await adminController.restoreBackup(backupName);
+    const safeBackupname = path.basename(backupName);
+    await adminController.restoreBackup(safeBackupname);
 
     return res.status(HTTP.OK).json({
       success: true,
@@ -489,7 +491,8 @@ router.post('/delete-backup', async (req: Request, res: Response) => {
       });
     }
 
-    await adminController.deleteBackup(backupName);
+    const safeBackupname = path.basename(backupName);
+    await adminController.deleteBackup(safeBackupname);
 
     return res.status(HTTP.OK).json({
       success: true,
