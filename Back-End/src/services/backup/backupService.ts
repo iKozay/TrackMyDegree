@@ -3,17 +3,33 @@ import fs from 'node:fs';
 import fsPromises = fs.promises;
 import path from 'node:path';
 import * as Sentry from '@sentry/node';
+import cron from 'node-cron';
 
+// Initialize Backup Directory
 const BACKUP_DIR = (
   process.env.BACKUP_DIR || path.join(__dirname, '../../backups')
 ).trim();
 
 // Collections to backup (USER DATA ONLY - excludes courses and degrees)
-const USER_DATA_COLLECTIONS = ['users', 'timelines', 'feedback'];
+const USER_DATA_COLLECTIONS = ['users', 'timelines'];
 
-// -------------------------------------
+// Schedule Backups for every 24 hours
+export function startBackupScheduler(): void {
+  cron.schedule('0 2 * * *', async () => {
+    try {
+      console.log('[BACKUP SCHEDULER] Starting daily backup...');
+      const fileName = await createBackup();
+      console.log(`[BACKUP SCHEDULER] Backup created: ${fileName}`);
+    } catch (error) {
+      Sentry.captureException(error);
+      console.error('[BACKUP SCHEDULER] Backup failed:', error);
+    }
+  });
+
+  console.log('[BACKUP SCHEDULER] Daily scheduler started.');
+}
+
 // Ensure Backup Directory Exists
-// -------------------------------------
 async function ensureBackupDir(): Promise<void> {
   if (!fs.existsSync(BACKUP_DIR)) {
     await fsPromises.mkdir(BACKUP_DIR, { recursive: true });
@@ -21,9 +37,7 @@ async function ensureBackupDir(): Promise<void> {
   }
 }
 
-// -------------------------------------
 // Create Backup (User Data Only)
-// -------------------------------------
 export async function createBackup(): Promise<string> {
   try {
     const db = mongoose.connection.db;
@@ -71,9 +85,7 @@ export async function createBackup(): Promise<string> {
   }
 }
 
-// -------------------------------------
 // List Available Backups
-// -------------------------------------
 export async function listBackups(): Promise<string[]> {
   try {
     await ensureBackupDir();
@@ -86,12 +98,9 @@ export async function listBackups(): Promise<string[]> {
   }
 }
 
-// -------------------------------------
 // Restore Backup
-// Step 1: Clear ALL collections
-// Step 2: Re-seed Courses & Degrees from files
-// Step 3: Restore User Data from backup
-// -------------------------------------
+// Step 1: Clear user data collections
+// Step 2: Restore User Data from backup
 export async function restoreBackup(backupFileName: string): Promise<void> {
   try {
     const filePath = path.join(BACKUP_DIR, backupFileName);
@@ -107,7 +116,7 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
     const backupContent = await fsPromises.readFile(filePath, 'utf-8');
     const backupData: Record<string, any[]> = JSON.parse(backupContent);
 
-    console.log('[RESTORE] Step 1: Clearing all collections...');
+    console.log('[RESTORE] Step 1: Clearing users and timeline collections...');
 
     const collections = await db.listCollections().toArray();
     for (const col of collections) {
@@ -115,9 +124,12 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
       console.log(`Cleared collection: ${col.name}`);
     }
 
-    console.log('[RESTORE] Step 2: Re-seeding Courses & Degrees from files...');
+    for (const collectionName of USER_DATA_COLLECTIONS) {
+      await db.collection(collectionName).deleteMany({});
+      console.log(`[RESTORE] Cleared collection: ${collectionName}`);
+    }
 
-    console.log('[RESTORE] Step 3: Restoring user data from backup...');
+    console.log('[RESTORE] Step 2: Restoring user data from backup...');
 
     for (const collectionName of USER_DATA_COLLECTIONS) {
       const docs = backupData[collectionName];
@@ -147,9 +159,7 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
   }
 }
 
-// -------------------------------------
 // Delete Backup
-// -------------------------------------
 export async function deleteBackup(backupFileName: string): Promise<void> {
   try {
     const filePath = path.join(BACKUP_DIR, backupFileName);
