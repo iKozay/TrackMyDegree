@@ -1,4 +1,3 @@
-import { Not } from './../../../node_modules/mongoose/types/expressions.d';
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { timelineController } from '@controllers/timelineController';
@@ -6,7 +5,7 @@ import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
 import { getJobResult } from '../lib/cache';
-import { TimelineResult } from '@shared/timeline';
+import { TimelineResult } from '@trackmydegree/shared';
 import { BadRequestError, NotFoundError } from '@utils/errors';
 
 const router = express.Router();
@@ -182,7 +181,6 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.put('/:id', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
     const updates = req.body;
 
@@ -192,14 +190,6 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const timeline = await timelineController.updateTimeline(id as string, updates);
     res.status(HTTP.OK).json(timeline);
-  } catch (error) {
-    console.error('Error in PUT /timeline/:id', error);
-    if (error instanceof Error && error.message.includes('not found')) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -230,7 +220,6 @@ router.put('/:id', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.delete('/:id', async (req: Request, res: Response) => {
-  try {
     const { id } = req.params;
 
    if (!mongoose.Types.ObjectId.isValid(id as string)) {
@@ -239,14 +228,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const result = await timelineController.deleteTimeline(id as string);
     res.status(HTTP.OK).json(result);
-  } catch (error) {
-    console.error('Error in DELETE /timeline/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 /**
@@ -279,7 +260,6 @@ router.delete('/:id', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 router.delete('/user/:userId', async (req: Request, res: Response) => {
-  try {
     const { userId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(userId as string)) {
@@ -290,10 +270,6 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
     });
-  } catch (error) {
-    console.error('Error in DELETE /timeline/user/:userId', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
 });
 
 export default router;

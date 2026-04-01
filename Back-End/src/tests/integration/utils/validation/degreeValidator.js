@@ -152,18 +152,91 @@ function validateCourseRules(
   dbCourses,
   { degreeId, errorReporter },
 ) {
-  // Helper function to compare simple numeric values
-  function compareNumericValues(dbValue, expectedValue) {
+  // Helper function to normalize a rule for comparison
+  function normalizeRule(rule) {
+    // Convert to plain object to remove any proxy wrappers or circular references
+    const plainRule = JSON.parse(JSON.stringify(rule));
+    const { level, ...normalizedRule } = plainRule;
+    return normalizedRule;
+  }
+
+  // Helper function to compare rules arrays
+  function compareRulesArrays(dbRules, expectedRules) {
     const missing = [];
     const extra = [];
-    
-    if (expectedValue !== undefined && dbValue !== expectedValue) {
-      missing.push(expectedValue);
+
+    // Normalize rules for comparison
+    const normalizedDbRules = dbRules.map(normalizeRule);
+    const normalizedExpectedRules = expectedRules.map(normalizeRule);
+
+    // Helper function to create a consistent string representation for comparison
+    // that is order-independent for object properties
+    function ruleToComparableString(rule) {
+      // Convert to plain object first to remove any proxy wrappers/circular refs
+      const plainRule = JSON.parse(JSON.stringify(rule));
+
+      // Recursively sort object keys and course arrays for consistent comparison
+      function sortObjectKeys(obj, depth = 0, parentKey = '') {
+        // Prevent deep nesting issues
+        if (depth > 5) return obj;
+
+        if (Array.isArray(obj)) {
+          // Sort arrays that represent course lists for order-independent comparison
+          if (parentKey === 'courseList' || obj.every(item => typeof item === 'string' && /^[A-Z]{4}\s+\d{3}$/.test(item))) {
+            return obj.slice().sort().map(item => sortObjectKeys(item, depth + 1, ''));
+          }
+          return obj.map(item => sortObjectKeys(item, depth + 1, ''));
+        } else if (obj !== null && typeof obj === 'object') {
+          const sortedObj = {};
+          Object.keys(obj).sort().forEach(key => {
+            sortedObj[key] = sortObjectKeys(obj[key], depth + 1, key);
+          });
+          return sortedObj;
+        } else if (typeof obj === 'string' && parentKey === 'message') {
+          // Normalize course order in messages by extracting and sorting course codes
+          const coursePattern = /[A-Z]{4}\s+\d{3}/g;
+          const courses = obj.match(coursePattern);
+          if (courses && courses.length > 1) {
+            const sortedCourses = courses.slice().sort();
+            let normalizedMessage = obj;
+            // Replace course list with sorted version
+            courses.forEach((course, i) => {
+              normalizedMessage = normalizedMessage.replace(course, `__COURSE_${i}__`);
+            });
+            sortedCourses.forEach((course, i) => {
+              normalizedMessage = normalizedMessage.replace(`__COURSE_${i}__`, course);
+            });
+            return normalizedMessage;
+          }
+        }
+        return obj;
+      }
+
+      return JSON.stringify(sortObjectKeys(plainRule, 0, ''));
     }
-    if (dbValue !== undefined && dbValue !== expectedValue) {
-      extra.push(dbValue);
+
+    // Find missing rules (in expected but not in db)
+    for (const expectedRule of normalizedExpectedRules) {
+      const expectedRuleString = ruleToComparableString(expectedRule);
+      const found = normalizedDbRules.some(dbRule =>
+        ruleToComparableString(dbRule) === expectedRuleString
+      );
+      if (!found) {
+        missing.push(expectedRule);
+      }
     }
-    
+
+    // Find extra rules (in db but not in expected)
+    for (const dbRule of normalizedDbRules) {
+      const dbRuleString = ruleToComparableString(dbRule);
+      const found = normalizedExpectedRules.some(expectedRule =>
+        ruleToComparableString(expectedRule) === dbRuleString
+      );
+      if (!found) {
+        extra.push(dbRule);
+      }
+    }
+
     return { missing, extra };
   }
 
@@ -178,7 +251,7 @@ function validateCourseRules(
       );
       console.log(`Missing ${fieldName} requirements for course ${courseId}:`, comparison.missing);
     }
-    
+
     if (comparison.extra.length > 0) {
       errorReporter.addValidationFailure(
         'course_rules_extra',
@@ -189,7 +262,7 @@ function validateCourseRules(
       console.log(`Extra ${fieldName} requirements for course ${courseId}:`, comparison.extra);
     }
   }
-  
+
   // Get all courses from database for this degree
   for (const dbCourse of dbCourses) {
     const courseId = dbCourse._id.toString();
@@ -198,41 +271,14 @@ function validateCourseRules(
     if (!expectedCourse) {
       continue; // Skip courses that don't match any catalog or not found
     }
-    
-    // Compare rules objects
-    const dbRules = dbCourse.rules || { prereq: [], coreq: [], not_taken: [], min_credits: undefined };
-    const expectedRules = expectedCourse.rules || { prereq: [], coreq: [], not_taken: [], min_credits: undefined };
-    
-    // Compare prereq (array of arrays)
-    const prereqComparison = compareArraysOfArrays(
-      dbRules.prereq || [], 
-      expectedRules.prereq || []
-    );
-    reportValidationFailure(prereqComparison, 'prereq', courseId);
 
-    // Compare coreq (array of arrays)
-    const coreqComparison = compareArraysOfArrays(
-      dbRules.coreq || [], 
-      expectedRules.coreq || []
-    );
-    reportValidationFailure(coreqComparison, 'coreq', courseId);
+    // Compare rules arrays - new format is an array of rule objects
+    const dbRules = dbCourse.rules || [];
+    const expectedRules = expectedCourse.rules || [];
 
-    // Compare not_taken (simple array)
-    const notTakenComparison = compareSimpleArrays(
-      dbRules.not_taken || [], 
-      expectedRules.not_taken || []
-    );
-    reportValidationFailure(notTakenComparison, 'not_taken', courseId);
-
-    // Compare min_credits (float value)
-    const minCreditsComparison = compareNumericValues(
-      dbRules.min_credits,
-      expectedRules.min_credits
-    );
-    reportValidationFailure(minCreditsComparison, 'min_credits', courseId);
-
-    
-
+    // Compare rules arrays
+    const rulesComparison = compareRulesArrays(dbRules, expectedRules);
+    reportValidationFailure(rulesComparison, 'rules', courseId);
   }
 }
 

@@ -7,12 +7,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
-    "rules": {
-      "prereq": [["MECH 221", "MIAE 221"]],
-      "coreq": [],
-      "not_taken": ["AERO 481"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 221", "MIAE 221"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 221, MIAE 221."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["AERO 481"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: AERO 481."
+      }
+    ]
   },
   {
     "_id": "MECH 343",
@@ -22,12 +34,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233, ENGR 243.",
-    "rules": {
-      "prereq": [["ENGR 213"], ["ENGR 233"], ["ENGR 243"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      }
+    ]
   },
   {
     "_id": "MECH 344",
@@ -37,12 +69,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 244; MECH 313 or MIAE 313. The following courses must be completed previously or concurrently: MECH 343.",
-    "rules": {
-      "prereq": [["ENGR 244"], ["MECH 313", "MIAE 313"], ["MECH 343"]],
-      "coreq": [["MECH 343"]],
-      "not_taken": ["MECH 441"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 313", "MIAE 313"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 313, MIAE 313."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 343."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 441"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 441."
+      }
+    ]
   },
   {
     "_id": "MECH 351",
@@ -52,12 +112,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 251.",
-    "rules": {
-      "prereq": [["ENGR 251"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 251"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 251."
+      }
+    ]
   },
   {
     "_id": "MECH 352",
@@ -67,12 +131,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 311, ENGR 361.",
-    "rules": {
-      "prereq": [["ENGR 311"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      }
+    ]
   },
   {
     "_id": "MECH 361",
@@ -82,12 +158,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 361.",
-    "rules": {
-      "prereq": [["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      }
+    ]
   },
   {
     "_id": "MECH 368",
@@ -97,27 +177,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: PHYS 205; MIAE 215.",
-    "rules": {
-      "prereq": [["MIAE 215"], ["PHYS 205"]],
-      "coreq": [],
-      "not_taken": ["MECH 470"],
-      "min_credits": 0.0
-    }
-  },
-  {
-    "_id": "MECH 370",
-    "code": "MECH 370",
-    "title": "Modelling and Analysis of Dynamic Systems",
-    "credits": 3.5,
-    "description": "",
-    "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213; ENGR 243 or ENGR 245. The following course must be completed previously or concurrently: ENGR 311.",
-    "rules": {
-      "prereq": [["PHYS 205"], ["ENGR 213"], ["ENGR 243", "ENGR 245"], ["ENGR 311"]],
-      "coreq": [["ENGR 311"]],
-      "not_taken": ["ELEC 370"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 205."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MIAE 215"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MIAE 215."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 470"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 470."
+      }
+    ]
   },
   {
     "_id": "MECH 371",
@@ -127,12 +212,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 243, ENGR 311.",
-    "rules": {
-      "prereq": [["PHYS 205"], ["ENGR 243"], ["ENGR 311"]],
-      "coreq": [],
-      "not_taken": ["ELEC 372"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 205."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 311."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 372"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 372."
+      }
+    ]
   },
   {
     "_id": "MECH 373",
@@ -142,12 +255,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 311; AERO 371 or MECH 370 or MECH 371.",
-    "rules": {
-      "prereq": [["ENGR 311"], ["AERO 371", "MECH 370", "MECH 371"]],
-      "coreq": [],
-      "not_taken": ["MECH 411"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "MECH 370", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, MECH 370, MECH 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 411"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 411."
+      }
+    ]
   },
   {
     "_id": "MECH 375",
@@ -157,12 +290,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 371 or MECH 370 or MECH 371.",
-    "rules": {
-      "prereq": [["AERO 371", "MECH 370", "MECH 371"]],
-      "coreq": [],
-      "not_taken": ["MECH 443"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "MECH 370", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, MECH 370, MECH 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 443"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 443."
+      }
+    ]
   },
   {
     "_id": "MECH 390",
@@ -172,12 +317,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311; MECH 343; MIAE 380. The following course must be completed previously or concurrently: MECH 344.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MECH 344"], ["MIAE 380"], ["MECH 343"]],
-      "coreq": [["MECH 344"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 343."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MIAE 380"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MIAE 380."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 344."
+      }
+    ]
   },
   {
     "_id": "MECH 412",
@@ -187,12 +360,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      }
+    ]
   },
   {
     "_id": "MECH 414",
@@ -202,12 +379,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
-      "coreq": [["MIAE 312"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MIAE 312."
+      }
+    ]
   },
   {
     "_id": "MECH 415",
@@ -217,12 +406,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 215 or MIAE 215.",
-    "rules": {
-      "prereq": [["MECH 215", "MIAE 215"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 215", "MIAE 215"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 215, MIAE 215."
+      }
+    ]
   },
   {
     "_id": "MECH 421",
@@ -232,12 +425,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
-    "rules": {
-      "prereq": [["MECH 221", "MIAE 221"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 221", "MIAE 221"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 221, MIAE 221."
+      }
+    ]
   },
   {
     "_id": "MECH 422",
@@ -247,12 +444,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 233, ENGR 244; MECH 221 or MIAE 221.",
-    "rules": {
-      "prereq": [["ENGR 233"], ["ENGR 244"], ["MECH 221", "MIAE 221"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 221", "MIAE 221"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 221, MIAE 221."
+      }
+    ]
   },
   {
     "_id": "MECH 423",
@@ -262,12 +479,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
-    "rules": {
-      "prereq": [["MECH 221", "MIAE 221"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 221", "MIAE 221"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 221, MIAE 221."
+      }
+    ]
   },
   {
     "_id": "MECH 424",
@@ -277,12 +498,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 311 or MIAE 311; MECH 343. The following course must be completed previously or concurrently: MIAE 312.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MECH 343"], ["MIAE 312"]],
-      "coreq": [["MIAE 312"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 343."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MIAE 312."
+      }
+    ]
   },
   {
     "_id": "MECH 425",
@@ -292,12 +533,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 311 or MIAE 311. The following course must be completed previously or concurrently: MIAE 312.",
-    "rules": {
-      "prereq": [["MECH 311", "MIAE 311"], ["MIAE 312"]],
-      "coreq": [["MIAE 312"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 311", "MIAE 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 311, MIAE 311."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MIAE 312."
+      }
+    ]
   },
   {
     "_id": "MECH 426",
@@ -307,12 +560,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 233, ENGR 244; AERO 481 or MECH 321.",
-    "rules": {
-      "prereq": [["ENGR 233"], ["ENGR 244"], ["AERO 481", "MECH 321"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 481", "MECH 321"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 481, MECH 321."
+      }
+    ]
   },
   {
     "_id": "MECH 428",
@@ -322,12 +595,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 344.",
-    "rules": {
-      "prereq": [["MECH 344"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 344."
+      }
+    ]
   },
   {
     "_id": "MECH 444",
@@ -337,12 +614,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 375.",
-    "rules": {
-      "prereq": [["MECH 375"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 375"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 375."
+      }
+    ]
   },
   {
     "_id": "MECH 447",
@@ -352,12 +633,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 343. The following course must be completed previously or concurrently: MECH 375.",
-    "rules": {
-      "prereq": [["MECH 343"], ["MECH 375"]],
-      "coreq": [["MECH 375"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 343."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 375"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 375."
+      }
+    ]
   },
   {
     "_id": "MECH 451",
@@ -367,12 +660,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 352, MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["MECH 351"], ["MECH 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 351."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 352."
+      }
+    ]
   },
   {
     "_id": "MECH 452",
@@ -382,12 +695,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 352, MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["MECH 351"], ["MECH 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 351."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 352."
+      }
+    ]
   },
   {
     "_id": "MECH 453",
@@ -397,12 +730,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 352.",
-    "rules": {
-      "prereq": [["MECH 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 352."
+      }
+    ]
   },
   {
     "_id": "MECH 454",
@@ -412,12 +749,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["MECH 351"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 351."
+      }
+    ]
   },
   {
     "_id": "MECH 460",
@@ -427,12 +776,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 244, ENGR 391.",
-    "rules": {
-      "prereq": [["ENGR 244"], ["ENGR 391"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391."
+      }
+    ]
   },
   {
     "_id": "MECH 461",
@@ -442,12 +803,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      }
+    ]
   },
   {
     "_id": "MECH 463",
@@ -457,12 +822,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 361; MECH 371.",
-    "rules": {
-      "prereq": [["MECH 371"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 371."
+      }
+    ]
   },
   {
     "_id": "MECH 468",
@@ -472,12 +849,48 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 343, MECH 361. The following courses must be completed previously or concurrently: MECH 344, MECH 371.",
-    "rules": {
-      "prereq": [["MECH 343"], ["MECH 361"], ["MECH 344"], ["MECH 371"]],
-      "coreq": [["MECH 344"], ["MECH 371"]],
-      "not_taken": ["MECH 462"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 343."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 344."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 371."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 462"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 462."
+      }
+    ]
   },
   {
     "_id": "MECH 471",
@@ -487,12 +900,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 311; MECH 368.",
-    "rules": {
-      "prereq": [["ENGR 311"], ["MECH 368"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 368"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 368."
+      }
+    ]
   },
   {
     "_id": "MECH 472",
@@ -502,12 +927,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 215 or MIAE 215. The following courses must be completed previously or concurrently: MECH 371.",
-    "rules": {
-      "prereq": [["MECH 215", "MIAE 215"], ["MECH 371"]],
-      "coreq": [["MECH 371"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 215", "MIAE 215"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 215, MIAE 215."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: MECH 371."
+      }
+    ]
   },
   {
     "_id": "MECH 473",
@@ -517,12 +954,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
-    "rules": {
-      "prereq": [["ELEC 372", "MECH 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372, MECH 371."
+      }
+    ]
   },
   {
     "_id": "MECH 474",
@@ -532,12 +973,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ELEC 372 or MECH 371.",
-    "rules": {
-      "prereq": [["ELEC 372", "MECH 371"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372", "MECH 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372, MECH 371."
+      }
+    ]
   },
   {
     "_id": "MECH 476",
@@ -547,12 +992,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 313 or MIAE 313. The following course must be completed previously or concurrently: AERO 390 or MECH 390.",
-    "rules": {
-      "prereq": [["MECH 313", "MIAE 313"], ["AERO 390", "MECH 390"]],
-      "coreq": [["AERO 390", "MECH 390"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 313", "MIAE 313"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 313, MIAE 313."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["AERO 390", "MECH 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: AERO 390, MECH 390."
+      }
+    ]
   },
   {
     "_id": "MECH 490",
@@ -562,12 +1019,47 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 301; MECH 344, MECH 390; MIAE 312. Students must complete 75 credits in the program prior to enrolling.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["MECH 344"], ["MECH 390"], ["MIAE 312"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 344"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 344."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 390."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MIAE 312"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MIAE 312."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "MECH 498",
@@ -577,11 +1069,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department Chair is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

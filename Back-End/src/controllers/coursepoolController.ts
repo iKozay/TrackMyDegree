@@ -1,14 +1,12 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
 import * as Sentry from '@sentry/node';
+import { CoursePoolData } from '@trackmydegree/shared';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 import { NotFoundError } from '@utils/errors';
-
-export interface CoursePoolData {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses?: string[];
-}
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {
@@ -40,47 +38,66 @@ export class CoursePoolController extends BaseMongoController<any> {
   ): Promise<CoursePoolData | null> {
       const result = await this.updateById(pool_id, updateData);
 
-      if (!result.success) {
-        if (result.error?.toLowerCase().includes('not found')) {
-          throw new NotFoundError(result.error); 
-        }
-        throw new Error(result.error || 'Failed to update course pool');
-      }
-
       return {
-        _id: result.data._id,
-        name: result.data.name,
-        creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || [],
+        _id: result._id,
+        name: result.name,
+        creditsRequired: result.creditsRequired,
+        courses: result.courses || [],
+        rules: result.rules || [],
       };
   }
 
   /**
    * Get all course pools
    */
-  async getAllCoursePools(): Promise<CoursePoolData[]> {
+  async getAllCoursePools(academicYear?: string): Promise<CoursePoolData[]> {
       const result = await this.findAll();
 
-      return (result || []).map((cp: any) => ({
-        _id: cp._id,
-        name: cp.name,
-        creditsRequired: cp.creditsRequired,
-        courses: cp.courses || [],
-      }));
 
+      return resolveEntityVersions(
+        'CoursePool',
+        (result || []).map((cp: any) => ({
+          _id: cp._id,
+          name: cp.name,
+          creditsRequired: cp.creditsRequired,
+          courses: cp.courses || [],
+          rules: cp.rules || [],
+          baseAcademicYear: cp.baseAcademicYear,
+        })),
+        academicYear,
+      );
   }
 
   /**
    * Get a specific course pool by ID
    */
-  async getCoursePool(pool_id: string): Promise<CoursePoolData> {
+  async getCoursePool(
+    pool_id: string,
+    academicYear?: string,
+  ): Promise<CoursePoolData | undefined> {
       const result = await this.findById(pool_id);
 
+      const resolved = await resolveEntityVersion({
+        entityType: 'CoursePool',
+        entityId: pool_id,
+        baseEntity: {
+          _id: result.data._id,
+          name: result.data.name,
+          creditsRequired: result.data.creditsRequired,
+          courses: result.data.courses || [],
+          rules: result.data.rules || [],
+          baseAcademicYear: result.data.baseAcademicYear,
+        },
+        academicYear,
+      });
+
       return {
-        _id: result.data._id,
-        name: result.data.name,
-        creditsRequired: result.data.creditsRequired,
-        courses: result.data.courses || [],
+        _id: resolved.entity._id,
+        name: resolved.entity.name,
+        creditsRequired: resolved.entity.creditsRequired,
+        courses: resolved.entity.courses || [],
+        rules: resolved.entity.rules || [],
+        baseAcademicYear: resolved.entity.baseAcademicYear,
       };
   }
 

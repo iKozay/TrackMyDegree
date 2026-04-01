@@ -12,7 +12,6 @@ const router = express.Router();
 
 const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 
-
 /**
  * @openapi
  * tags:
@@ -48,13 +47,19 @@ const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
  *       500:
  *         description: Server error
  */
-router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-    const coursePool = await coursepoolController.getCoursePool(req.params.id as string);
-    if (!coursePool) {
-      throw new NotFoundError('Course pool not found');
-    }
-    return res.status(HTTP.OK).json(coursePool);
-});
+router.get(
+  '/:id',
+  cacheGET(COURSEPOOL_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const academicYear = req.query.academicYear as string | undefined;
+      const coursePool = await coursepoolController.getCoursePool(
+        req.params.id as string,
+        academicYear,
+      );
+
+      return res.status(HTTP.OK).json(coursePool);
+  },
+);
 
 /**
  * GET /coursepool/ - Get all course pools
@@ -78,9 +83,15 @@ router.get('/:id', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Res
  *       500:
  *         description: Server error
  */
-router.get('/', cacheGET(COURSEPOOL_CACHE_TTL), async (req: Request, res: Response) => {
-    const coursePools = await coursepoolController.getAllCoursePools();
-    return res.status(HTTP.OK).json(coursePools);
-});
+router.get(
+  '/',
+  cacheGET(COURSEPOOL_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const academicYear = req.query.academicYear as string | undefined;
+      const coursePools =
+        await coursepoolController.getAllCoursePools(academicYear);
+      return res.status(HTTP.OK).json(coursePools);
+  },
+);
 
 export default router;

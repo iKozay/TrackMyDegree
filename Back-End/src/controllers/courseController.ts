@@ -1,7 +1,10 @@
 import { BaseMongoController } from './baseMongoController';
 import { Course } from '@models';
-import { CourseData } from '@shared/degree';
-import { NotFoundError } from '@utils/errors';
+import { CourseData } from '@trackmydegree/shared';
+import {
+  resolveEntityVersion,
+  resolveEntityVersions,
+} from '@services/catalogVersionService';
 
 export class CourseController extends BaseMongoController<any> {
   constructor() {
@@ -40,9 +43,10 @@ export class CourseController extends BaseMongoController<any> {
       page?: number;
       limit?: number;
       sort?: string;
+      academicYear?: string;
     } = {},
   ) {
-      const { pool, search, page, limit, sort } = params;
+      const { pool, search, page, limit, sort, academicYear } = params;
 
       const filter: Record<string, unknown> = {};
       if (pool) {
@@ -58,26 +62,59 @@ export class CourseController extends BaseMongoController<any> {
       };
 
       const result = await this.findAll(filter, options);
-      return result || [];
+      const courses = result || [];
+
+      return resolveEntityVersions('Course', courses, academicYear);
+  }
+
+  async getCoursesByCodes(
+    courseCodes: string[],
+    academicYear?: string,
+  ): Promise<CourseData[]> {
+      const uniqueCodes = [...new Set(courseCodes)];
+      if (uniqueCodes.length === 0) {
+        return [];
+      }
+
+      const courses = await Course.find({ _id: { $in: uniqueCodes } })
+        .lean<CourseData[]>()
+        .exec();
+
+      return resolveEntityVersions('Course', courses, academicYear);
   }
 
   async getAllCourseCodes(): Promise<string[]> {
       const result = await this.findAll({}, { fields: ['_id'] });
+
+      if (!result) {
+        return [];
+      }
       return result.map((course: any) => course._id);
   }
 
   /**
    * Get course by code
    */
-  async getCourseByCode(code: string) {
-      return await this.findById(code);
+  async getCourseByCode(code: string, academicYear?: string) {
+      const result = await this.findById(code);
+
+      const resolved = await resolveEntityVersion({
+        entityType: 'Course',
+        entityId: code,
+        baseEntity: result.data,
+        academicYear,
+      });
+
+      return resolved.entity;
   }
 
   /**
    * Get courses by pool
    */
-  async getCoursesByPool(poolName: string) {
-    return await this.findAll({ offeredIn: poolName });
+  async getCoursesByPool(poolName: string, academicYear?: string) {
+      const result = await this.findAll({ offeredIn: poolName });
+
+      return resolveEntityVersions('Course', result|| [], academicYear);
   }
 
   /**

@@ -10,9 +10,8 @@ import {
   CourseAuditStatus,
   RequirementStatus,
   GenerateAuditParams,
-} from '@shared/audit';
-import { TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
+  TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus,
+  CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import { isTermInProgress } from '@utils/misc';
 import { NotFoundError, UnauthorizedError } from '@utils/errors';
 
@@ -153,7 +152,7 @@ function generateNotices(
  * Processes a course pool into a requirement category
  */
 function processPoolToRequirement(
-  pool: CoursePoolInfo,
+  pool: CoursePoolData,
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -520,7 +519,7 @@ function buildCoursesDictionary(
  * Processes course pools into requirement categories
  */
 function processCoursePools(
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -566,7 +565,7 @@ export async function generateDegreeAudit(
 
 function buildDegreeAudit(
   degreeData: DegreeData,
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<string, {
     status: CourseStatus;
@@ -650,7 +649,8 @@ export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
       title: course.title,
       description: course.description,
       credits: course.credits,
-      offeredIn: course.offeredIN,
+      offeredIn: course.offeredIn,
+      rules: [],
     }];
     }),
   );

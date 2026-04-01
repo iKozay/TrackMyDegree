@@ -60,17 +60,25 @@ const DEGREE_CACHE_TTL = 1800; // 30 minutes
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-    const { id } = req.params;
+router.get(
+  '/:id',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
 
-    const cleanId = (id as string)?.trim();
-    if (!cleanId) {
-      throw new BadRequestError(DEGREE_ID_REQUIRED);
-    }
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        throw new BadRequestError(DEGREE_ID_REQUIRED);
+      }
 
-    const degree = await degreeController.readDegree(id as string);
-    res.status(HTTP.OK).json(degree);
-});
+      const degree = await degreeController.readDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json(degree);
+  },
+);
 
 /**
  * GET /degree - Get all degrees
@@ -100,10 +108,15 @@ router.get('/:id', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Respons
  *       500:
  *         description: Internal server error.
  */
-router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-    const degrees = await degreeController.readAllDegrees();
-    res.status(HTTP.OK).json(degrees);
-});
+router.get(
+  '/',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const academicYear = req.query.academicYear as string | undefined;
+      const degrees = await degreeController.readAllDegrees(academicYear);
+      res.status(HTTP.OK).json(degrees);
+  },
+);
 
 /**
  * GET /degree/:id/credits - Get credits for degree
@@ -141,19 +154,27 @@ router.get('/', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) 
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-    const { id } = req.params;
+router.get(
+  '/:id/credits',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
 
-    const cleanId = (id as string)?.trim();
-    if (!cleanId) {
-      throw new BadRequestError(DEGREE_ID_REQUIRED);
-    }
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        throw new BadRequestError(DEGREE_ID_REQUIRED);
+      }
 
-    const credits = await degreeController.getCreditsForDegree(id as string);
-    res.status(HTTP.OK).json({
-      totalCredits: credits,
-    });
-});
+      const credits = await degreeController.getCreditsForDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json({
+        totalCredits: credits,
+      });
+  },
+);
 
 /**
  * GET /degree/:id/coursepools - Get course pools for degree
@@ -194,15 +215,23 @@ router.get('/:id/credits', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res:
  *       500:
  *         description: Internal server error.
  */
-router.get('/:id/coursepools', cacheGET(DEGREE_CACHE_TTL), async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const cleanId = (id as string)?.trim();
-    if (!cleanId) {
-      throw new BadRequestError(DEGREE_ID_REQUIRED);
-    }
+router.get(
+  '/:id/coursepools',
+  cacheGET(DEGREE_CACHE_TTL),
+  async (req: Request, res: Response) => {
+      const { id } = req.params;
+      const academicYear = req.query.academicYear as string | undefined;
+      const cleanId = (id as string)?.trim();
+      if (!cleanId) {
+        throw new BadRequestError(DEGREE_ID_REQUIRED);
+      }
 
-    const coursePools = await degreeController.getCoursePoolsForDegree(id as string);
-    res.status(HTTP.OK).json(coursePools);
-});
+      const coursePools = await degreeController.getCoursePoolsForDegree(
+        id as string,
+        academicYear,
+      );
+      res.status(HTTP.OK).json(coursePools);
+  },
+);
 
 export default router;

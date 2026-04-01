@@ -1,12 +1,10 @@
-import * as Sentry from '@sentry/node';
 import {
   generateDegreeAudit,
   generateDegreeAuditForUser,
   generateDegreeAuditFromTimeline,
-} from '@services/audit/degreeAuditService';
-import { DegreeAuditData, GenerateAuditParams } from '@shared/audit';
+} from '@services/audit';
+import { TimelineResult, DegreeAuditData, GenerateAuditParams } from '@trackmydegree/shared';
 import { getJobResult } from '../lib/cache';
-import { TimelineResult } from '@shared/timeline';
 import { NotFoundError } from '@utils/errors';
 
 export class DegreeAuditController {

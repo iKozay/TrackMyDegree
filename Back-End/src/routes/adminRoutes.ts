@@ -1,6 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/adminController';
+import { CatalogError, runCatalog } from '@services/catalogService';
 import {
   adminCheckMiddleware,
   authMiddleware,
@@ -8,7 +9,7 @@ import {
 import {
   seedAllDegreeData,
   seedDegreeData,
-} from '../controllers/seedingController';
+} from '@controllers/seedingController';
 const router = express.Router();
 
 // ==========================
@@ -23,6 +24,8 @@ router.use(adminCheckMiddleware);
 // ==========================
 
 const COLLECTION_NAME_REQUIRED = 'Collection name is required';
+const ACADEMIC_YEAR_REQUIRED = 'Academic year is required';
+const INTERNAL_SERVER_ERROR = 'Internal server error';  
 
 /**
  * @openapi
@@ -199,7 +202,9 @@ router.delete(
         return;
       }
 
-      const count = await adminController.clearCollection(collectionName as string);
+      const count = await adminController.clearCollection(
+        collectionName as string,
+      );
       res.status(HTTP.OK).json({
         success: true,
         message: `${count} documents cleared successfully`,
@@ -233,6 +238,110 @@ router.get('/connection-status', (req: Request, res: Response) => {
       message: 'Connection status retrieved successfully',
       ...status,
     });
+});
+
+/**
+ * @openapi
+ * /admin/catalogs-update:
+ *   post:
+ *     summary: Scrape, diff, and optionally apply catalog updates
+ *     description: Runs the catalog update flow for an academic year and optionally persists the resulting changes.
+ *     tags: [Admin]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - academicYear
+ *             properties:
+ *               academicYear:
+ *                 type: string
+ *                 example: 2026-2027
+ *               degree:
+ *                 type: string
+ *                 description: Optional degree name to limit the scrape scope.
+ *               apply:
+ *                 type: boolean
+ *                 default: false
+ *               writeSnapshot:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Writes snapshot JSON locally in development only.
+ *               writePatch:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Writes patch JSON locally in development only.
+ *               inspectDir:
+ *                 type: string
+ *                 description: Optional output directory for local inspection files in development only.
+ *               backfillBaseAcademicYear:
+ *                 type: string
+ *                 description: Optional academic year used to backfill missing baseAcademicYear fields before applying.
+ *     responses:
+ *       200:
+ *         description: Catalog update completed successfully.
+ *       400:
+ *         description: Academic year is missing or invalid.
+ *       500:
+ *         description: Catalog update failed.
+ */
+router.post('/catalogs-update', async (req: Request, res: Response) => {
+  try {
+    const {
+      academicYear,
+      degree,
+      apply = false,
+      writeSnapshot = false,
+      writePatch = false,
+      inspectDir,
+      backfillBaseAcademicYear,
+    } = req.body || {};
+
+    if (!academicYear || typeof academicYear !== 'string') {
+      res.status(HTTP.BAD_REQUEST).json({
+        success: false,
+        message: ACADEMIC_YEAR_REQUIRED,
+      });
+      return;
+    }
+
+    const result = await runCatalog({
+      academicYear,
+      // Omit degree to import all degrees for the academic year.
+      degree: typeof degree === 'string' ? degree : undefined,
+      apply: Boolean(apply),
+      writeSnapshot: Boolean(writeSnapshot),
+      writePatch: Boolean(writePatch),
+      inspectDir: typeof inspectDir === 'string' ? inspectDir : undefined,
+      backfillBaseAcademicYear:
+        typeof backfillBaseAcademicYear === 'string'
+          ? backfillBaseAcademicYear
+          : undefined,
+    });
+
+    res.status(HTTP.OK).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.error('Error in POST /admin/catalogs-update', error);
+
+    if (error instanceof CatalogError) {
+      res.status(HTTP.SERVER_ERR).json({
+        success: false,
+        error: error.message,
+        inspectionFiles: error.inspectionFiles,
+      });
+      return;
+    }
+
+    res.status(HTTP.SERVER_ERR).json({
+      success: false,
+      message: INTERNAL_SERVER_ERROR,
+    });
+  }
 });
 
 router.get('/seed-data', async (req: Request, res: Response) => {

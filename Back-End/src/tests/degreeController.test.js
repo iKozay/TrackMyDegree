@@ -304,6 +304,7 @@ describe('DegreeController', () => {
         name: 'Computer Science123',
         totalCredits: 120,
         coursePools: ['COMP_CORE', 'COMP_ELECTIVES'],
+        baseAcademicYear: '2025-2026',
       });
 
       await CoursePool.create({
@@ -311,6 +312,8 @@ describe('DegreeController', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
+        rules: [],
+        baseAcademicYear: '2025-2026',
       })
 
       await CoursePool.create({
@@ -318,6 +321,8 @@ describe('DegreeController', () => {
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
+        rules: [],
+        baseAcademicYear: '2025-2026',
       })
 
 
@@ -329,12 +334,16 @@ describe('DegreeController', () => {
         name: 'COMP_CORE',
         creditsRequired: 60,
         courses: ['course 1'],
+        rules: [],
+        baseAcademicYear: '2025-2026',
       },
       {
         _id: 'COMP_ELECTIVES',
         name: 'COMP_ELECTIVES',
         creditsRequired: 60,
         courses: ['course 2'],
+        rules: [],
+        baseAcademicYear: '2025-2026',
       }]);
     });
 
@@ -426,12 +435,14 @@ describe('DegreeController', () => {
         name: 'Core Pool',
         creditsRequired: 60,
         courses: ['COMP232', 'COMP248'],
+        rules: []
       },
       {
         _id: 'ELEC_POOL',
         name: 'Electives',
         creditsRequired: 30,
         courses: ['COMP249'],
+        rules: []
       },
     ]);
 

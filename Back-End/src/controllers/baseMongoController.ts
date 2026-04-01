@@ -1,7 +1,6 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
-import * as Sentry from '@sentry/node';
 import { ObjectId } from 'bson';
-import { QUERY_FAILED, DELETE_FAILED, NotFoundError } from '@utils/errors';
+import { NotFoundError } from '@utils/errors';
 
 export interface BaseDocument extends Document {
   _id: ObjectId;
@@ -327,6 +326,21 @@ export abstract class BaseMongoController<T extends BaseDocument> {
           },
         }));
       await this.model.bulkWrite(operations as any, { ordered: false });
+  }
+
+  /**
+   * Aggregate query helper
+   */
+  async aggregate<R = unknown>(
+    pipeline: Record<string, unknown>[],
+  ): Promise<R[]> {
+      // Type assertion needed for flexibility with aggregation pipelines
+      const results = await this.model.aggregate<R>(pipeline as any[]).exec();
+
+      return  results ;
+  }
+}
+e });
   }
 
   /**

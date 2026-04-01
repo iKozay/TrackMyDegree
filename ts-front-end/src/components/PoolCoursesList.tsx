@@ -1,8 +1,9 @@
 import { DraggableCourse } from "./DraggableCourse";
-import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
+import type { CourseMap, CourseCode } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 interface PoolCoursesListProps {
-  pool: Pool;
+  pool: CoursePoolData;
   courses: CourseMap;
   visibleCourseIds?: CourseCode[];
   selectedCourse?: CourseCode | null;
@@ -27,9 +28,9 @@ export const PoolCoursesList: React.FC<PoolCoursesListProps> = ({
     <div className="pool-courses">
       {idsToRender.map((courseId, index) => {
         const course = courses[courseId];
+        if (!course) return null;
         const isCompleted = course.status.status === "completed";
         const isPlanned = course.status.status === "planned";
-        if (!course) return null;
         if (showIncompleted && (isCompleted || isPlanned)) return null;
 
         return (
