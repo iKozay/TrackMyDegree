@@ -118,12 +118,6 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
 
     console.log('[RESTORE] Step 1: Clearing users and timeline collections...');
 
-    const collections = await db.listCollections().toArray();
-    for (const col of collections) {
-      await db.collection(col.name).deleteMany({});
-      console.log(`Cleared collection: ${col.name}`);
-    }
-
     for (const collectionName of USER_DATA_COLLECTIONS) {
       await db.collection(collectionName).deleteMany({});
       console.log(`[RESTORE] Cleared collection: ${collectionName}`);
