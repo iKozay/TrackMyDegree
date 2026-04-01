@@ -52,6 +52,10 @@ describe('BackupService', () => {
   describe('startBackupScheduler', () => {
     let createBackupSpy;
 
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
     afterEach(() => {
         if (createBackupSpy) {
         createBackupSpy.mockRestore();
