@@ -18,7 +18,10 @@
   gap: 8px;
   padding: 12px 16px;
   background: #f8fafc;
+  border: none;
   border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  text-align: left;
   font-weight: 600;
   cursor: pointer;
   user-select: none;
@@ -126,11 +129,11 @@
 .course-item.status-incomplete {
   background-color: #fef3c7;
   border-color: #fcd34d;
-  color: #d97706;
+  color: #92400e;
 }
 
 .course-item.status-unknown {
   background-color: #f1f5f9;
   border-color: #cbd5e1;
-  color: #64748b;
+  color: #334155;
 }

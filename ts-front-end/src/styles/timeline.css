@@ -142,6 +142,7 @@
 .course-content {
   flex: 1;
   cursor: pointer;
+  text-align: left;
 }
 .course-btn {
   display: flex;
@@ -319,6 +320,7 @@
 
 .course-content {
   flex: 1;
+  text-align: left;
 }
 
 .remove-course-btn {
