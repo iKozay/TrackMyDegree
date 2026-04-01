@@ -24,6 +24,14 @@ jest.mock('../controllers/seedingController', () => ({
   seedAllDegreeData: jest.fn().mockResolvedValue(undefined),
 }));
 
+// Mock admin controller for backup routes
+jest.mock('../controllers/adminController', () => ({
+  listBackups: jest.fn(),
+  createBackup: jest.fn(),
+  restoreBackup: jest.fn(),
+  deleteBackup: jest.fn(),
+}));
+
 describe('Admin Routes', () => {
   let mongoServer, mongoUri;
 
@@ -395,6 +403,224 @@ describe('Admin Routes', () => {
       });
 
       catalogService.runCatalog = originalRunCatalog;
+    });
+  });
+
+  describe('GET /admin/fetch-backups', () => {
+    it('should fetch all backups', async () => {
+      const adminController = require('../controllers/adminController');
+
+      const mockBackups = [
+        'backup-2026-04-01.json',
+        'backup-2026-03-31.json',
+      ];
+
+      adminController.listBackups.mockResolvedValueOnce(mockBackups);
+
+      const response = await request(app)
+        .get('/admin/fetch-backups')
+        .expect(200);
+
+      expect(response.body).toEqual({
+        success: true,
+        data: mockBackups,
+      });
+
+      expect(adminController.listBackups).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return 500 if fetching backups fails', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.listBackups.mockRejectedValueOnce(
+        new Error('failed to fetch backups'),
+      );
+
+      const response = await request(app)
+        .get('/admin/fetch-backups')
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Internal Server Error',
+      });
+    });
+  });
+
+  describe('POST /admin/create-backup', () => {
+    it('should create a backup', async () => {
+      const adminController = require('../controllers/adminController');
+
+      const mockBackupFile = 'backup-2026-04-01.json';
+      adminController.createBackup.mockResolvedValueOnce(mockBackupFile);
+
+      const response = await request(app)
+        .post('/admin/create-backup')
+        .expect(200);
+
+      expect(response.body).toEqual({
+        success: true,
+        data: mockBackupFile,
+      });
+
+      expect(adminController.createBackup).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return 500 if backup creation fails', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.createBackup.mockRejectedValueOnce(
+        new Error('failed to create backup'),
+      );
+
+      const response = await request(app)
+        .post('/admin/create-backup')
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Internal Server Error',
+      });
+    });
+  });
+
+  describe('POST /admin/restore-backup', () => {
+    it('should restore a backup', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.restoreBackup.mockResolvedValueOnce();
+
+      const response = await request(app)
+        .post('/admin/restore-backup')
+        .send({
+          backupName: 'backup-2026-04-01.json',
+        })
+        .expect(200);
+
+      expect(response.body).toEqual({
+        success: true,
+      });
+
+      expect(adminController.restoreBackup).toHaveBeenCalledWith(
+        'backup-2026-04-01.json',
+      );
+    });
+
+    it('should sanitize backupName before restoring', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.restoreBackup.mockResolvedValueOnce();
+
+      await request(app)
+        .post('/admin/restore-backup')
+        .send({
+          backupName: '../../backup-2026-04-01.json',
+        })
+        .expect(200);
+
+      expect(adminController.restoreBackup).toHaveBeenCalledWith(
+        'backup-2026-04-01.json',
+      );
+    });
+
+    it('should require backupName', async () => {
+      const response = await request(app)
+        .post('/admin/restore-backup')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toEqual({
+        success: false,
+        message: 'backupName is required',
+      });
+    });
+
+    it('should return 500 if restore fails', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.restoreBackup.mockRejectedValueOnce(
+        new Error('restore failed'),
+      );
+
+      const response = await request(app)
+        .post('/admin/restore-backup')
+        .send({
+          backupName: 'backup-2026-04-01.json',
+        })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Internal Server Error',
+      });
+    });
+  });
+
+  describe('POST /admin/delete-backup', () => {
+    it('should delete a backup', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.deleteBackup.mockResolvedValueOnce();
+
+      const response = await request(app)
+        .post('/admin/delete-backup')
+        .send({
+          backupName: 'backup-2026-04-01.json',
+        })
+        .expect(200);
+
+      expect(response.body).toEqual({
+        success: true,
+      });
+
+      expect(adminController.deleteBackup).toHaveBeenCalledWith(
+        'backup-2026-04-01.json',
+      );
+    });
+
+    it('should sanitize backupName before deleting', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.deleteBackup.mockResolvedValueOnce();
+
+      await request(app)
+        .post('/admin/delete-backup')
+        .send({
+          backupName: '../../backup-2026-04-01.json',
+        })
+        .expect(200);
+
+      expect(adminController.deleteBackup).toHaveBeenCalledWith(
+        'backup-2026-04-01.json',
+      );
+    });
+
+    it('should require backupName', async () => {
+      const response = await request(app)
+        .post('/admin/delete-backup')
+        .send({})
+        .expect(400);
+
+      expect(response.body).toEqual({
+        success: false,
+        message: 'backupName is required',
+      });
+    });
+
+    it('should return 500 if delete fails', async () => {
+      const adminController = require('../controllers/adminController');
+
+      adminController.deleteBackup.mockRejectedValueOnce(
+        new Error('delete failed'),
+      );
+
+      const response = await request(app)
+        .post('/admin/delete-backup')
+        .send({
+          backupName: 'backup-2026-04-01.json',
+        })
+        .expect(500);
+
+      expect(response.body).toEqual({
+        error: 'Internal Server Error',
+      });
     });
   });
 
