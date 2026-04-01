@@ -10,7 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
-import path from 'path';
+import path from 'node:path';
 const router = express.Router();
 
 // ==========================
