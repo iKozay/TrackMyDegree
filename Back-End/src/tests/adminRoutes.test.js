@@ -24,14 +24,6 @@ jest.mock('../controllers/seedingController', () => ({
   seedAllDegreeData: jest.fn().mockResolvedValue(undefined),
 }));
 
-// Mock admin controller for backup routes
-jest.mock('../controllers/adminController', () => ({
-  listBackups: jest.fn(),
-  createBackup: jest.fn(),
-  restoreBackup: jest.fn(),
-  deleteBackup: jest.fn(),
-}));
-
 describe('Admin Routes', () => {
   let mongoServer, mongoUri;
 
@@ -408,14 +400,16 @@ describe('Admin Routes', () => {
 
   describe('GET /admin/fetch-backups', () => {
     it('should fetch all backups', async () => {
-      const adminController = require('../controllers/adminController');
+      const controller =
+        require('../controllers/adminController').adminController;
 
+      const originalListBackups = controller.listBackups;
       const mockBackups = [
         'backup-2026-04-01.json',
         'backup-2026-03-31.json',
       ];
 
-      adminController.listBackups.mockResolvedValueOnce(mockBackups);
+      controller.listBackups = jest.fn().mockResolvedValue(mockBackups);
 
       const response = await request(app)
         .get('/admin/fetch-backups')
@@ -426,15 +420,17 @@ describe('Admin Routes', () => {
         data: mockBackups,
       });
 
-      expect(adminController.listBackups).toHaveBeenCalledTimes(1);
+      controller.listBackups = originalListBackups;
     });
 
-    it('should return 500 if fetching backups fails', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should handle fetch backup errors', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.listBackups.mockRejectedValueOnce(
-        new Error('failed to fetch backups'),
-      );
+      const originalListBackups = controller.listBackups;
+      controller.listBackups = jest
+        .fn()
+        .mockRejectedValue(new Error('fetch failed'));
 
       const response = await request(app)
         .get('/admin/fetch-backups')
@@ -443,15 +439,20 @@ describe('Admin Routes', () => {
       expect(response.body).toEqual({
         error: 'Internal Server Error',
       });
+
+      controller.listBackups = originalListBackups;
     });
   });
 
   describe('POST /admin/create-backup', () => {
-    it('should create a backup', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should create backup', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      const mockBackupFile = 'backup-2026-04-01.json';
-      adminController.createBackup.mockResolvedValueOnce(mockBackupFile);
+      const originalCreateBackup = controller.createBackup;
+      controller.createBackup = jest
+        .fn()
+        .mockResolvedValue('backup-2026-04-01.json');
 
       const response = await request(app)
         .post('/admin/create-backup')
@@ -459,18 +460,20 @@ describe('Admin Routes', () => {
 
       expect(response.body).toEqual({
         success: true,
-        data: mockBackupFile,
+        data: 'backup-2026-04-01.json',
       });
 
-      expect(adminController.createBackup).toHaveBeenCalledTimes(1);
+      controller.createBackup = originalCreateBackup;
     });
 
-    it('should return 500 if backup creation fails', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should handle create backup errors', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.createBackup.mockRejectedValueOnce(
-        new Error('failed to create backup'),
-      );
+      const originalCreateBackup = controller.createBackup;
+      controller.createBackup = jest
+        .fn()
+        .mockRejectedValue(new Error('create failed'));
 
       const response = await request(app)
         .post('/admin/create-backup')
@@ -479,14 +482,18 @@ describe('Admin Routes', () => {
       expect(response.body).toEqual({
         error: 'Internal Server Error',
       });
+
+      controller.createBackup = originalCreateBackup;
     });
   });
 
   describe('POST /admin/restore-backup', () => {
-    it('should restore a backup', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should restore backup', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.restoreBackup.mockResolvedValueOnce();
+      const originalRestoreBackup = controller.restoreBackup;
+      controller.restoreBackup = jest.fn().mockResolvedValue();
 
       const response = await request(app)
         .post('/admin/restore-backup')
@@ -499,15 +506,19 @@ describe('Admin Routes', () => {
         success: true,
       });
 
-      expect(adminController.restoreBackup).toHaveBeenCalledWith(
+      expect(controller.restoreBackup).toHaveBeenCalledWith(
         'backup-2026-04-01.json',
       );
+
+      controller.restoreBackup = originalRestoreBackup;
     });
 
     it('should sanitize backupName before restoring', async () => {
-      const adminController = require('../controllers/adminController');
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.restoreBackup.mockResolvedValueOnce();
+      const originalRestoreBackup = controller.restoreBackup;
+      controller.restoreBackup = jest.fn().mockResolvedValue();
 
       await request(app)
         .post('/admin/restore-backup')
@@ -516,9 +527,11 @@ describe('Admin Routes', () => {
         })
         .expect(200);
 
-      expect(adminController.restoreBackup).toHaveBeenCalledWith(
+      expect(controller.restoreBackup).toHaveBeenCalledWith(
         'backup-2026-04-01.json',
       );
+
+      controller.restoreBackup = originalRestoreBackup;
     });
 
     it('should require backupName', async () => {
@@ -533,12 +546,14 @@ describe('Admin Routes', () => {
       });
     });
 
-    it('should return 500 if restore fails', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should handle restore backup errors', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.restoreBackup.mockRejectedValueOnce(
-        new Error('restore failed'),
-      );
+      const originalRestoreBackup = controller.restoreBackup;
+      controller.restoreBackup = jest
+        .fn()
+        .mockRejectedValue(new Error('restore failed'));
 
       const response = await request(app)
         .post('/admin/restore-backup')
@@ -550,14 +565,18 @@ describe('Admin Routes', () => {
       expect(response.body).toEqual({
         error: 'Internal Server Error',
       });
+
+      controller.restoreBackup = originalRestoreBackup;
     });
   });
 
   describe('POST /admin/delete-backup', () => {
-    it('should delete a backup', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should delete backup', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.deleteBackup.mockResolvedValueOnce();
+      const originalDeleteBackup = controller.deleteBackup;
+      controller.deleteBackup = jest.fn().mockResolvedValue();
 
       const response = await request(app)
         .post('/admin/delete-backup')
@@ -570,15 +589,19 @@ describe('Admin Routes', () => {
         success: true,
       });
 
-      expect(adminController.deleteBackup).toHaveBeenCalledWith(
+      expect(controller.deleteBackup).toHaveBeenCalledWith(
         'backup-2026-04-01.json',
       );
+
+      controller.deleteBackup = originalDeleteBackup;
     });
 
     it('should sanitize backupName before deleting', async () => {
-      const adminController = require('../controllers/adminController');
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.deleteBackup.mockResolvedValueOnce();
+      const originalDeleteBackup = controller.deleteBackup;
+      controller.deleteBackup = jest.fn().mockResolvedValue();
 
       await request(app)
         .post('/admin/delete-backup')
@@ -587,9 +610,11 @@ describe('Admin Routes', () => {
         })
         .expect(200);
 
-      expect(adminController.deleteBackup).toHaveBeenCalledWith(
+      expect(controller.deleteBackup).toHaveBeenCalledWith(
         'backup-2026-04-01.json',
       );
+
+      controller.deleteBackup = originalDeleteBackup;
     });
 
     it('should require backupName', async () => {
@@ -604,12 +629,14 @@ describe('Admin Routes', () => {
       });
     });
 
-    it('should return 500 if delete fails', async () => {
-      const adminController = require('../controllers/adminController');
+    it('should handle delete backup errors', async () => {
+      const controller =
+        require('../controllers/adminController').adminController;
 
-      adminController.deleteBackup.mockRejectedValueOnce(
-        new Error('delete failed'),
-      );
+      const originalDeleteBackup = controller.deleteBackup;
+      controller.deleteBackup = jest
+        .fn()
+        .mockRejectedValue(new Error('delete failed'));
 
       const response = await request(app)
         .post('/admin/delete-backup')
@@ -621,6 +648,8 @@ describe('Admin Routes', () => {
       expect(response.body).toEqual({
         error: 'Internal Server Error',
       });
+
+      controller.deleteBackup = originalDeleteBackup;
     });
   });
 
