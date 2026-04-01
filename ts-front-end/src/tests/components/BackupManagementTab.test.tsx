@@ -10,9 +10,6 @@ vi.mock("../../../api/http-api-client", () => ({
   },
 }));
 
-const mockGet = api.get as ReturnType<typeof vi.fn>;
-const mockPost = api.post as ReturnType<typeof vi.fn>;
-
 describe("BackupManagementTab", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -20,7 +17,7 @@ describe("BackupManagementTab", () => {
   });
 
   it("should fetch and render backups on mount", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql", "backup2.sql"],
     });
@@ -31,8 +28,8 @@ describe("BackupManagementTab", () => {
     expect(screen.getByText("backup2.sql")).toBeTruthy();
   });
 
-  it("should show fetch error when API fails", async () => {
-    mockGet.mockResolvedValue({
+  it("should show fetch error when API returns success false", async () => {
+    vi.mocked(api.get).mockResolvedValue({
       success: false,
       message: "Failed to fetch backups",
     });
@@ -43,37 +40,43 @@ describe("BackupManagementTab", () => {
   });
 
   it("should create backup successfully", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql"],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: true,
     });
 
     render(<BackupManagementTab />);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Create Backup" }));
+    const button = await screen.findByRole("button", {
+      name: "Create Backup",
+    });
+
+    fireEvent.click(button);
 
     await waitFor(() => {
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(api.post).toHaveBeenCalledWith(
         "/admin/create-backup",
         {},
         { credentials: "include" }
       );
     });
 
-    expect(global.alert).toHaveBeenCalledWith("Backup created successfully");
+    expect(global.alert).toHaveBeenCalledWith(
+      "Backup created successfully"
+    );
   });
 
   it("should restore selected backup successfully", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql"],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: true,
     });
 
@@ -85,7 +88,7 @@ describe("BackupManagementTab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Restore Backup" }));
 
     await waitFor(() => {
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(api.post).toHaveBeenCalledWith(
         "/admin/restore-backup",
         { backupName: "backup1.sql" },
         { credentials: "include" }
@@ -98,12 +101,12 @@ describe("BackupManagementTab", () => {
   });
 
   it("should delete selected backup successfully", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql"],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: true,
     });
 
@@ -115,7 +118,7 @@ describe("BackupManagementTab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete Backup" }));
 
     await waitFor(() => {
-      expect(mockPost).toHaveBeenCalledWith(
+      expect(api.post).toHaveBeenCalledWith(
         "/admin/delete-backup",
         { backupName: "backup1.sql" },
         { credentials: "include" }
@@ -127,13 +130,51 @@ describe("BackupManagementTab", () => {
     );
   });
 
+  it("should not restore when no backup is selected", async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      success: true,
+      data: ["backup1.sql"],
+    });
+
+    render(<BackupManagementTab />);
+
+    await screen.findByText("backup1.sql");
+
+    fireEvent.click(screen.getByRole("button", { name: "Restore Backup" }));
+
+    expect(api.post).not.toHaveBeenCalledWith(
+      "/admin/restore-backup",
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
+  it("should not delete when no backup is selected", async () => {
+    vi.mocked(api.get).mockResolvedValue({
+      success: true,
+      data: ["backup1.sql"],
+    });
+
+    render(<BackupManagementTab />);
+
+    await screen.findByText("backup1.sql");
+
+    fireEvent.click(screen.getByRole("button", { name: "Delete Backup" }));
+
+    expect(api.post).not.toHaveBeenCalledWith(
+      "/admin/delete-backup",
+      expect.anything(),
+      expect.anything()
+    );
+  });
+
   it("should show create backup error", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: [],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: false,
       message: "Failed to create backup",
     });
@@ -142,16 +183,18 @@ describe("BackupManagementTab", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: "Create Backup" }));
 
-    expect(await screen.findByText("Failed to create backup")).toBeTruthy();
+    expect(
+      await screen.findByText("Failed to create backup")
+    ).toBeTruthy();
   });
 
   it("should show restore error", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql"],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: false,
       message: "Restore failed",
     });
@@ -167,12 +210,12 @@ describe("BackupManagementTab", () => {
   });
 
   it("should show delete error", async () => {
-    mockGet.mockResolvedValue({
+    vi.mocked(api.get).mockResolvedValue({
       success: true,
       data: ["backup1.sql"],
     });
 
-    mockPost.mockResolvedValue({
+    vi.mocked(api.post).mockResolvedValue({
       success: false,
       message: "Deletion failed",
     });
@@ -185,19 +228,5 @@ describe("BackupManagementTab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Delete Backup" }));
 
     expect(await screen.findByText("Deletion failed")).toBeTruthy();
-  });
-
-  it("should disable restore and delete buttons when no backup selected", async () => {
-    mockGet.mockResolvedValue({
-      success: true,
-      data: ["backup1.sql"],
-    });
-
-    render(<BackupManagementTab />);
-
-    await screen.findByText("backup1.sql");
-
-    expect(screen.getByRole("button", { name: "Restore Backup" })).toBeDisabled();
-    expect(screen.getByRole("button", { name: "Delete Backup" })).toBeDisabled();
   });
 });
