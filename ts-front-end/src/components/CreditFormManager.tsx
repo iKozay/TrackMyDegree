@@ -106,8 +106,8 @@ export const CreditFormManager: React.FC = () => {
         const file = e.target.files?.[0];
         if (file?.type === 'application/pdf') {
             setPdfFile(file);
-        } else {
-            file && toast.error('Please select a PDF file');
+        } else if (file) {
+            toast.error('Please select a PDF file');
         }
     };
 

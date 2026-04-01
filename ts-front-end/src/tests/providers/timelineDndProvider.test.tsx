@@ -37,8 +37,11 @@ vi.mock("@dnd-kit/core", () => {
     onDragStart?: (e: any) => void;
     onDragEnd?: (e: any) => void;
   }) => {
-    handlerStore.onDragStart = onDragStart;
-    handlerStore.onDragEnd = onDragEnd;
+    React.useEffect(() => {
+      handlerStore.onDragStart = onDragStart;
+      handlerStore.onDragEnd = onDragEnd;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [onDragStart, onDragEnd]);
     return <div data-testid="dnd-context">{children}</div>;
   };
 
