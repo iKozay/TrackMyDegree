@@ -1,4 +1,4 @@
-import React, { useState, type ReactNode } from "react";
+import React, { useState, useMemo, type ReactNode } from "react";
 import {
   DndContext,
   DragOverlay,
@@ -13,10 +13,10 @@ import type {
   CourseCode,
   SemesterId,
   SemesterList,
+  CourseMap,
 } from "../types/timeline.types";
 import type { DragCourseData, DroppableSemesterData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
-import type { CourseMap } from "../types/timeline.types";
 import { canDropCourse } from "../utils/timelineUtils";
 
 interface TimelineDndProviderProps {
@@ -51,7 +51,7 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
 
   const handleDragStart = (event: DragStartEvent) => {
     const data = event.active.data.current as DragCourseData | undefined;
-    if (!data || data.type !== "course") return;
+    if (data?.type !== "course") return;
     setActiveCourseId(data.courseId);
   };
 
@@ -65,8 +65,8 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     const activeData = active.data.current as DragCourseData | undefined;
     const overData = over.data.current as DroppableSemesterData | undefined;
 
-    if (!activeData || activeData.type !== "course") return;
-    if (!overData || overData.type !== "semester") return;
+    if (activeData?.type !== "course") return;
+    if (overData?.type !== "semester") return;
 
     const courseId = activeData.courseId;
     const fromSource = activeData.source;
@@ -102,8 +102,10 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     }
   };
 
+  const contextValue = useMemo(() => ({ activeCourseId }), [activeCourseId]);
+
   return (
-    <TimelineDndContext.Provider value={{ activeCourseId }}>
+    <TimelineDndContext.Provider value={contextValue}>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
