@@ -3,7 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import BackupManagementTab from "../../components/admin/BackupManagementTab";
 import { api } from "../../api/http-api-client";
 
-vi.mock("../../../api/http-api-client", () => ({
+vi.mock("../../api/http-api-client", () => ({
   api: {
     get: vi.fn(),
     post: vi.fn(),
