@@ -21,7 +21,10 @@ const AdminPage: React.FC = () => {
 
   const handleTabSelect = (k: string | null) => {
     const tab = (k ?? "metrics") as AdminTab;
-    if (tab === "degrees") setDegreeTabKey((n) => n + 1);
+    if (tab === "degrees"){
+      setDegreeTabKey((n) => n + 1);
+      console.log(degreeTabKey);
+    }
     setActiveTab(tab);
   };
 
