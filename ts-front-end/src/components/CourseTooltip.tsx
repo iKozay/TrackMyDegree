@@ -23,9 +23,8 @@ export const CourseTooltip: React.FC<CourseTooltipProps> = ({
   const shownRemaining = remainingCourses.slice(0, LIST_CAP);
 
   return (
-    <div
+    <section
       className="insights-course-tooltip"
-      role="region"
       aria-label="Pool progress: completed and remaining courses">
       <button
         type="button"
@@ -98,6 +97,6 @@ export const CourseTooltip: React.FC<CourseTooltipProps> = ({
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 };

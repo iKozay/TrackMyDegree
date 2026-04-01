@@ -182,7 +182,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     <div className="course-rules">
       {sortedRuleTypes.map((ruleType) => {
         const displayInfo = ruleTypeDisplayMap[ruleType] || {
-          title: ruleType.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+          title: ruleType.replaceAll("_", " ").replaceAll(/\b\w/g, l => l.toUpperCase()),
           icon: <History size={16} />,
         };
 
@@ -194,8 +194,10 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
 
         return (
           <div key={ruleType} className={`rule-section ${allRulesSatisfied ? 'section-satisfied' : 'section-unsatisfied'}`}>
-            <div
+            <button
+              type="button"
               className="rule-header"
+              aria-expanded={!isCollapsed}
               onClick={() => toggleSection(ruleType)}
             >
               {displayInfo.icon}
@@ -206,7 +208,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
               ) : (
                 <ChevronUp size={16} className="collapse-icon" />
               )}
-            </div>
+            </button>
 
             {!isCollapsed && (
               <div className="rule-items">

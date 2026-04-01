@@ -50,7 +50,7 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
   };
 
   const validateAndSetFile = (file: File | null) => {
-    if (file && file.type === "application/pdf") {
+    if (file?.type === "application/pdf") {
       setFileName(file.name);
       setSelectedFile(file);
       setUploadState('selected');
@@ -118,8 +118,9 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
         Upload your acceptance letter or unofficial transcript to auto-generate your timeline.
       </p>
 
-      <div
+      <section
         className={`upload-box-al upload-box-al--${uploadState}`}
+        aria-label="File drop zone"
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}>
@@ -172,7 +173,7 @@ const UploadBox: React.FC<UploadBoxProps> = ({ toggleModal }) => {
           style={{ display: "none" }}
           disabled={uploadState === 'uploading'}
         />
-      </div>
+      </section>
 
       <button
         className="create-button"

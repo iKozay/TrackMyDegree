@@ -69,17 +69,23 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
       style={style}
       className={`course-card ${getStatusColor(course.status.status)} ${
         isSelected ? "selected" : ""
-      } ${isDragging ? "dragging" : ""} ${!isDraggable ? "not-draggable" : ""}`}
+      } ${isDragging ? "dragging" : ""} ${isDraggable ? "" : "not-draggable"}`}
       {...attributes}>
       {/* drag handle + click-to-select */}
-      <div
+      <button
+        type="button"
         className="course-content"
-        role="presentation"
         {...listeners}
         onClick={() => {
           // if this interaction was actually a drag, ignore click
           if (isDragging) return;
           onCourseSelect(courseId);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onCourseSelect(courseId);
+          }
         }}>
         <div className="course-btn">
           <div className="course-code">{course.id}</div>
@@ -92,7 +98,7 @@ export const DraggableCourse: React.FC<DraggableCourseProps> = ({
 
         <div className="course-name">{course.title}</div>
         <span className="course-credits">{course.credits} cr</span>
-      </div>
+      </button>
     </div>
   );
 };

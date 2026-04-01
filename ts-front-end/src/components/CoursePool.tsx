@@ -30,30 +30,11 @@ const CoursePool: React.FC<CoursePoolProps> = ({
 
   const togglePool = (name: string) =>
     setExpandedPools((prev) => ({ ...prev, [name]: !prev[name] }));
-  //   const map = new Map<string, CourseCode>();
-  //   for (const [key, course] of Object.entries(courses)) {
-  //     map.set(normalizeCourseCode(key), key);
-  //     map.set(normalizeCourseCode(course.id), key);
-  //   }
-  //   return map;
-  // }, [courses]);
-
-  // const resolveCourseKey = (courseId: CourseCode): CourseCode | null => {
-  //   if (courses[courseId]) return courseId;
-  //   return normalizedCourseKeyMap.get(normalizeCourseCode(courseId)) ?? null;
-  // };
-
-  // const isInTimeline = (courseId: CourseCode): boolean => {
-  //   const resolvedKey = resolveCourseKey(courseId);
-  //   if (!resolvedKey) return false;
-  //   const status = courses[resolvedKey]?.status?.status;
-  //   return status === "completed" || status === "planned";
-  // };
 
   const formatPoolName = (name: string) => {
     // Modify ECP course pools to retain 'ECP' and format the rest of the name
     if (name.startsWith("ECP_")) {
-      return name.replace("ECP_", "ECP ").replace(/_/g, " ");
+      return name.replace("ECP_", "ECP ").replaceAll("_", " ");
     }
     return name; // Return the name unchanged for non-ECP course pools
   };
@@ -77,7 +58,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
             type="checkbox"
             checked={showIncompleted}
             onChange={(e) => setShowIncompleted(e.target.checked)}
-          />
+          />{" "}
           Incompleted Only
         </label>
       </div>
