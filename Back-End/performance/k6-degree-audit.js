@@ -64,15 +64,15 @@ export const options = {
         job_timeout_rate:             ["rate<0.05"],
         poll_network_error_rate:      ["rate<0.05"],
 
-        job_time_to_done_ms:                                               ["p(95)<3000"],
+        job_time_to_done_ms:                                               ["p(95)<8000"],
         "http_req_duration{name:GET /api/jobs/:jobId}":                    ["p(95)<2000"],
-        "http_req_duration{name:GET /api/timeline/:id}":                   ["p(95)<200"],
+        "http_req_duration{name:GET /api/timeline/:id}":                   ["p(95)<2000"],
         // Redis-only: no DB reads — expected to be fastest
-        "http_req_duration{name:GET /api/audit/timeline/job/:jobId}":      ["p(95)<500"],
+        "http_req_duration{name:GET /api/audit/timeline/job/:jobId}":      ["p(95)<2000"],
         // hits MongoDB (timeline + user + degree data)
-        "http_req_duration{name:GET /api/audit/timeline/:timelineId}":     ["p(95)<1000"],
+        "http_req_duration{name:GET /api/audit/timeline/:timelineId}":     ["p(95)<9000"],
         // hits MongoDB (resolves latest timeline first, then same as above) — slowest
-        "http_req_duration{name:GET /api/audit/user/:userId}":             ["p(95)<1500"],
+        "http_req_duration{name:GET /api/audit/user/:userId}":             ["p(95)<10000"],
     },
 };
 

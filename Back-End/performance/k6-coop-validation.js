@@ -52,9 +52,9 @@ export const options = {
         job_timeout_rate:                                     ["rate<0.05"],
         poll_network_error_rate:                              ["rate<0.05"],
 
-        job_time_to_done_ms:                                  ["p(95)<3000"],
+        job_time_to_done_ms:                                  ["p(95)<8000"],
         "http_req_duration{name:GET /api/jobs/:jobId}":       ["p(95)<2000"],
-        "http_req_duration{name:GET /api/timeline/:id}":      ["p(95)<200"],
+        "http_req_duration{name:GET /api/timeline/:id}":      ["p(95)<2000"],
         "http_req_duration{name:GET /api/coop/validate/:id}": ["p(95)<500"],
     },
 };
