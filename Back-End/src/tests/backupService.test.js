@@ -50,18 +50,6 @@ describe('BackupService', () => {
   });
 
   describe('startBackupScheduler', () => {
-    let createBackupSpy;
-
-    beforeEach(() => {
-        jest.clearAllMocks();
-    });
-
-    afterEach(() => {
-        if (createBackupSpy) {
-        createBackupSpy.mockRestore();
-        }
-    });
-
     it('should schedule the daily backup job', () => {
         BackupService.startBackupScheduler();
 
@@ -72,32 +60,35 @@ describe('BackupService', () => {
     });
 
     it('should execute scheduled callback successfully', async () => {
-        createBackupSpy = jest
-        .spyOn(BackupService, 'createBackup')
-        .mockResolvedValue('backup-test.json');
+        await db.collection('users').insertOne({ name: 'Ayaan' });
 
         BackupService.startBackupScheduler();
         const callback = cron.schedule.mock.calls[0][1];
 
         await callback();
 
-        expect(createBackupSpy).toHaveBeenCalled();
+        const files = fs.existsSync(BACKUP_DIR)
+        ? fs.readdirSync(BACKUP_DIR)
+        : [];
+
+        expect(files.some((f) => f.endsWith('.json'))).toBe(true);
     });
 
     it('should capture scheduler callback errors', async () => {
-        createBackupSpy = jest
-        .spyOn(BackupService, 'createBackup')
-        .mockRejectedValue(new Error('scheduler failed'));
+        const originalDb = mongoose.connection.db;
+        mongoose.connection.db = null;
 
         BackupService.startBackupScheduler();
         const callback = cron.schedule.mock.calls[0][1];
 
         await callback();
 
-        expect(createBackupSpy).toHaveBeenCalled();
         expect(Sentry.captureException).toHaveBeenCalled();
+
+        mongoose.connection.db = originalDb;
     });
-  });
+    });
+
 
   describe('createBackup', () => {
     it('should create a backup file successfully', async () => {
