@@ -4,6 +4,7 @@ import fsPromises = fs.promises;
 import path from 'node:path';
 import * as Sentry from '@sentry/node';
 import cron from 'node-cron';
+import { EJSON } from 'bson';
 
 // Initialize Backup Directory
 const BACKUP_DIR = (
@@ -72,7 +73,7 @@ export async function createBackup(): Promise<string> {
 
     await fsPromises.writeFile(
       filePath,
-      JSON.stringify(backupData, null, 2),
+      EJSON.stringify(backupData, undefined, 2),
       'utf-8',
     );
 
@@ -114,7 +115,7 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
 
     // Read backup data
     const backupContent = await fsPromises.readFile(filePath, 'utf-8');
-    const backupData: Record<string, any[]> = JSON.parse(backupContent);
+    const backupData: Record<string, any[]> = EJSON.parse(backupContent);
 
     console.log('[RESTORE] Step 1: Clearing users and timeline collections...');
 
