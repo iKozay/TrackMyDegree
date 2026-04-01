@@ -50,40 +50,48 @@ describe('BackupService', () => {
   });
 
   describe('startBackupScheduler', () => {
-    it('should schedule the daily backup job', () => {
-      BackupService.startBackupScheduler();
+    let createBackupSpy;
 
-      expect(cron.schedule).toHaveBeenCalledWith(
+    afterEach(() => {
+        if (createBackupSpy) {
+        createBackupSpy.mockRestore();
+        }
+    });
+
+    it('should schedule the daily backup job', () => {
+        BackupService.startBackupScheduler();
+
+        expect(cron.schedule).toHaveBeenCalledWith(
         '0 2 * * *',
         expect.any(Function),
-      );
+        );
     });
 
     it('should execute scheduled callback successfully', async () => {
-      const spy = jest
+        createBackupSpy = jest
         .spyOn(BackupService, 'createBackup')
         .mockResolvedValue('backup-test.json');
 
-      BackupService.startBackupScheduler();
-      const callback = cron.schedule.mock.calls[0][1];
+        BackupService.startBackupScheduler();
+        const callback = cron.schedule.mock.calls[0][1];
 
-      await callback();
+        await callback();
 
-      expect(spy).toHaveBeenCalled();
+        expect(createBackupSpy).toHaveBeenCalled();
     });
 
     it('should capture scheduler callback errors', async () => {
-      const spy = jest
+        createBackupSpy = jest
         .spyOn(BackupService, 'createBackup')
         .mockRejectedValue(new Error('scheduler failed'));
 
-      BackupService.startBackupScheduler();
-      const callback = cron.schedule.mock.calls[0][1];
+        BackupService.startBackupScheduler();
+        const callback = cron.schedule.mock.calls[0][1];
 
-      await callback();
+        await callback();
 
-      expect(spy).toHaveBeenCalled();
-      expect(Sentry.captureException).toHaveBeenCalled();
+        expect(createBackupSpy).toHaveBeenCalled();
+        expect(Sentry.captureException).toHaveBeenCalled();
     });
   });
 
