@@ -147,5 +147,9 @@ export type TimelineActionType =
       type: typeof TimelineActionConstants.AddCourse;
       payload: { courseId: CourseCode; type: string };
     }
+  | {
+      type: typeof TimelineActionConstants.RemoveCourse;
+      payload: { courseId: CourseCode; type: string };
+    }
   | { type: typeof TimelineActionConstants.AddSemester }
   | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } };

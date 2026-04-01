@@ -45,6 +45,7 @@ export interface TimelineActions {
   openModal: (open: boolean, type: string) => void;
   changeCourseStatus: (courseId: CourseCode, status: CourseStatusValue) => void;
   addCourse: (courseId: CourseCode, type: string) => void;
+  removeCourse: (courseId: CourseCode, type: string) => void;
   addSemester: () => void;
   setTimelineName: (timelineName: string) => void;
 }
@@ -134,6 +135,12 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
     addCourse(courseId, type) {
       dispatch({
         type: TimelineActionConstants.AddCourse,
+        payload: { courseId, type },
+      });
+    },
+    removeCourse(courseId, type) {
+      dispatch({
+        type: TimelineActionConstants.RemoveCourse,
         payload: { courseId, type },
       });
     },

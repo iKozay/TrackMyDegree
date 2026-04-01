@@ -277,4 +277,107 @@ describe("timelineReducer", () => {
       expect(result.selectedCourse).toBe(initialState.selectedCourse);
       expect(result.modal).toEqual(initialState.modal);
   });
+
+  it("handles REMOVE_COURSE action for exemption pool", () => {
+    const stateWithExemption: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "exemptions",
+          name: "exemptions",
+          creditsRequired: 3,
+          courses: ["COMP 248"],
+          rules: [],
+        },
+      ],
+      courses: {
+        ...mockCourses,
+        "COMP 248": {
+          ...mockCourses["COMP 248"],
+          status: { status: "completed", semester: null },
+        },
+      },
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "exemption" },
+    };
+
+    const result = timelineReducer(stateWithExemption, action);
+
+    expect(result.pools[0].courses).not.toContain("COMP 248");
+    expect(result.pools[0].creditsRequired).toBe(0);
+    expect(result.courses["COMP 248"].status.status).toBe("incomplete");
+    expect(result.courses["COMP 248"].status.semester).toBeNull();
+  });
+
+  it("handles REMOVE_COURSE action for deficiency pool", () => {
+    const stateWithDeficiency: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "deficiencies",
+          name: "deficiencies",
+          creditsRequired: 3,
+          courses: ["COMP 249"],
+          rules: [],
+        },
+      ],
+      courses: {
+        ...mockCourses,
+        "COMP 249": {
+          ...mockCourses["COMP 249"],
+          status: { status: "incomplete", semester: null },
+        },
+      },
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 249", type: "deficiency" },
+    };
+
+    const result = timelineReducer(stateWithDeficiency, action);
+
+    expect(result.pools[0].courses).not.toContain("COMP 249");
+    expect(result.pools[0].creditsRequired).toBe(0);
+    expect(result.courses["COMP 249"].status.status).toBe("incomplete");
+  });
+
+  it("does not modify state when REMOVE_COURSE targets invalid type", () => {
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "invalid-type" },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.pools).toEqual(initialState.pools);
+    expect(result.courses).toEqual(initialState.courses);
+  });
+
+  it("does not modify state when REMOVE_COURSE targets course not in pool", () => {
+    const stateWithEmptyExemptions: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "exemptions",
+          name: "exemptions",
+          creditsRequired: 0,
+          courses: [],
+          rules: [],
+        },
+      ],
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "exemption" },
+    };
+
+    const result = timelineReducer(stateWithEmptyExemptions, action);
+
+    expect(result).toEqual(stateWithEmptyExemptions);
+  });
 });

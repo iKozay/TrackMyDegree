@@ -86,6 +86,7 @@ const TimeLinePage: React.FC = () => {
                 }
             }}
             onAdd={actions.addCourse}
+            onRemove={actions.removeCourse}
             onClose={handleOpenModal}
           />
         )}

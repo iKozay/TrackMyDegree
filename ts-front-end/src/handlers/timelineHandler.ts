@@ -377,6 +377,60 @@ export function addCourse(
     };
 }
 
+export function removeCourse(
+    state: TimelineState,
+    payload: { courseId: CourseCode; type: string },
+): TimelineState {
+    const { courseId, type } = payload;
+
+    let poolName: string | null = null;
+    if (type === "exemption") {
+        poolName = "exemptions";
+    } else if (type === "deficiency") {
+        poolName = "deficiencies";
+    }
+
+    if (!poolName) return state;
+
+    const course = state.courses[courseId];
+    if (!course) return state;
+
+    let poolsChanged = false;
+
+    const updatedPools = state.pools.map((pool) => {
+        if (pool.name !== poolName) return pool;
+        if (!pool.courses.includes(courseId)) return pool;
+
+        poolsChanged = true;
+        const credits = course.credits || 0;
+        return {
+            ...pool,
+            courses: pool.courses.filter((c) => c !== courseId),
+            creditsRequired: Math.max(0, pool.creditsRequired - credits),
+        };
+    });
+
+    if (!poolsChanged) return state;
+
+    // Reset course status back to incomplete
+    const updatedCourses = {
+        ...state.courses,
+        [courseId]: {
+            ...course,
+            status: {
+                status: "incomplete" as const,
+                semester: null,
+            },
+        },
+    };
+
+    return {
+        ...state,
+        pools: updatedPools,
+        courses: updatedCourses,
+    };
+}
+
 export function addSemester(state: TimelineState): TimelineState {
     const s1 = withPushedHistory(state);
 

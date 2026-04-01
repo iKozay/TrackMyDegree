@@ -44,6 +44,26 @@ vi.mock("../../reducers/timelineReducer", () => ({
             timelineName: action.payload.timelineName,
         };
     }
+    if (action.type === TimelineActionConstants.RemoveCourse) {
+      const { courseId, type } = action.payload;
+      const poolName = type === "exemption" ? "exemptions" : type === "deficiency" ? "deficiencies" : null;
+      if (!poolName) return state;
+      return {
+        ...state,
+        pools: state.pools.map((pool: any) =>
+          pool.name === poolName
+            ? { ...pool, courses: pool.courses.filter((c: string) => c !== courseId) }
+            : pool,
+        ),
+        courses: {
+          ...state.courses,
+          [courseId]: {
+            ...state.courses[courseId],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+    }
     return state;
   },
 }));
@@ -247,5 +267,83 @@ describe("useTimelineState", () => {
     });
 
     expect(result.current.state.timelineName).toBe("My Timeline");
+  });
+
+  it("dispatches removeCourse action for exemption pool", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        pools: [
+          {
+            _id: "exemptions",
+            name: "exemptions",
+            creditsRequired: 3,
+            courses: ["COMP 248"],
+            rules: [],
+          },
+        ],
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            status: { status: "completed", semester: null },
+          },
+        },
+        semesters: [],
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-remove"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.removeCourse("COMP 248", "exemption");
+    });
+
+    expect(result.current.state.pools[0].courses).not.toContain("COMP 248");
+    expect(result.current.state.courses["COMP 248"].status.status).toBe("incomplete");
+  });
+
+  it("dispatches removeCourse action for deficiency pool", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        pools: [
+          {
+            _id: "deficiencies",
+            name: "deficiencies",
+            creditsRequired: 3,
+            courses: ["COMP 248"],
+            rules: [],
+          },
+        ],
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+        semesters: [],
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-remove-def"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.removeCourse("COMP 248", "deficiency");
+    });
+
+    expect(result.current.state.pools[0].courses).not.toContain("COMP 248");
+    expect(result.current.state.courses["COMP 248"].status.status).toBe("incomplete");
   });
 });
