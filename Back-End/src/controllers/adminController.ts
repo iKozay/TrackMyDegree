@@ -148,7 +148,7 @@ export class AdminController extends BaseMongoController<any> {
   // Return all the available backups from the backup directory
   async listBackups(): Promise<string[]> {
     try {
-      const backupFiles = BackupService.listBackups();
+      const backupFiles = await BackupService.listBackups();
       return backupFiles
     } catch (error) {
       Sentry.captureException(error);
