@@ -3,10 +3,10 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const { AdminController } = require('../controllers/adminController');
 const { User } = require('../models/user');
 const { Course } = require('../models/course');
-const BackupService = require('../services/backupService');
+const BackupService = require('../services/backup/backupService');
 const Sentry = require('@sentry/node');
 
-jest.mock('../services/backupService');
+jest.mock('../services/backup/backupService');
 jest.mock('@sentry/node', () => ({
   captureException: jest.fn(),
 }));
