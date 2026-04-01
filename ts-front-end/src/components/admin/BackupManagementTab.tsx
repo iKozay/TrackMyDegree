@@ -19,10 +19,10 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = (await api.get(
+      const data = await api.get<ApiResult>(
         "/admin/fetch-backups",
         { credentials: "include" },
-      )) as ApiResult;
+      );
 
       if (!data.success) throw new Error(data.message || "Failed to fetch backups");
       setBackups(data.data || []);
@@ -39,11 +39,11 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = (await api.post(
+      const data = await api.post<ApiResult>(
         "/admin/create-backup",
         {},
         { credentials: "include" },
-      )) as ApiResult;
+      );
 
       if (!data.success) throw new Error(data.message || "Failed to create backup");
       await fetchBackups();
@@ -63,11 +63,11 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = (await api.post(
+      const data = await api.post<ApiResult>(
         "/admin/restore-backup",
         { backupName: selectedBackup },
         { credentials: "include" },
-      )) as ApiResult;
+      );
 
       if (!data.success) throw new Error(data.message || "Restore failed");
       alert("Database restored successfully");
@@ -86,11 +86,11 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = (await api.post(
+      const data = await api.post<ApiResult>(
         "/admin/delete-backup",
         { backupName: selectedBackup },
         { credentials: "include" },
-      )) as ApiResult;
+      );
 
       if (!data.success) throw new Error(data.message || "Deletion failed");
 
