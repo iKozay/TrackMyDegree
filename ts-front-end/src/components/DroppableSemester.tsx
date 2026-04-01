@@ -1,6 +1,6 @@
 import React from "react";
-import { useDroppable } from "@dnd-kit/core";
-import { Calendar, Clock } from "lucide-react";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { Calendar, Clock, GripVertical } from "lucide-react";
 import { DraggableCourse } from "./DraggableCourse";
 import type {
   CourseMap,
@@ -8,7 +8,7 @@ import type {
   SemesterId,
   SemesterCourse,
 } from "../types/timeline.types";
-import type { DroppableSemesterData } from "../types/dnd.types";
+import type { DragSemesterData, DroppableSemesterData } from "../types/dnd.types";
 
 interface DroppableSemesterProps {
   semesterId: SemesterId;
@@ -25,14 +25,37 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   onCourseSelect,
   selectedCourse,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({
+  const isFallWinter = semesterId.startsWith("FALL/WINTER");
+
+  const { isOver, setNodeRef: setDropRef } = useDroppable({
     id: semesterId,
     data: { type: "semester", semesterId } as DroppableSemesterData,
   });
 
-  const [season, year] = semesterId.split(" ");
-  const seasonLabel =
-    season.charAt(0).toUpperCase() + season.slice(1).toLowerCase();
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({
+    id: `semester-card:${semesterId}`,
+    data: { type: "semester-card", semesterId } as DragSemesterData,
+    disabled: !isFallWinter,
+  });
+
+  // Merge the two refs
+  const setRef = (node: HTMLDivElement | null) => {
+    setDropRef(node);
+    setDragRef(node);
+  };
+
+  const [season, yearPart] = semesterId.split(" ");
+
+  // Capitalise each word separated by "/" (handles "FALL", "WINTER", "SUMMER", "FALL/WINTER")
+  const seasonLabel = season
+    .split("/")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join("/");
 
   const totalCredits = semesterCourses.reduce((sum, c) => {
     const course = courses[c.code];
@@ -40,12 +63,25 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   }, 0);
 
   return (
-    <div ref={setNodeRef} className={`semester ${isOver ? "drag-over" : ""}`}>
+    <div
+      ref={setRef}
+      className={`semester ${isOver ? "drag-over" : ""} ${isDragging ? "semester--dragging" : ""}`}>
       <div className="semester-header">
+        {/* Only FALL/WINTER semesters are draggable for reordering */}
+        {isFallWinter && (
+          <button
+            type="button"
+            className="semester-drag-handle"
+            aria-label="Drag to reorder semester"
+            {...attributes}
+            {...listeners}>
+            <GripVertical size={16} />
+          </button>
+        )}
         <div className="semester-title">
           <Calendar size={16} />
           <span>
-            {seasonLabel} {year}
+            {seasonLabel} {yearPart}
           </span>
         </div>
         <div className="semester-credits">

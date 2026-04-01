@@ -1,8 +1,9 @@
 import { createContext, useContext } from "react";
-import type { CourseCode } from "../types/timeline.types";
+import type { CourseCode, SemesterId } from "../types/timeline.types";
 
 export interface TimelineDndContextValue {
   activeCourseId: CourseCode | null;
+  activeSemesterId: SemesterId | null;
 }
 
 export const TimelineDndContext = createContext<

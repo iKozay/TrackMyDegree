@@ -26,10 +26,13 @@ describe('RequirementsFormPage', () => {
     vi.clearAllMocks();
     // Mock globalThis.alert
     vi.spyOn(globalThis, 'alert').mockImplementation(() => { });
+    // Mock fetch to immediately reject — component falls back to static data
+    vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('Network error'));
   });
 
   afterEach(() => {
     (globalThis.alert as any).mockRestore();
+    (globalThis.fetch as any).mockRestore();
   });
 
   describe('Component Rendering', () => {

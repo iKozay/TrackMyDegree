@@ -44,6 +44,22 @@ vi.mock("../../reducers/timelineReducer", () => ({
             timelineName: action.payload.timelineName,
         };
     }
+    if (action.type === TimelineActionConstants.AddFallWinterSemester) {
+      return {
+        ...state,
+        semesters: [
+          ...state.semesters,
+          { term: "FALL/WINTER 2025-26", courses: [] },
+        ],
+      };
+    }
+    if (action.type === TimelineActionConstants.MoveSemester) {
+      const { fromIndex, toIndex } = action.payload;
+      const semesters = [...state.semesters];
+      const [moved] = semesters.splice(fromIndex, 1);
+      semesters.splice(toIndex, 0, moved);
+      return { ...state, semesters };
+    }
     if (action.type === TimelineActionConstants.RemoveCourse) {
       const { courseId, type } = action.payload;
       const poolName = type === "exemption" ? "exemptions" : type === "deficiency" ? "deficiencies" : null;
@@ -345,5 +361,42 @@ describe("useTimelineState", () => {
 
     expect(result.current.state.pools[0].courses).not.toContain("COMP 248");
     expect(result.current.state.courses["COMP 248"].status.status).toBe("incomplete");
+  });
+
+  it("dispatches addFallWinterSemester action", () => {
+    const { result } = renderHook(() => useTimelineState(undefined));
+
+    act(() => {
+      result.current.actions.addFallWinterSemester();
+    });
+
+    expect(
+      result.current.state.semesters.some((s) => s.term.startsWith("FALL/WINTER"))
+    ).toBe(true);
+  });
+
+  it("dispatches moveSemester action", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        semesters: [
+          { term: "FALL 2025", courses: [] },
+          { term: "FALL/WINTER 2025-26", courses: [] },
+          { term: "WINTER 2026", courses: [] },
+        ],
+        courses: {},
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-move"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.moveSemester(1, 2);
+    });
+
+    // After moving index 1 → index 2, the FALL/WINTER term should be at position 2
+    expect(result.current.state.semesters[2].term).toMatch(/^FALL\/WINTER/);
   });
 });

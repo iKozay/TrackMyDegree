@@ -67,7 +67,8 @@ const TimeLinePage: React.FC = () => {
       courses={state.courses}
       semesters={state.semesters}
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
-      onMoveBetweenSemesters={actions.moveBetweenSemesters}>
+      onMoveBetweenSemesters={actions.moveBetweenSemesters}
+      onMoveSemester={actions.moveSemester}>
       <div className="app">
         {state.modal.open && (
           <MainModal
@@ -117,6 +118,7 @@ const TimeLinePage: React.FC = () => {
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
+              onAddFallWinterSemester={actions.addFallWinterSemester}
               timelineName={state.timelineName}
             />
           </section>

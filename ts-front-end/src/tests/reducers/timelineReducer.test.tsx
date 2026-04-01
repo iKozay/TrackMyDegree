@@ -380,4 +380,65 @@ describe("timelineReducer", () => {
 
     expect(result).toEqual(stateWithEmptyExemptions);
   });
+
+  it("handles ADD_FALL_WINTER_SEMESTER action", () => {
+    const action = {
+      type: TimelineActionConstants.AddFallWinterSemester,
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(initialState.semesters.length + 1);
+
+    const newSemester = result.semesters[result.semesters.length - 1];
+    expect(newSemester.term).toMatch(/^FALL\/WINTER \d{4}-\d{2}$/);
+  });
+
+  it("does not add a duplicate FALL/WINTER semester", () => {
+    // Add it once
+    const action = { type: TimelineActionConstants.AddFallWinterSemester };
+    const afterFirst = timelineReducer(initialState, action);
+    // Try to add the same term again
+    const afterSecond = timelineReducer(afterFirst, action);
+
+    // Count FALL/WINTER semesters
+    const fwCount = afterSecond.semesters.filter((s) =>
+      s.term.startsWith("FALL/WINTER")
+    ).length;
+    expect(fwCount).toBe(1);
+    expect(afterSecond.semesters.length).toBe(afterFirst.semesters.length);
+  });
+
+  it("handles MOVE_SEMESTER action to reorder semesters", () => {
+    const stateWithFallWinter: TimelineState = {
+      ...initialState,
+      semesters: [
+        { term: "FALL 2025", courses: [] },
+        { term: "FALL/WINTER 2025-26", courses: [] },
+        { term: "WINTER 2026", courses: [] },
+      ],
+    };
+
+    const action = {
+      type: TimelineActionConstants.MoveSemester,
+      payload: { fromIndex: 1, toIndex: 2 },
+    };
+
+    const result = timelineReducer(stateWithFallWinter, action);
+
+    expect(result.semesters.length).toBe(3);
+    // FALL/WINTER should now be at index 2
+    expect(result.semesters[2].term).toMatch(/^FALL\/WINTER/);
+  });
+
+  it("does not change state for MOVE_SEMESTER when fromIndex equals toIndex", () => {
+    const action = {
+      type: TimelineActionConstants.MoveSemester,
+      payload: { fromIndex: 0, toIndex: 0 },
+    };
+
+    const result = timelineReducer(initialState, action);
+    // State returned unchanged (no history push)
+    expect(result.semesters).toEqual(initialState.semesters);
+  });
 });

@@ -15,7 +15,7 @@ import type {
   SemesterList,
   CourseMap,
 } from "../types/timeline.types";
-import type { DragCourseData, DroppableSemesterData } from "../types/dnd.types";
+import type { DragCourseData, DragSemesterData, DroppableSemesterData, DroppableSemesterSlotData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
 import { canDropCourse } from "../utils/timelineUtils";
 
@@ -32,6 +32,7 @@ interface TimelineDndProviderProps {
     fromSemesterId: SemesterId,
     toSemesterId: SemesterId
   ) => void;
+  onMoveSemester: (fromIndex: number, toIndex: number) => void;
 }
 
 const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
@@ -40,8 +41,10 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
   semesters,
   onMoveFromPoolToSemester,
   onMoveBetweenSemesters,
+  onMoveSemester,
 }) => {
   const [activeCourseId, setActiveCourseId] = useState<CourseCode | null>(null);
+  const [activeSemesterId, setActiveSemesterId] = useState<SemesterId | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -50,20 +53,35 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    const data = event.active.data.current as DragCourseData | undefined;
-    if (data?.type !== "course") return;
-    setActiveCourseId(data.courseId);
+    const data = event.active.data.current as DragCourseData | DragSemesterData | undefined;
+    if (data?.type === "course") {
+      setActiveCourseId(data.courseId);
+    } else if (data?.type === "semester-card") {
+      setActiveSemesterId(data.semesterId);
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
     setActiveCourseId(null);
+    setActiveSemesterId(null);
 
     if (!over) return;
 
-    const activeData = active.data.current as DragCourseData | undefined;
-    const overData = over.data.current as DroppableSemesterData | undefined;
+    const activeData = active.data.current as DragCourseData | DragSemesterData | undefined;
+    const overData = over.data.current as DroppableSemesterData | DroppableSemesterSlotData | undefined;
+
+    // ---- Semester reordering ----
+    if (activeData?.type === "semester-card" && overData?.type === "semester-slot") {
+      const fromIndex = semesters.findIndex((s) => s.term === activeData.semesterId);
+      const rawToIndex = overData.targetIndex;
+      if (fromIndex === -1) return;
+      // Adjust target index: dropping after removal shifts indices
+      const toIndex = rawToIndex > fromIndex ? rawToIndex - 1 : rawToIndex;
+      onMoveSemester(fromIndex, toIndex);
+      return;
+    }
 
     if (activeData?.type !== "course") return;
     if (overData?.type !== "semester") return;
@@ -102,7 +120,10 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     }
   };
 
-  const contextValue = useMemo(() => ({ activeCourseId }), [activeCourseId]);
+  const contextValue = useMemo(
+    () => ({ activeCourseId, activeSemesterId }),
+    [activeCourseId, activeSemesterId]
+  );
 
   return (
     <TimelineDndContext.Provider value={contextValue}>
@@ -114,9 +135,16 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
         {children}
 
         <DragOverlay>
-          {activeCourseId ? (
+          {activeCourseId && (
             <div className="course-card dragging">{activeCourseId}</div>
-          ) : null}
+          )}
+          {!activeCourseId && activeSemesterId && (
+            <div className="semester semester-drag-overlay">
+              <div className="semester-header">
+                <span className="semester-title">{activeSemesterId}</span>
+              </div>
+            </div>
+          )}
         </DragOverlay>
       </DndContext>
     </TimelineDndContext.Provider>
