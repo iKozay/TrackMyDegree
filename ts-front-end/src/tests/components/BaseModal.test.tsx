@@ -12,13 +12,14 @@ describe("BaseModal", () => {
   });
 
   it("does not render anything when open is false", () => {
-    const { container } = render(
+    render(
       <BaseModal open={false} onClose={onCloseMock}>
         <div>Modal content</div>
       </BaseModal>
     );
 
-    expect(container.firstChild).toBeNull();
+    expect(screen.getByRole("dialog", { hidden: true })).toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(onCloseMock).not.toHaveBeenCalled();
   });
 
@@ -39,8 +40,8 @@ describe("BaseModal", () => {
       </BaseModal>
     );
 
-    const backdrop = screen.getByRole("button"); // this *is* the backdrop
-    fireEvent.click(backdrop);
+    const closeButton = screen.getByRole("button", { name: /close modal/i, hidden: true });
+    fireEvent.click(closeButton);
 
     expect(onCloseMock).toHaveBeenCalledTimes(1);
     expect(onCloseMock).toHaveBeenCalledWith(false, "");
@@ -53,7 +54,7 @@ describe("BaseModal", () => {
       </BaseModal>
     );
 
-    const closeButton = screen.getByRole("button");
+    const closeButton = screen.getByRole("button", { name: /close modal/i, hidden: true });
     fireEvent.click(closeButton);
 
     expect(onCloseMock).toHaveBeenCalledTimes(1);
