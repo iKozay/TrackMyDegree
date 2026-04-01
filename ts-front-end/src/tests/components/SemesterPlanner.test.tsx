@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import SemesterPlanner from "../../components/SemesterPlanner";
 import type {
@@ -27,7 +27,23 @@ vi.mock("../../contexts/timelineDndContext", () => ({
   useTimelineDnd: vi.fn(() => ({ activeCourseId: null, activeSemesterId: null })),
 }));
 
+// 🔹 Mock react-toastify
+vi.mock("react-toastify", () => ({
+  toast: {
+    warning: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// 🔹 Mock wouldCreateDuplicateFallWinter so we can control its return value
+vi.mock("../../utils/timelineUtils", () => ({
+  wouldCreateDuplicateFallWinter: vi.fn(() => false),
+}));
+
 import { useTimelineDnd } from "../../contexts/timelineDndContext";
+import { toast } from "react-toastify";
+import { wouldCreateDuplicateFallWinter } from "../../utils/timelineUtils";
 
 describe("SemesterPlanner", () => {
   const courses: CourseMap = {
@@ -65,6 +81,10 @@ describe("SemesterPlanner", () => {
   const onCourseSelect = vi.fn();
   const onAddSemester = vi.fn();
   const onAddFallWinterSemester = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("renders the header title and Add Semester button", () => {
     render(
@@ -260,5 +280,52 @@ describe("SemesterPlanner", () => {
 
     const slots = container.querySelectorAll(".semester-drop-slot");
     expect(slots.length).toBe(0);
+  });
+
+  it("shows toast warning and does NOT call onAddFallWinterSemester when duplicate would be created", () => {
+    vi.mocked(wouldCreateDuplicateFallWinter).mockReturnValueOnce(true);
+
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /add fall\/winter semester/i }));
+
+    expect(toast.warning).toHaveBeenCalledWith(
+      "Only one Fall/Winter semester is allowed per academic year",
+    );
+    expect(onAddFallWinterSemester).not.toHaveBeenCalled();
+    // Popover should close after the warning
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("calls onAddFallWinterSemester and does NOT show a toast when no duplicate would be created", () => {
+    vi.mocked(wouldCreateDuplicateFallWinter).mockReturnValueOnce(false);
+
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /add fall\/winter semester/i }));
+
+    expect(onAddFallWinterSemester).toHaveBeenCalledTimes(1);
+    expect(toast.warning).not.toHaveBeenCalled();
+    expect(screen.queryByRole("menu")).toBeNull();
   });
 });

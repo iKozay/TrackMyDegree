@@ -10,6 +10,8 @@ import type {
 } from "../types/timeline.types";
 import type { DroppableSemesterSlotData } from "../types/dnd.types";
 import { Plus, CalendarDays } from "lucide-react";
+import { toast } from "react-toastify";
+import { wouldCreateDuplicateFallWinter } from "../utils/timelineUtils";
 
 interface SemesterPlannerProps {
   semesters: SemesterList;
@@ -78,6 +80,11 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   };
 
   const handleAddFallWinter = () => {
+    if (wouldCreateDuplicateFallWinter(semesters)) {
+      toast.warning("Only one Fall/Winter semester is allowed per academic year");
+      setPopoverOpen(false);
+      return;
+    }
     onAddFallWinterSemester();
     setPopoverOpen(false);
   };

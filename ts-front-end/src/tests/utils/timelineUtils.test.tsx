@@ -8,6 +8,7 @@ import {
   saveTimeline,
   canAddCourse,
   compareCourseIds,
+  wouldCreateDuplicateFallWinter,
 } from "../../utils/timelineUtils";
 import { RuleType, type CoursePoolData, type Rule } from "@trackmydegree/shared";
 import type {
@@ -15,6 +16,7 @@ import type {
   CourseMap,
   Semester,
   SemesterId,
+  SemesterList,
   TimelineState,
   RequisiteGroup,
 } from "../../types/timeline.types";
@@ -1262,6 +1264,87 @@ describe("timelineUtils", () => {
         "Failed to generate PDF:",
         expect.any(Error),
       );
+    });
+  });
+
+  describe("wouldCreateDuplicateFallWinter", () => {
+    it("returns false for an empty semester list", () => {
+      expect(wouldCreateDuplicateFallWinter([])).toBe(false);
+    });
+
+    it("returns false when no Fall/Winter semester exists yet (last is a regular term)", () => {
+      const semesters: SemesterList = [
+        { term: "FALL 2025" as SemesterId, courses: [] },
+        { term: "WINTER 2026" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(false);
+    });
+
+    it("returns false when the computed FALL/WINTER term does not already exist", () => {
+      // Last regular is WINTER 2026 → would produce FALL/WINTER 2026-27, which isn't present
+      const semesters: SemesterList = [
+        { term: "FALL 2025" as SemesterId, courses: [] },
+        { term: "WINTER 2026" as SemesterId, courses: [] },
+        { term: "SUMMER 2026" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(false);
+    });
+
+    it("returns true when the computed FALL/WINTER term already exists (duplicate via regular last)", () => {
+      // lastRegular = WINTER 2026 → fallYear=2026 → newTerm = "FALL/WINTER 2026-27"
+      const semesters: SemesterList = [
+        { term: "FALL 2025" as SemesterId, courses: [] },
+        { term: "WINTER 2026" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2026-27" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(true);
+    });
+
+    it("returns true when last semester is FALL/WINTER but a duplicate already exists earlier in the list", () => {
+      // lastRegular = FALL 2026 → fallYear=2026 → newTerm="FALL/WINTER 2026-27"
+      // That term IS already present earlier in the list → true
+      // (exercises the path where last semester happens to be FALL/WINTER
+      //  but lastRegular drives the fallYear calculation)
+      const semesters: SemesterList = [
+        { term: "FALL 2025" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2026-27" as SemesterId, courses: [] },
+        { term: "FALL 2026" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2025-26" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(true);
+    });
+
+    it("returns false when list ends with a FALL/WINTER semester and the next would NOT duplicate", () => {
+      // Only one FALL/WINTER 2025-26; parseInt("2025-26")=2025, fallYear=2026 → newTerm="FALL/WINTER 2026-27", absent → false
+      const semesters: SemesterList = [
+        { term: "FALL/WINTER 2025-26" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(false);
+    });
+
+    it("returns false when the last term has a non-parseable year (NaN guard)", () => {
+      const semesters: SemesterList = [
+        { term: "FALL/WINTER badyear" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(false);
+    });
+
+    it("pads single-digit short year with a leading zero", () => {
+      // lastRegular = WINTER 2099 → fallYear=2099 → shortYear = (2099+1)%100 = 0 → "00"
+      // newTerm = "FALL/WINTER 2099-00" — not present → false
+      const semesters: SemesterList = [
+        { term: "WINTER 2099" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(false);
+    });
+
+    it("returns true when duplicate exists with padded short year", () => {
+      // WINTER 2099 → fallYear=2099 → newTerm="FALL/WINTER 2099-00" already present
+      const semesters: SemesterList = [
+        { term: "WINTER 2099" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2099-00" as SemesterId, courses: [] },
+      ];
+      expect(wouldCreateDuplicateFallWinter(semesters)).toBe(true);
     });
   });
 });

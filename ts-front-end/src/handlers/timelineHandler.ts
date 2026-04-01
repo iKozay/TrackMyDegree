@@ -519,7 +519,7 @@ function deriveFallYear(
  * their original terms unchanged — moving a FALL/WINTER card must never
  * renumber any regular semester.
  */
-function rebuildSemesterTerms(semesters: Semester[]): Semester[] {
+export function rebuildSemesterTerms(semesters: Semester[]): Semester[] {
     if (semesters.length === 0) return [];
 
     return semesters.map((sem, idx) => {

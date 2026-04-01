@@ -17,7 +17,8 @@ import type {
 } from "../types/timeline.types";
 import type { DragCourseData, DragSemesterData, DroppableSemesterData, DroppableSemesterSlotData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
-import { canDropCourse } from "../utils/timelineUtils";
+import { canDropCourse, wouldCreateDuplicateSemesterKey } from "../utils/timelineUtils";
+import { toast } from "react-toastify";
 
 interface TimelineDndProviderProps {
   children: ReactNode;
@@ -61,6 +62,35 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     }
   };
 
+  const handleSemesterReorder = (activeData: DragSemesterData, overData: DroppableSemesterSlotData) => {
+    const fromIndex = semesters.findIndex((s) => s.term === activeData.semesterId);
+    if (fromIndex === -1) return;
+    const rawToIndex = overData.targetIndex;
+    // Adjust target index: dropping after removal shifts indices
+    const toIndex = rawToIndex > fromIndex ? rawToIndex - 1 : rawToIndex;
+    if (wouldCreateDuplicateSemesterKey(semesters, fromIndex, toIndex)) {
+      toast.warning("Only one Fall/Winter semester is allowed per academic year");
+      return;
+    }
+    onMoveSemester(fromIndex, toIndex);
+  };
+
+  const handleCourseDrop = (activeData: DragCourseData, overData: DroppableSemesterData) => {
+    const { courseId, source: fromSource, semesterId: fromSemesterId } = activeData;
+    const toSemesterId = overData.semesterId;
+    if (!toSemesterId) return;
+    const validation = canDropCourse(courses[courseId], courses, semesters, fromSemesterId, toSemesterId);
+    if (!validation.allowed) {
+      alert(validation.reason);
+      return;
+    }
+    if (fromSource === "pool") {
+      onMoveFromPoolToSemester(courseId, toSemesterId);
+    } else if (fromSource === "planner" && fromSemesterId && fromSemesterId !== toSemesterId) {
+      onMoveBetweenSemesters(courseId, fromSemesterId, toSemesterId);
+    }
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -72,51 +102,10 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     const activeData = active.data.current as DragCourseData | DragSemesterData | undefined;
     const overData = over.data.current as DroppableSemesterData | DroppableSemesterSlotData | undefined;
 
-    // ---- Semester reordering ----
     if (activeData?.type === "semester-card" && overData?.type === "semester-slot") {
-      const fromIndex = semesters.findIndex((s) => s.term === activeData.semesterId);
-      const rawToIndex = overData.targetIndex;
-      if (fromIndex === -1) return;
-      // Adjust target index: dropping after removal shifts indices
-      const toIndex = rawToIndex > fromIndex ? rawToIndex - 1 : rawToIndex;
-      onMoveSemester(fromIndex, toIndex);
-      return;
-    }
-
-    if (activeData?.type !== "course") return;
-    if (overData?.type !== "semester") return;
-
-    const courseId = activeData.courseId;
-    const fromSource = activeData.source;
-    const fromSemesterId = activeData.semesterId;
-    const toSemesterId = overData.semesterId;
-
-    if (!toSemesterId) return;
-
-    const validation = canDropCourse(
-      courses[courseId],
-      courses,
-      semesters,
-      fromSemesterId,
-      toSemesterId
-    );
-
-    if (!validation.allowed) {
-      alert(validation.reason);
-      return;
-    }
-
-    if (fromSource === "pool") {
-      onMoveFromPoolToSemester(courseId, toSemesterId);
-      return;
-    }
-
-    if (
-      fromSource === "planner" &&
-      fromSemesterId &&
-      fromSemesterId !== toSemesterId
-    ) {
-      onMoveBetweenSemesters(courseId, fromSemesterId, toSemesterId);
+      handleSemesterReorder(activeData, overData);
+    } else if (activeData?.type === "course" && overData?.type === "semester") {
+      handleCourseDrop(activeData, overData);
     }
   };
 

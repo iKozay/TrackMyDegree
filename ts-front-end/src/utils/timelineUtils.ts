@@ -12,6 +12,7 @@ import type {
 import { type CoursePoolData, type Rule, type MinCoursesFromSetParams, type MaxCoursesFromSetParams, type MinCreditsFromSetParams, type MaxCreditsFromSetParams, RuleType, type MinCreditsCompletedParams } from "@trackmydegree/shared";
 import { toast } from "react-toastify";
 import { api } from "../api/http-api-client";
+import { rebuildSemesterTerms } from "../handlers/timelineHandler";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -56,6 +57,61 @@ export function canDropCourse(
     allowed: false,
     reason: `Course already in ${currentSemester}`,
   };
+}
+
+/**
+ * Returns true if adding a new FALL/WINTER semester would duplicate one that
+ * already exists (mirrors the term-computation logic in addFallWinterSemester).
+ */
+export function wouldCreateDuplicateFallWinter(semesters: SemesterList): boolean {
+  if (semesters.length === 0) return false;
+
+  const lastRegular = [...semesters]
+    .reverse()
+    .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+  const lastSemester = semesters.at(-1);
+  if (!lastSemester) return false;
+
+  const parts = lastSemester.term.split(" ");
+  const season = parts[0];
+  const year = Number.parseInt(parts[1], 10);
+  if (Number.isNaN(year)) return false;
+
+  let fallYear: number;
+  if (lastRegular) {
+    const [, lYear] = lastRegular.term.split(" ");
+    fallYear = Number.parseInt(lYear, 10);
+  } else if (season === "FALL/WINTER") {
+    fallYear = year + 1;
+  } else {
+    fallYear = year;
+  }
+
+  const shortYear = (fallYear + 1) % 100;
+  const shortYearStr = shortYear.toString().padStart(2, "0");
+  const newTerm = `FALL/WINTER ${fallYear}-${shortYearStr}`;
+
+  return semesters.some((s) => s.term === newTerm);
+}
+
+/**
+ * Returns true if reordering the semester at `fromIndex` to `toIndex` would
+ * result in two FALL/WINTER semesters receiving the same term key.
+ */
+export function wouldCreateDuplicateSemesterKey(
+  semesters: SemesterList,
+  fromIndex: number,
+  toIndex: number,
+): boolean {
+  if (fromIndex === toIndex) return false;
+  const reordered = [...semesters];
+  const [moved] = reordered.splice(fromIndex, 1);
+  const adjustedTo = toIndex > fromIndex ? toIndex - 1 : toIndex;
+  reordered.splice(adjustedTo, 0, moved);
+  const rebuilt = rebuildSemesterTerms(reordered);
+  const terms = rebuilt.map((s) => s.term);
+  return terms.length !== new Set(terms).size;
 }
 
 export function calculateEarnedCredits(courses: CourseMap, pool: CoursePoolData,
