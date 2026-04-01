@@ -219,7 +219,6 @@ export class AdminController extends BaseMongoController<any> {
     }
   }
 
-
 }
 
 export const adminController = new AdminController();
