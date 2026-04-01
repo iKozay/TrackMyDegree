@@ -3,6 +3,32 @@ import type { CourseCode, CourseMap } from "../types/timeline.types";
 import { type CoursePoolData } from "@trackmydegree/shared";
 import "../styles/components/AddModal.css";
 
+type CourseItemProps = {
+  code: string;
+  title?: string;
+  actionClassName: string;
+  actionLabel: string;
+  actionTitle: string;
+  onAction: () => void;
+};
+
+const CourseItem: React.FC<CourseItemProps> = ({
+  code,
+  title,
+  actionClassName,
+  actionLabel,
+  actionTitle,
+  onAction,
+}) => (
+  <div className="add-modal-course-info">
+    <div className="add-modal-course-code">{code}</div>
+    {title && <div className="add-modal-course-title">{title}</div>}
+    <button className={actionClassName} onClick={onAction} title={actionTitle}>
+      {actionLabel}
+    </button>
+  </div>
+);
+
 type ManageModalProps = {
   type: "exemption" | "deficiency";
   courses: CourseMap;
@@ -69,25 +95,18 @@ export const ManageModal: React.FC<ManageModalProps> = ({
           </div>
         ) : (
           <div className="manage-modal-current-list">
-            {currentCourses.map((code) => {
-              const course = courses[code];
-              return (
-                <div key={code} className="manage-modal-current-item">
-                  <div className="add-modal-course-info">
-                    <div className="add-modal-course-code">{code}</div>
-                    {course?.title && (
-                      <div className="add-modal-course-title">{course.title}</div>
-                    )}
-                  </div>
-                  <button
-                    className="manage-modal-remove-btn"
-                    onClick={() => onRemove(code, type)}
-                    title={`Remove ${code} from ${labelPlural.toLowerCase()}`}>
-                    −
-                  </button>
-                </div>
-              );
-            })}
+            {currentCourses.map((code) => (
+              <div key={code} className="manage-modal-current-item">
+                <CourseItem
+                  code={code}
+                  title={courses[code]?.title}
+                  actionClassName="manage-modal-remove-btn"
+                  actionLabel="−"
+                  actionTitle={`Remove ${code} from ${labelPlural.toLowerCase()}`}
+                  onAction={() => onRemove(code, type)}
+                />
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -123,20 +142,14 @@ export const ManageModal: React.FC<ManageModalProps> = ({
             <div className="add-modal-courses">
               {filteredCourses.map((course) => (
                 <div key={course} className="add-modal-course-item">
-                  <div className="add-modal-course-info">
-                    <div className="add-modal-course-code">{course}</div>
-                    {courses[course]?.title && (
-                      <div className="add-modal-course-title">
-                        {courses[course].title}
-                      </div>
-                    )}
-                  </div>
-                  <button
-                    className="add-modal-add-btn"
-                    onClick={() => onAdd(course, type)}
-                    title={`Add ${course} to ${labelPlural.toLowerCase()}`}>
-                    +
-                  </button>
+                  <CourseItem
+                    code={course}
+                    title={courses[course]?.title}
+                    actionClassName="add-modal-add-btn"
+                    actionLabel="+"
+                    actionTitle={`Add ${course} to ${labelPlural.toLowerCase()}`}
+                    onAction={() => onAdd(course, type)}
+                  />
                 </div>
               ))}
             </div>

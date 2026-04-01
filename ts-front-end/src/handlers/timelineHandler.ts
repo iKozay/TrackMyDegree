@@ -8,6 +8,18 @@ import type {
 } from "../types/timeline.types";
 import { getCourseValidationMessage } from "../utils/timelineUtils";
 
+function getPoolName(type: string): string | null {
+    if (type === "exemption") return "exemptions";
+    if (type === "deficiency") return "deficiencies";
+    return null;
+}
+
+function buildFallWinterTerm(fallYear: number): SemesterId {
+    const shortYear = (fallYear + 1) % 100;
+    const shortYearStr = shortYear.toString().padStart(2, "0");
+    return `FALL/WINTER ${fallYear}-${shortYearStr}` as SemesterId;
+}
+
 type Snapshot = {
     courses: TimelineState["courses"];
     semesters: TimelineState["semesters"];
@@ -305,13 +317,7 @@ export function addCourse(
 ): TimelineState {
     const { courseId, type } = payload;
 
-    let poolName: string | null = null;
-    if (type === "exemption") {
-        poolName = "exemptions";
-    } else if (type === "deficiency") {
-        poolName = "deficiencies";
-    }
-
+    const poolName = getPoolName(type);
     if (!poolName) return state;
 
     const course = state.courses[courseId];
@@ -383,13 +389,7 @@ export function removeCourse(
 ): TimelineState {
     const { courseId, type } = payload;
 
-    let poolName: string | null = null;
-    if (type === "exemption") {
-        poolName = "exemptions";
-    } else if (type === "deficiency") {
-        poolName = "deficiencies";
-    }
-
+    const poolName = getPoolName(type);
     if (!poolName) return state;
 
     const course = state.courses[courseId];
@@ -480,6 +480,12 @@ export function addSemester(state: TimelineState): TimelineState {
  *   No preceding + FALL  Y' follows              → fallYear = Y'
  *   No preceding + WINTER/SUMMER Y' follows      → fallYear = Y' - 1
  */
+function deriveFallYearFromRegular(sem: Semester): number {
+    const [season, yearStr] = sem.term.split(" ");
+    const year = Number.parseInt(yearStr, 10);
+    return season === "FALL" ? year : year - 1;
+}
+
 function deriveFallYear(
     prevRegular: Semester | undefined,
     nextRegular: Semester | undefined,
@@ -492,11 +498,7 @@ function deriveFallYear(
         if (prevSeason === "FALL") return prevYear;
 
         // WINTER/SUMMER Y precedes — look ahead for the next FALL to confirm
-        if (nextRegular) {
-            const [nextSeason, nextYearStr] = nextRegular.term.split(" ");
-            const nextYear = Number.parseInt(nextYearStr, 10);
-            return nextSeason === "FALL" ? nextYear : nextYear - 1;
-        }
+        if (nextRegular) return deriveFallYearFromRegular(nextRegular);
 
         // No following regular — stay in the same year as the preceding semester
         return prevYear;
@@ -504,9 +506,7 @@ function deriveFallYear(
 
     if (nextRegular) {
         // No preceding regular — derive entirely from the first following regular
-        const [nextSeason, nextYearStr] = nextRegular.term.split(" ");
-        const nextYear = Number.parseInt(nextYearStr, 10);
-        return nextSeason === "FALL" ? nextYear : nextYear - 1;
+        return deriveFallYearFromRegular(nextRegular);
     }
 
     // No regular semesters at all
@@ -538,10 +538,7 @@ export function rebuildSemesterTerms(semesters: Semester[]): Semester[] {
         const fallYear = deriveFallYear(prevRegular, nextRegular);
         if (fallYear === null) return sem;
 
-        const shortYear = (fallYear + 1) % 100;
-        const shortYearStr = shortYear.toString().padStart(2, "0");
-        const newTerm = `FALL/WINTER ${fallYear}-${shortYearStr}` as SemesterId;
-        return { ...sem, term: newTerm };
+        return { ...sem, term: buildFallWinterTerm(fallYear) };
     });
 }
 
@@ -623,9 +620,7 @@ export function addFallWinterSemester(state: TimelineState): TimelineState {
         fallYear = year;
     }
 
-    const shortYear = (fallYear + 1) % 100;
-    const shortYearStr = shortYear.toString().padStart(2, "0");
-    const newTerm = `FALL/WINTER ${fallYear}-${shortYearStr}` as SemesterId;
+    const newTerm = buildFallWinterTerm(fallYear);
 
     // Guard: don't add if it already exists
     if (s1.semesters.some((s) => s.term === newTerm)) return state;
