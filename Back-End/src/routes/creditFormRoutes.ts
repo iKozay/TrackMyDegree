@@ -13,7 +13,7 @@ import {
     creditFormDownloadLimiter,
     creditFormUploadLimiter,
 } from '@middleware/rateLimiter';
-import { BadRequestError} from '@utils/errors';
+import { BadRequestError, NotFoundError} from '@utils/errors';
 
 const router = express.Router();
 
@@ -133,11 +133,6 @@ router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Res
     const safeFilename = path.basename(filename as string);
     const filePath = creditFormController.resolveFilePath(safeFilename);
 
-    if (!filePath) {
-        res.status(HTTP.NOT_FOUND).json({ error: 'File not found' });
-        return;
-    }
-
     // Sanitize the filename for the Content-Disposition header to prevent header injection
     const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
     res.setHeader('Content-Type', 'application/pdf');
@@ -166,11 +161,6 @@ router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Res
 router.get('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const form = await creditFormController.getFormById(id as string);
-
-    if (!form) {
-        res.status(HTTP.NOT_FOUND).json({ error: 'Form not found' });
-        return;
-    }
 
     res.status(HTTP.OK).json(form);
 });

@@ -1,6 +1,5 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
-import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
 import { CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import {
   resolveEntityVersion,

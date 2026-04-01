@@ -2,6 +2,7 @@ import { parseTranscript } from '../utils/pythonUtilsApi';
 import pdfParse from 'pdf-parse';
 import { AcceptanceLetterParser } from '@utils/acceptanceLetterParser';
 import { ParsedData } from '../types/transcript';
+import { BadRequestError } from '@utils/errors';
 
 
 export async function parseFile(fileBuffer: Buffer) {
@@ -24,7 +25,7 @@ export async function parseFile(fileBuffer: Buffer) {
         const normalizedTranscript = normalizeCWTCourses(transcript);
         return normalizedTranscript;
     }else{
-        throw new Error ('Uploaded PDF is neither a valid transcript nor an acceptance letter.')
+        throw new BadRequestError('Uploaded PDF is neither a valid transcript nor an acceptance letter.')
     }
 
 }

@@ -1,7 +1,7 @@
 import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { adminController } from '@controllers/adminController';
-import { CatalogError, runCatalog } from '@services/catalogService';
+import { runCatalog } from '@services/catalogService';
 import {
   adminCheckMiddleware,
   authMiddleware,
@@ -288,7 +288,6 @@ router.get('/connection-status', (req: Request, res: Response) => {
  *         description: Catalog update failed.
  */
 router.post('/catalogs-update', async (req: Request, res: Response) => {
-  try {
     const {
       academicYear,
       degree,
@@ -325,23 +324,6 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
-  } catch (error) {
-    console.error('Error in POST /admin/catalogs-update', error);
-
-    if (error instanceof CatalogError) {
-      res.status(HTTP.SERVER_ERR).json({
-        success: false,
-        error: error.message,
-        inspectionFiles: error.inspectionFiles,
-      });
-      return;
-    }
-
-    res.status(HTTP.SERVER_ERR).json({
-      success: false,
-      message: INTERNAL_SERVER_ERROR,
-    });
-  }
 });
 
 router.get('/seed-data', async (req: Request, res: Response) => {

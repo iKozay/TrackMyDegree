@@ -1,3 +1,4 @@
+import { InspectionFiles } from "@services/catalogService";
 import HTTP from "./httpCodes";
 
 // Messages
@@ -56,5 +57,14 @@ export class DatabaseConnectionError extends APIError {
 export class AlreadyExistsError extends APIError {
   constructor(message: string = 'Resource already exists') {
     super(message, HTTP.CONFLICT);
+  }
+}
+
+export class CatalogError extends APIError {
+  inspectionFiles: InspectionFiles;
+
+  constructor(message: string, inspectionFiles: InspectionFiles) {
+    super(message, HTTP.SERVER_ERR);
+    this.inspectionFiles = inspectionFiles;
   }
 }

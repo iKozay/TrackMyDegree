@@ -3,6 +3,7 @@ import express, { Request, Response } from 'express';
 import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
 import { BadRequestError, UnauthorizedError } from '@utils/errors';
+import { authMiddleware } from '@middleware/authMiddleware';
 
 const router = express.Router();
 
@@ -117,14 +118,9 @@ router.post('/logout', (req: Request, res: Response) => {
 /**
  * POST /auth/me - Authenticate user via access token
  */
-router.get('/me', async (req: Request, res: Response) => {
-  const token = req.cookies?.access_token;
-  if (!token)
-    throw new UnauthorizedError('Missing access token');  
-  
-    const payload = jwtService.verifyAccessToken(token);
-    if (!payload)
-      throw new UnauthorizedError('Invalid or expired access token');
+router.get('/me', authMiddleware, async (req: Request, res: Response) => {
+    const token = req.cookies?.access_token;  
+    const payload = (req as any).user;
 
     // Validate user still exists
     const user = await authController.getUserById(payload.userId);

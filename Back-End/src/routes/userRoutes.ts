@@ -3,7 +3,7 @@ import express, { Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
 import mongoose from 'mongoose';
-import { BadRequestError } from '@utils/errors';
+import { BadRequestError, UnauthorizedError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -196,66 +196,45 @@ async function handlePasswordUpdate(
   id: string,
   currentPassword: string,
   newPassword: string
-): Promise<string | null> {
+): Promise<void> {
   if (!currentPassword) {
-    return 'currentPassword is required to set a new password';
+    throw new BadRequestError('currentPassword is required to set a new password');
   }
   if (newPassword.length < 6) {
-    return 'newPassword must be at least 6 characters';
+    throw new BadRequestError('newPassword must be at least 6 characters');
   }
 
-  const changed = await authController.changePassword(id, currentPassword, newPassword);
-  if (!changed) {
-    return 'Current password is incorrect';
-  }
+  await authController.changePassword(id, currentPassword, newPassword);
 
-  return null;
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
 router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
-  try {
     const { id } = req.params;
     const { fullname, currentPassword, newPassword } = req.body;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(HTTP.BAD_REQUEST).json({ error: INVALID_ID_FORMAT });
+     throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     if (!fullname && !newPassword) {
-      return res.status(HTTP.BAD_REQUEST).json({
-        error: 'Provide at least one field to update: fullname or newPassword',
-      });
+      throw new BadRequestError('Provide at least one field to update: fullname or newPassword');
     }
 
     // Name update
     if (fullname) {
       if (!fullname.trim()) {
-        return res.status(HTTP.BAD_REQUEST).json({ error: 'fullname cannot be empty' });
+        throw new BadRequestError('Fullname cannot be empty');
       }
       await userController.updateUser(id, { fullname: fullname.trim() });
     }
 
     // Password update
     if (newPassword) {
-      const passwordError = await handlePasswordUpdate(id, currentPassword, newPassword);
-      if (passwordError) {
-        const statusCode = passwordError.includes('required') || passwordError.includes('6 characters')
-          ? HTTP.BAD_REQUEST
-          : HTTP.UNAUTHORIZED;
-        return res.status(statusCode).json({ error: passwordError });
-      }
+      await handlePasswordUpdate(id, currentPassword, newPassword);
     }
 
     res.status(HTTP.OK).json({ message: 'User updated successfully' });
-  } catch (error) {
-    console.error('Error in PATCH /users/:id', error);
-    if (error instanceof Error && error.message.includes(DOES_NOT_EXIST)) {
-      res.status(HTTP.NOT_FOUND).json({ error: error.message });
-    } else {
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-    }
-  }
 });
 
 router.put('/:id', async (req: Request, res: Response) => {

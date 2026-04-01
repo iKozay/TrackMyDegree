@@ -340,18 +340,3 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       return  results ;
   }
 }
-e });
-  }
-
-  /**
-   * Aggregate query helper
-   */
-  async aggregate<R = unknown>(
-    pipeline: Record<string, unknown>[],
-  ): Promise<R[]> {
-      // Type assertion needed for flexibility with aggregation pipelines
-      const results = await this.model.aggregate<R>(pipeline as any[]).exec();
-
-      return  results ;
-  }
-}

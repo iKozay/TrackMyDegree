@@ -1,6 +1,5 @@
 import { User } from '@models';
 import bcrypt from 'bcryptjs';
-import * as Sentry from '@sentry/node';
 async function getUUID() {
   const { v4: uuidv4 } = await import('uuid');
   return uuidv4();
@@ -177,17 +176,15 @@ export class AuthController extends BaseMongoController<any> {
     userId: string,
     oldPassword: string,
     newPassword: string,
-  ): Promise<boolean> {
+  ): Promise<void> {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user || !user.password) return false;
+      if (!user || !user.password) throw new NotFoundError('User not found');
 
       const match = await bcrypt.compare(oldPassword, user.password);
-      if (!match) return false;
+      if (!match) throw new UnauthorizedError('Current password is incorrect');
       // Hash and update to new password
       user.password = await this.hashPassword(newPassword);
       await user.save();
-
-      return true;
   }
 
   /*

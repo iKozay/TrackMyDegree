@@ -43,7 +43,7 @@ export async function getFormById(programId: string): Promise<ICreditFormData | 
     const form = await CreditForm.findOne({ programId, isActive: true });
 
     if (!form) {
-        return null;
+        throw new NotFoundError('Form not found');
     }
 
     return {
@@ -198,16 +198,21 @@ export async function deleteForm(programId: string): Promise<void> {
  * Resolve the absolute path for a given PDF filename.
  * Returns null if the file does not exist on disk.
  */
-export function resolveFilePath(filename: string): string | null {
+export function resolveFilePath(filename: string): string {
     const rawFilename = Array.isArray(filename) ? filename[0] : filename;
     // Strip directory components to prevent path traversal (CWE-22)
     const safeFilename = path.basename(rawFilename);
     const filePath = path.resolve(UPLOAD_DIR, safeFilename);
     // Verify the resolved path is strictly within UPLOAD_DIR
-    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
-        return null;
+    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) { 
+        throw new NotFoundError('File not found');
     }
-    return fs.existsSync(filePath) ? filePath : null;
+
+    if (!fs.existsSync(filePath)) {
+        throw new NotFoundError('File not found');
+    }
+
+    return filePath;
 }
 
 export const creditFormController = {
