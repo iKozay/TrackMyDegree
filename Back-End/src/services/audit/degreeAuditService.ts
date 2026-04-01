@@ -550,35 +550,39 @@ export async function generateDegreeAudit(
   const allCourses = buildCoursesDictionary(courseArr);
   const courseStatusMap = timeline.courseStatusMap ?? {};
 
-  return buildDegreeAudit(
+  return buildDegreeAudit({
     degreeData,
     coursePools,
     allCourses,
     courseStatusMap,
-    timeline.deficiencies,
-    timeline.exemptions,
-    timeline.semesters,
-    user
-  )
+    deficiencies: timeline.deficiencies,
+    exemptions: timeline.exemptions,
+    semesters: timeline.semesters,
+    user,
+  });
 }
 
-function buildDegreeAudit(
-  degreeData: DegreeData,
-  coursePools: CoursePoolData[],
-  allCourses: Record<string, CourseData>,
-  courseStatusMap: Record<string, {
-    status: CourseStatus;
-    semester: string | null;
-  }>,
-  deficiencies: string[],
-  exemptions: string[],
-  semesters: TimelineSemester[],
-  user?:{
-    _id: string;
-    fullname: string;
-    email: string;
-  },
-) {
+interface BuildAuditOptions {
+    degreeData: DegreeData;
+    coursePools: CoursePoolData[];
+    allCourses: Record<string, CourseData>;
+    courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>;
+    deficiencies: string[];
+    exemptions: string[];
+    semesters: TimelineSemester[];
+    user?: { _id: string; fullname: string; email: string };
+}
+
+function buildDegreeAudit({
+  degreeData,
+  coursePools,
+  allCourses,
+  courseStatusMap,
+  deficiencies,
+  exemptions,
+  semesters,
+  user,
+}: BuildAuditOptions) {
   const requirements = processCoursePools(
     coursePools,
     allCourses,
@@ -665,13 +669,13 @@ export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
   );
 
 
-return buildDegreeAudit(
-    timeline.degree,
-    filteredPools,
+  return buildDegreeAudit({
+    degreeData: timeline.degree,
+    coursePools: filteredPools,
     allCourses,
     courseStatusMap,
     deficiencies,
     exemptions,
-    timeline.semesters
-  )
+    semesters: timeline.semesters,
+  });
 }
