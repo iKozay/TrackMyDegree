@@ -362,6 +362,23 @@ function checkIfCourseInDegreeRequirements(course: Course, pools: CoursePoolData
   }
 }
 
+// Compare function for sorting course IDs by department then course number
+export function compareCourseIds(a: string, b: string): number {
+  const COURSE_RE = /^([A-Z]{3,4})\s+(\d{3,4})$/;
+
+  const matchA = COURSE_RE.exec(a.trim());
+  const matchB = COURSE_RE.exec(b.trim());
+
+  if (!matchA && !matchB) return a.localeCompare(b);
+  if (!matchA) return 1;
+  if (!matchB) return -1;
+
+  const deptCmp = matchA[1].localeCompare(matchB[1]);
+  if (deptCmp !== 0) return deptCmp;
+
+  return Number.parseInt(matchA[2], 10) - Number.parseInt(matchB[2], 10);
+}
+
 function getPoolCourses(
   pools: CoursePoolData[],
   id: "exemptions" | "deficiencies"
@@ -380,16 +397,16 @@ export function computeTimelinePartialUpdate(
   }
 
   /* ---------- EXEMPTIONS ---------- */
-  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort();
-  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort();
+  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort(compareCourseIds);
+  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort(compareCourseIds);
 
   if (JSON.stringify(prevEx) !== JSON.stringify(currEx)) {
     update.exemptions = currEx;
   }
 
   /* ---------- DEFICIENCIES ---------- */
-  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort();
-  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort();
+  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort(compareCourseIds);
+  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort(compareCourseIds);
 
   if (JSON.stringify(prevDef) !== JSON.stringify(currDef)) {
     update.deficiencies = currDef;
@@ -498,12 +515,12 @@ export function canAddCourse(
   courses: CourseMap,
   pools: CoursePoolData[],
 ): AddCourseValidationResult {
-  const poolName =
-    type === "exemption"
-      ? "exemptions"
-      : type === "deficiency"
-        ? "deficiencies"
-        : null;
+  let poolName: string | null = null;
+  if (type === "exemption") {
+    poolName = "exemptions";
+  } else if (type === "deficiency") {
+    poolName = "deficiencies";
+  }
 
   if (!poolName) return "invalid_type";
 
