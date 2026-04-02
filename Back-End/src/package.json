@@ -32,7 +32,8 @@
     "redis": "^5.8.3",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
-    "uuid": "^13.0.0"
+    "uuid": "^13.0.0",
+    "csurf": "^1.11.0"
   },
   "scripts": {
     "prepare": "npx ts-patch install -s",
