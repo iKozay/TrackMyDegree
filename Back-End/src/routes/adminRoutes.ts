@@ -10,7 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
-import rateLimit from 'express-rate-limit';
+import { adminRateLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
 
 // ==========================
@@ -19,14 +19,6 @@ const router = express.Router();
 
 router.use(authMiddleware);
 router.use(adminCheckMiddleware);
-
-const adminRateLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each admin to 100 requests per windowMs
-  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-});
-
 router.use(adminRateLimiter);
 
 // ==========================
