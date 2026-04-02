@@ -1,7 +1,20 @@
 import React, { useState } from "react";
 import { RuleType, type Rule } from "@trackmydegree/shared";
-import type { Course, CourseMap, CourseStatusValue, SemesterList } from "../types/timeline.types";
-import { History, ClockArrowDown, CalendarClock, Calculator, CalendarX, ChevronDown, ChevronUp } from "lucide-react";
+import type {
+  Course,
+  CourseMap,
+  CourseStatusValue,
+  SemesterList,
+} from "../types/timeline.types";
+import {
+  History,
+  ClockArrowDown,
+  CalendarClock,
+  Calculator,
+  CalendarX,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import "../styles/components/CourseRules.css";
 
 interface CourseRulesProps {
@@ -38,7 +51,11 @@ const ruleTypeDisplayMap: Record<string, RuleDisplayInfo> = {
   },
 };
 
-const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters }) => {
+const CourseRules: React.FC<CourseRulesProps> = ({
+  course,
+  courses,
+  semesters,
+}) => {
   // Check if a specific rule is satisfied (not in violations)
   const isRuleSatisfied = (rule: Rule): boolean => {
     // Find the course in semesters and check if message contains the rule message
@@ -55,14 +72,17 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
   };
 
   // Group rules by type (safely handle non-array input)
-  const groupedRules = (Array.isArray(course.rules) ? course.rules : []).reduce((acc, rule) => {
-    const ruleType = rule.type;
-    if (!acc[ruleType]) {
-      acc[ruleType] = [];
-    }
-    acc[ruleType].push(rule);
-    return acc;
-  }, {} as Record<string, Rule[]>);
+  const groupedRules = (Array.isArray(course.rules) ? course.rules : []).reduce(
+    (acc, rule) => {
+      const ruleType = rule.type;
+      if (!acc[ruleType]) {
+        acc[ruleType] = [];
+      }
+      acc[ruleType].push(rule);
+      return acc;
+    },
+    {} as Record<string, Rule[]>,
+  );
 
   // Define the order as specified
   const ruleTypeOrder = [
@@ -74,9 +94,13 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
   ];
 
   // Sort rule types according to the specified order
-  const sortedRuleTypes = ruleTypeOrder.filter(ruleType => groupedRules[ruleType]);
+  const sortedRuleTypes = ruleTypeOrder.filter(
+    (ruleType) => groupedRules[ruleType],
+  );
 
-  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(() => new Set<string>());
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
 
   if (!Array.isArray(course.rules) || course.rules.length === 0) {
     return null;
@@ -92,7 +116,9 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     setCollapsedSections(newCollapsed);
   };
 
-  const getCourseStatus = (courseCode: string): CourseStatusValue | undefined => {
+  const getCourseStatus = (
+    courseCode: string,
+  ): CourseStatusValue | undefined => {
     return courses[courseCode]?.status?.status;
   };
 
@@ -108,8 +134,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
           return (
             <span
               key={`${courseCode}-${index}`}
-              className={`course-item status-${status ?? "unknown"}`}
-            >
+              className={`course-item status-${status ?? "unknown"}`}>
               {courseCode}
             </span>
           );
@@ -143,7 +168,8 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
           messageText = "Needs to be taken in the same semester as this course";
           break;
         case RuleType.PrerequisiteOrCorequisite:
-          messageText = "Needs to be taken either before or in the same semester as this course";
+          messageText =
+            "Needs to be taken either before or in the same semester as this course";
           break;
         case RuleType.NotTaken:
           messageText = "Cannot be taken with this course";
@@ -164,9 +190,7 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     if (minCredits) {
       return (
         <div className="rule-content">
-          <p className="rule-message">
-            Minimum {minCredits} credits required
-          </p>
+          <p className="rule-message">Minimum {minCredits} credits required</p>
         </div>
       );
     }
@@ -182,7 +206,9 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
     <div className="course-rules">
       {sortedRuleTypes.map((ruleType) => {
         const displayInfo = ruleTypeDisplayMap[ruleType] || {
-          title: ruleType.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase()),
+          title: ruleType
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase()),
           icon: <History size={16} />,
         };
 
@@ -190,31 +216,31 @@ const CourseRules: React.FC<CourseRulesProps> = ({ course, courses, semesters })
         const isCollapsed = collapsedSections.has(ruleType);
 
         // Check if all rules in this section are satisfied
-        const allRulesSatisfied = rulesOfType.every(rule => isRuleSatisfied(rule));
+        const allRulesSatisfied = rulesOfType.every((rule) =>
+          isRuleSatisfied(rule),
+        );
 
         return (
-          <div key={ruleType} className={`rule-section ${allRulesSatisfied ? 'section-satisfied' : 'section-unsatisfied'}`}>
+          <div
+            key={ruleType}
+            className={`rule-section ${allRulesSatisfied ? "section-satisfied" : "section-unsatisfied"}`}>
             <div
               className="rule-header"
-              onClick={() => toggleSection(ruleType)}
-            >
+              onClick={() => toggleSection(ruleType)}>
               {displayInfo.icon}
               <h4>{displayInfo.title}</h4>
               <div className="spacer"></div>
-              {isCollapsed ? (
+              {!isCollapsed ? (
                 <ChevronDown size={16} className="collapse-icon" />
               ) : (
                 <ChevronUp size={16} className="collapse-icon" />
               )}
             </div>
 
-            {!isCollapsed && (
+            {isCollapsed && (
               <div className="rule-items">
                 {rulesOfType.map((rule, index) => (
-                  <div
-                    key={`${ruleType}-${index}`}
-                    className={`rule-item ${isRuleSatisfied(rule) ? 'satisfied' : 'unsatisfied'}`}
-                  >
+                  <div key={`${ruleType}-${index}`} className={"rule-item"}>
                     {renderRuleContent(rule)}
                   </div>
                 ))}
