@@ -34,6 +34,7 @@ import {
 } from '@middleware/rateLimiter';
 import { getSentryProfilingIntegrations } from '@utils/misc';
 import helmet from 'helmet';
+import csurf from 'csurf';
 
 // sentry init
 Sentry.init({
@@ -113,6 +114,33 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+
+// CSRF protection: apply after cookies are parsed and before routes
+const csrfProtection = csurf({ cookie: true });
+
+app.use((req, res, next) => {
+  // Allow safe methods without requiring a CSRF token, but expose one for the client
+  const safeMethods = ['GET', 'HEAD', 'OPTIONS'];
+  if (safeMethods.includes(req.method)) {
+    return csrfProtection(req, res, (err) => {
+      if (err) {
+        return next(err);
+      }
+      try {
+        const token = (req as any).csrfToken?.();
+        if (token) {
+          res.setHeader('X-CSRF-Token', token);
+        }
+      } catch {
+        // If csrfToken is not available, proceed without setting the header
+      }
+      next();
+    });
+  }
+
+  // For unsafe methods, enforce CSRF validation
+  return csrfProtection(req, res, next);
+});
 
 // Swagger (docs)
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
