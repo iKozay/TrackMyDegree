@@ -9,8 +9,7 @@ env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../
 load_dotenv(env_file)
 
 redis_client = redis.Redis.from_url(
-    #TO CHANGE LATER BACK TO REDIS_URL
-    os.getenv("REDIS_LOCAL_URL"),
+    os.getenv("REDIS_URL"),
     decode_responses=True,
 )
 
