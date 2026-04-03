@@ -253,6 +253,32 @@ class TestAeroDegreeScraper:
 class TestCyberScDegreeScraper:
     """Test CyberScDegreeScraper class"""
 
+    def test_handle_special_cases(self):
+        """Test handling special cases for CyberSc degree"""
+        scraper = CyberScDegreeScraper(
+            "BSc in Cybersecurity",
+            "CYBER_SC",
+            "",
+            "http://test.com",
+        )
+
+        cyber_pool = CoursePool(
+            _id="CYBER_SC_GeneralElectives",
+            name="General Electives: BSc Cybersecurity",
+            creditsRequired=12,
+            courses=[],
+        )
+        scraper._set_program_requirements(
+            "BSc in Cybersecurity",
+            90.0,
+            DegreeType.STANDALONE,
+            [cyber_pool],
+        )
+
+        with patch.object(scraper, '_handle_cyber_general_electives') as mock_handle_cyber_gen_ed:
+            scraper._handle_special_cases()
+            mock_handle_cyber_gen_ed.assert_called_once_with(cyber_pool)
+
     def test_handle_cyber_general_electives(self):
         scraper = CyberScDegreeScraper(
             "BSc Cybersecurity",
