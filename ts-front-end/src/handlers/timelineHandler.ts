@@ -636,6 +636,29 @@ export function addFallWinterSemester(state: TimelineState): TimelineState {
     };
 }
 
+export function removeSemester(
+    state: TimelineState,
+    payload: { semesterId: SemesterId },
+): TimelineState {
+    const s1 = withPushedHistory(state);
+    const { semesterId } = payload;
+
+    const semesterIndex = s1.semesters.findIndex((s) => s.term === semesterId);
+    if (semesterIndex === -1) return s1;
+
+    const semester = s1.semesters[semesterIndex];
+
+    // Only allow removing empty semesters
+    if (semester.courses.length > 0) return s1;
+
+    const updatedSemesters = s1.semesters.filter((_, idx) => idx !== semesterIndex);
+
+    return {
+        ...s1,
+        semesters: updatedSemesters,
+    };
+}
+
 export function validateTimeline(state: TimelineState): TimelineState {
   const updatedSemesters = state.semesters.map((semester) => ({
     ...semester,

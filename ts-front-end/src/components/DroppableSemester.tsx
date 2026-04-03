@@ -1,6 +1,6 @@
 import React from "react";
 import { useDroppable, useDraggable } from "@dnd-kit/core";
-import { Calendar, Clock, GripVertical } from "lucide-react";
+import { Calendar, Clock, GripVertical, Trash2 } from "lucide-react";
 import { DraggableCourse } from "./DraggableCourse";
 import type {
   CourseMap,
@@ -16,6 +16,7 @@ interface DroppableSemesterProps {
   semesterCourses: SemesterCourse[];
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
+  onRemoveSemester?: (semesterId: SemesterId) => void;
 }
 
 export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
@@ -24,6 +25,7 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   semesterCourses,
   onCourseSelect,
   selectedCourse,
+  onRemoveSemester,
 }) => {
   const isFallWinter = semesterId.startsWith("FALL/WINTER");
 
@@ -88,6 +90,16 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
           <Clock size={14} />
           {totalCredits} credits
         </div>
+        {semesterCourses.length === 0 && onRemoveSemester && (
+          <button
+            type="button"
+            className="semester-remove-btn"
+            aria-label={`Remove empty semester`}
+            title="Remove semester"
+            onClick={() => onRemoveSemester(semesterId)}>
+            <Trash2 size={14} />
+          </button>
+        )}
       </div>
 
       <div className="semester-courses">

@@ -156,6 +156,7 @@ export type TimelineActionType =
     }
   | { type: typeof TimelineActionConstants.AddSemester }
   | { type: typeof TimelineActionConstants.AddFallWinterSemester }
+  | { type: typeof TimelineActionConstants.RemoveSemester; payload: { semesterId: SemesterId } }
   | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } }
   | {
       type: typeof TimelineActionConstants.MoveSemester;

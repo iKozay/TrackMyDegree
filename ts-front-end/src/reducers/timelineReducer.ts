@@ -14,6 +14,7 @@ import {
   removeCourse,
   addSemester,
   addFallWinterSemester,
+  removeSemester,
   moveSemester,
   validateTimeline,
 } from "../handlers/timelineHandler";
@@ -78,6 +79,10 @@ export function timelineReducer(
 
     case TimelineActionConstants.AddFallWinterSemester:
       nextState = addFallWinterSemester(state);
+      break;
+
+    case TimelineActionConstants.RemoveSemester:
+      nextState = removeSemester(state, action.payload);
       break;
 
     case TimelineActionConstants.MoveSemester:

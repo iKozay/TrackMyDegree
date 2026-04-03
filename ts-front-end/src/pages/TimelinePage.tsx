@@ -119,6 +119,7 @@ const TimeLinePage: React.FC = () => {
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
               onAddFallWinterSemester={actions.addFallWinterSemester}
+              onRemoveSemester={actions.removeSemester}
               timelineName={state.timelineName}
             />
           </section>

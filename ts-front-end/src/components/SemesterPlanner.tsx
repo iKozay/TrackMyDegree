@@ -7,6 +7,7 @@ import type {
   CourseMap,
   CourseCode,
   SemesterList,
+  SemesterId,
 } from "../types/timeline.types";
 import type { DroppableSemesterSlotData } from "../types/dnd.types";
 import { Plus, CalendarDays } from "lucide-react";
@@ -20,6 +21,7 @@ interface SemesterPlannerProps {
   selectedCourse?: CourseCode | null;
   onAddSemester: () => void;
   onAddFallWinterSemester: () => void;
+  onRemoveSemester: (semesterId: SemesterId) => void;
   timelineName?: string;
 }
 
@@ -55,6 +57,7 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   selectedCourse,
   onAddSemester,
   onAddFallWinterSemester,
+  onRemoveSemester,
   timelineName
 }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -142,6 +145,7 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
               semesterCourses={semesterCourses}
               onCourseSelect={onCourseSelect}
               selectedCourse={selectedCourse}
+              onRemoveSemester={onRemoveSemester}
             />
           </React.Fragment>
         ))}
