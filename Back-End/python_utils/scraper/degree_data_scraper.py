@@ -8,7 +8,7 @@ from utils.parsing_utils import COURSE_REGEX
 from utils.logging_utils import get_logger
 from models import AnchorLink, DegreeScraperConfig, ECPDegreeIDs, ProgramRequirements
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
-from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper
+from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper, CyberScDegreeScraper
 from scraper.comp_sci_degree_scraper import CompDegreeScraper, CompCaDegreeScraper, CompDsDegreeScraper, CompHlsDegreeScraper
 from scraper.ecp_coop_degree_scraper import EngrEcpDegreeScraper, CompEcpDegreeScraper, CompHlsEcpDegreeScraper,CoopDegreeScraper
 
@@ -31,6 +31,7 @@ class DegreeDataScraper():
             DegreeScraperConfig(long_name="BEng in Mechanical Engineering", short_name="MECH", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Software Engineering", short_name="SOEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc in Computer Science", short_name="COMP", ecp_degree_id=ECPDegreeIDs.COMP_ECP_ID, scraper_class=CompDegreeScraper),
+            DegreeScraperConfig(long_name="BSc in Cybersecurity", short_name="CYBER_SC", ecp_degree_id="", scraper_class=CyberScDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc Joint Major in Computation Arts and Computer Science", short_name="COMP_CA", ecp_degree_id=ECPDegreeIDs.COMP_CA_ECP_ID, scraper_class=CompCaDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc Joint Major in Data Science", short_name="COMP_DS", ecp_degree_id=ECPDegreeIDs.COMP_DS_ECP_ID, scraper_class=CompDsDegreeScraper),
             DegreeScraperConfig(long_name="BCompSc in Health and Life Sciences", short_name="COMP_HLS", ecp_degree_id=ECPDegreeIDs.COMP_HLS_ECP_ID, scraper_class=CompHlsDegreeScraper),

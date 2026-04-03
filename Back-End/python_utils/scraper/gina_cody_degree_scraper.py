@@ -214,3 +214,23 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
         for pool in pools_to_remove:
             coursepools.remove(pool)
         return pool_credits
+
+
+class CyberScDegreeScraper(GinaCodyDegreeScraper):
+    def _handle_special_cases(self):
+        for pool in self.program_requirements.coursePools:
+            if "General Electives: BSc Cybersecurity" in pool.name:
+                self._handle_cyber_general_electives(pool)
+    
+    def _handle_cyber_general_electives(self, cyber_general_electives_pool: CoursePool):
+        general_electives_exclusion_list = ["BCEE 231", "BIOL 322", "BTM 200", "BTM 380", "BTM 382", "CART 315", "COMM 215", "COMP 218", "EXCI 322", "GEOG 264", "INTE 296", "MATH 208", "MATH 209", "MIAE 215", "PHYS 235", "PHYS 236", "SOCI 212"]
+        gen_education_electives_pool = self._get_general_education_pool()
+
+        allowed_courses = set()
+        allowed_courses.update(gen_education_electives_pool.courses)
+        # Remove excluded courses
+        for course in general_electives_exclusion_list:
+            if course in allowed_courses:
+                allowed_courses.remove(course)
+        
+        cyber_general_electives_pool.courses = list(allowed_courses)        
