@@ -233,4 +233,4 @@ class CyberScDegreeScraper(GinaCodyDegreeScraper):
             if course in allowed_courses:
                 allowed_courses.remove(course)
         
-        cyber_general_electives_pool.courses = list(allowed_courses)        
+        cyber_general_electives_pool.courses = list(allowed_courses)
