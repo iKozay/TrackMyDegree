@@ -25,6 +25,7 @@ class DegreeDataScraper():
             DegreeScraperConfig(long_name="BEng in Chemical Engineering", short_name="CHEM", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Civil Engineering", short_name="CIVI", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Computer Engineering", short_name="COEN", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
+            DegreeScraperConfig(long_name="BEng in Cybersecurity Engineering", short_name="CYBER_ENG", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Electrical Engineering", short_name="ELEC", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Industrial Engineering", short_name="INDU", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
             DegreeScraperConfig(long_name="BEng in Mechanical Engineering", short_name="MECH", ecp_degree_id=ECPDegreeIDs.ENGR_ECP_ID, scraper_class=GinaCodyDegreeScraper),
