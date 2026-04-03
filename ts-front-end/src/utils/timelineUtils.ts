@@ -107,8 +107,8 @@ export function wouldCreateDuplicateSemesterKey(
   if (fromIndex === toIndex) return false;
   const reordered = [...semesters];
   const [moved] = reordered.splice(fromIndex, 1);
-  const adjustedTo = toIndex > fromIndex ? toIndex - 1 : toIndex;
-  reordered.splice(adjustedTo, 0, moved);
+  // Insert the moved semester into its new position
+  reordered.splice(toIndex, 0, moved);
   const rebuilt = rebuildSemesterTerms(reordered);
   const terms = rebuilt.map((s) => s.term);
   return terms.length !== new Set(terms).size;
