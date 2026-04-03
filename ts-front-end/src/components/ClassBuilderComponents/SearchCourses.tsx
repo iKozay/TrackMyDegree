@@ -101,7 +101,7 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
 
             // Results exist but none are active in the selected term
             const filtered = data.filter(
-                (section) => section.termCode === selectedSemester.termCode && section.classStatus === "Active"
+                (section) => String(section.termCode) === selectedSemester.termCode && section.classStatus === "Active"
             );
 
             if (filtered.length === 0) {

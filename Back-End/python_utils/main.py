@@ -1,6 +1,10 @@
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 import os
+import json
+import time
+import threading
+from datetime import datetime, timezone
 from parser.transcript_parser import parse_transcript
 from scraper.degree_data_scraper import DegreeDataScraper
 from scraper.course_data_scraper import init_course_scraper_instance, get_course_scraper_instance
@@ -11,6 +15,9 @@ from models import serialize
 app = Flask(__name__)
 logger = get_logger("MainApp")
 initialized = False
+
+DOWNLOAD_INTERVAL_SECONDS = 24 * 60 * 60  # 24 hours
+LAST_RUN_FILENAME = "last_download_timestamp.json"
 
 # Global variables
 course_scraper_instance = None
@@ -23,6 +30,62 @@ module_status = {
     "course_scraper": "init", 
     "degree_scraper": "init"
 }
+
+def get_timestamp_filepath():
+    return os.path.join(cache_path, LAST_RUN_FILENAME)
+
+def read_last_run_timestamp():
+    path = get_timestamp_filepath()
+    try:
+        with open(path, "r") as f:
+            data = json.load(f)
+            return data.get("last_run")
+    except (FileNotFoundError, json.JSONDecodeError, KeyError):
+        return None
+
+def write_last_run_timestamp():
+    path = get_timestamp_filepath()
+    with open(path, "w") as f:
+        json.dump({"last_run": time.time()}, f)
+    logger.info(f"Saved download timestamp to {path}")
+
+def seconds_until_next_run():
+    last_run = read_last_run_timestamp()
+    if last_run is None:
+        return 0
+    elapsed = time.time() - last_run
+    remaining = DOWNLOAD_INTERVAL_SECONDS - elapsed
+    return max(0, remaining)
+
+def run_download_datasets():
+    try:
+        logger.info("Running scheduled download_datasets...")
+        concordia_api_instance.download_datasets()
+        write_last_run_timestamp()
+        logger.info("download_datasets completed successfully.")
+    except Exception as e:
+        logger.error(f"download_datasets failed: {e}")
+    finally:
+        schedule_next_download(DOWNLOAD_INTERVAL_SECONDS)
+
+def schedule_next_download(delay_seconds):
+    next_run_at = datetime.fromtimestamp(
+        time.time() + delay_seconds, tz=timezone.utc
+    ).strftime("%Y-%m-%d %H:%M:%S UTC")
+    logger.info(f"Next download_datasets scheduled in {delay_seconds:.0f}s (at {next_run_at})")
+    t = threading.Timer(delay_seconds, run_download_datasets)
+    t.daemon = True
+    t.start()
+
+def start_download_scheduler():
+    delay = seconds_until_next_run()
+    if delay == 0:
+        logger.info("24 hours have passed (or first run) — downloading datasets now.")
+        t = threading.Thread(target=run_download_datasets, daemon=True)
+        t.start()
+    else:
+        logger.info(f"Last download was recent — next run in {delay:.0f}s.")
+        schedule_next_download(delay)
 
 @app.route('/parse-transcript', methods=['POST'])
 def parse_transcript_api():
@@ -131,6 +194,12 @@ def get_course_schedule():
 def health_check():
     return jsonify({"status": "ok"})
 
+def initialize():
+    global initialized
+    if not initialized:
+        init_instances()
+        initialized = True
+
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
 
@@ -139,10 +208,15 @@ def init_instances():
         logger.info("Initializing Concordia API...")
         init_concordia_api_instance(cache_dir=cache_path)
         concordia_api_instance = get_concordia_api_instance()
-        concordia_api_instance.download_datasets()
-        logger.info("Concordia API instance created")    
+        logger.info("Concordia API instance created")
         module_status["concordia_api"] = "ready"
-    
+
+        logger.info("Running initial dataset download (blocking)...")
+        concordia_api_instance.download_datasets()
+        write_last_run_timestamp()
+
+        schedule_next_download(DOWNLOAD_INTERVAL_SECONDS)
+
     # Step 2: Initialize Course Data Scraper  
     if course_scraper_instance is None:
         logger.info("Initializing Course Data Scraper...")
@@ -172,10 +246,11 @@ if cache_path:
 if env_file:
     load_dotenv(env_file)
 
-init_instances()
+initialize()
 
 def main():
     app.run(host="0.0.0.0", port=15001)
+
 
 if __name__ == "__main__":
     main()
