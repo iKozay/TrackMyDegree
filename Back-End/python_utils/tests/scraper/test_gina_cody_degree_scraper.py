@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper
+from scraper.gina_cody_degree_scraper import GinaCodyDegreeScraper, AeroDegreeScraper, CyberScDegreeScraper
 from models import AnchorLink, CoursePool, DegreeType, ECPDegreeIDs
 
 
@@ -248,3 +248,67 @@ class TestAeroDegreeScraper:
         
         # Should not remove any pools
         assert len(coursepools) == 2
+
+
+class TestCyberScDegreeScraper:
+    """Test CyberScDegreeScraper class"""
+
+    def test_handle_special_cases(self):
+        """Test handling special cases for CyberSc degree"""
+        scraper = CyberScDegreeScraper(
+            "BSc in Cybersecurity",
+            "CYBER_SC",
+            "",
+            "http://test.com",
+        )
+
+        cyber_pool = CoursePool(
+            _id="CYBER_SC_GeneralElectives",
+            name="General Electives: BSc Cybersecurity",
+            creditsRequired=12,
+            courses=[],
+        )
+        scraper._set_program_requirements(
+            "BSc in Cybersecurity",
+            90.0,
+            DegreeType.STANDALONE,
+            [cyber_pool],
+        )
+
+        with patch.object(scraper, '_handle_cyber_general_electives') as mock_handle_cyber_gen_ed:
+            scraper._handle_special_cases()
+            mock_handle_cyber_gen_ed.assert_called_once_with(cyber_pool)
+
+    def test_handle_cyber_general_electives(self):
+        scraper = CyberScDegreeScraper(
+            "BSc Cybersecurity",
+            "CYBER",
+            ECPDegreeIDs.ENGR_ECP_ID,
+            "http://test.com",
+        )
+
+        cyber_pool = CoursePool(
+            _id="CYBER_GenElectives",
+            name="General Electives: BSc Cybersecurity",
+            creditsRequired=12,
+            courses=[],
+        )
+
+        mock_gen_ed_pool = CoursePool(
+            _id="gen_ed",
+            name="General Education Humanities and Social Sciences Electives",
+            creditsRequired=3,
+            courses=["PHIL 210", "SOCI 212", "MATH 208", "COMS 360"],
+        )
+
+        with patch.object(
+            scraper,
+            "_get_general_education_pool",
+            return_value=mock_gen_ed_pool,
+        ):
+            scraper._handle_cyber_general_electives(cyber_pool)
+
+        assert "PHIL 210" in cyber_pool.courses
+        assert "COMS 360" in cyber_pool.courses
+        assert "SOCI 212" not in cyber_pool.courses
+        assert "MATH 208" not in cyber_pool.courses
