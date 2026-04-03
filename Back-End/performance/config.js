@@ -3,9 +3,9 @@
 export const BASE_URL = __ENV.BASE_URL || "http://localhost:8000"; // backend URL
 export const TIMELINE_NAME_PREFIX = __ENV.TIMELINE_NAME_PREFIX || "k6-poc";
 
-export const POLL_MAX_SECONDS = Number(__ENV.POLL_MAX_SECONDS || "15"); // how long to keep polling for a job before giving up
-export const POLL_INTERVAL_SECONDS = Number(__ENV.POLL_INTERVAL_SECONDS || "1"); // how long to wait between poll attempts (if job not done yet)
-export const POLL_REQUEST_TIMEOUT = __ENV.POLL_REQUEST_TIMEOUT || "5s"; // how long to wait for each individual poll request before treating as network error
+export const POLL_MAX_SECONDS = Number(__ENV.POLL_MAX_SECONDS || "25"); // how long to keep polling for a job before giving up.
+export const POLL_INTERVAL_SECONDS = Number(__ENV.POLL_INTERVAL_SECONDS || "3"); // how long to wait between poll attempts - increasing this reduces the load on the system under test but will offset the observed job completion time by that amount. Adjust based on expected job duration and desired load level.
+export const POLL_REQUEST_TIMEOUT = __ENV.POLL_REQUEST_TIMEOUT || "10s"; // how long to wait for each individual poll HTTP request before treating as a network error. Increase if the system under test is expected to have slow responses under load, but be aware that this will increase the time it takes for a job to be marked as failed due to polling issues.
 
 export const DEBUG = __ENV.DEBUG === "1";
 export function debugLog(msg) { if (DEBUG) console.log(msg); }

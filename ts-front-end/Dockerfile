@@ -3,16 +3,28 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
+# Copy workspace configuration
+COPY package.json ./
+COPY package-lock.json ./
 COPY tsconfig.base.json ./
+
+# Copy shared module
 COPY shared ./shared
 
+# Copy frontend source
 COPY ts-front-end/package*.json ./ts-front-end/
 COPY ts-front-end/tsconfig*.json ./ts-front-end/
 COPY ts-front-end ./ts-front-end
 
-WORKDIR /app/ts-front-end
+# Install workspace dependencies (this will link the shared module)
+RUN npm ci --ignore-scripts
 
-RUN npm ci
+# Build shared module first
+WORKDIR /app/shared
+RUN npm run build
+
+# Build frontend
+WORKDIR /app/ts-front-end
 
 ARG VITE_DEPLOYMENT_VERSION
 ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION

@@ -1,7 +1,7 @@
 import { BaseMongoController } from './baseMongoController';
 import { Degree, CoursePool, Course } from '@models';
 import { DEGREE_WITH_ID_DOES_NOT_EXIST } from '@utils/constants';
-import { DegreeData, CoursePoolInfo, CourseData } from '@shared/degree';
+import { CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import {
   resolveEntityVersion,
   resolveEntityVersions,
@@ -190,13 +190,13 @@ export class DegreeController extends BaseMongoController<any> {
   async getCoursePoolsForDegree(
     _id: string,
     academicYear?: string,
-  ): Promise<CoursePoolInfo[]> {
+  ): Promise<CoursePoolData[]> {
     try {
       const degree = await this.readDegree(_id, academicYear);
       const basePools = await CoursePool.find({
         _id: { $in: degree.coursePools || [] },
       })
-        .lean<CoursePoolInfo[]>()
+        .lean<CoursePoolData[]>()
         .exec();
 
       const resolvedPools = await resolveEntityVersions(
@@ -210,6 +210,8 @@ export class DegreeController extends BaseMongoController<any> {
         name: coursePool.name,
         creditsRequired: coursePool.creditsRequired,
         courses: coursePool.courses || [],
+        rules: coursePool.rules || [],
+        baseAcademicYear: coursePool.baseAcademicYear,
       }));
     } catch (error) {
       this.handleError(error, 'getCoursePoolsForDegree');

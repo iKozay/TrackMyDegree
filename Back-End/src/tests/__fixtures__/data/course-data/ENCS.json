@@ -7,12 +7,7 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete all English as a Second Language (ESL) Courses required on admission prior to enrolling.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   },
   {
     "_id": "ENCS 282",
@@ -22,12 +17,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must have satisfied the requirements in Section 71.20.7 Writing Skills Requirement, by passing the Engineering Writing Test (EWT) or bypassing ENCS 272 with a grade of C‑ or higher, prior to enrolling.",
-    "rules": {
-      "prereq": [["ENCS 272"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 272"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 272."
+      }
+    ]
   },
   {
     "_id": "ENCS 333",
@@ -37,12 +36,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENCS 282 or equivalent. Students must complete a minimum of 27 credits as part of the BCompSc in Health and Life Sciences or BSc in Systems and Information Biology programs prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 27.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 27.0
+        },
+        "message": "Students must complete at least 27.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ENCS 393",
@@ -52,12 +62,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENCS 282. Students must complete 30 credits in their degree program prior to enrolling.",
-    "rules": {
-      "prereq": [["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 30.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 30.0
+        },
+        "message": "Students must complete at least 30.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ENCS 483",
@@ -67,12 +88,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 60 credits in an engineering program or minimum of 45 credits in a non-engineering program prior to enrolling.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": ["ENCS 283"],
-      "min_credits": 60.0
-    }
+    "rules": [
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 60.0
+        },
+        "message": "Students must complete at least 60.0 credits before taking this course."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENCS 283"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENCS 283."
+      }
+    ]
   },
   {
     "_id": "ENCS 484",
@@ -82,12 +114,15 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 60 credits in an engineering program or minimum of 45 credits in a non-engineering program prior to enrolling.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 60.0
-    }
+    "rules": [
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 60.0
+        },
+        "message": "Students must complete at least 60.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ENCS 485",
@@ -97,12 +132,15 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Students must complete a minimum of 24 credits towards an undergraduate program offered by the Gina Cody School of Engineering and Computer Science prior to enrolling, with a minimum GPA of 2.50.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 24.0
-    }
+    "rules": [
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 24.0
+        },
+        "message": "Students must complete at least 24.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "ENCS 498",
@@ -112,11 +150,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the GCS is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

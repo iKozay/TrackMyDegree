@@ -7,12 +7,43 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously or concurrently: ENGR 213.",
-    "rules": {
-      "prereq": [["ENGR 213"]],
-      "coreq": [["ENGR 213"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 213."
+      }
+    ]
+  },
+  {
+    "_id": "AERO 253",
+    "code": "AERO 253",
+    "title": "Thermal Sciences for Aerospace Engineering",
+    "credits": 3.0,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "The following course must be completed previously: ENGR 213; MATH 205.",
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 205."
+      }
+    ]
   },
   {
     "_id": "AERO 290",
@@ -22,12 +53,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 201. The following course must be completed previously or concurrently: ENCS 282.",
-    "rules": {
-      "prereq": [["AERO 201"], ["ENCS 282"]],
-      "coreq": [["ENCS 282"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 201."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENCS 282."
+      }
+    ]
   },
   {
     "_id": "AERO 371",
@@ -37,12 +80,48 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: PHYS 205; ENGR 213, ENGR 243. The following course must be completed previously or concurrently: ENGR 311 or ELEC 342 or ELEC 364.",
-    "rules": {
-      "prereq": [["PHYS 205"], ["ENGR 213"], ["ENGR 243"], ["ENGR 311", "ELEC 342", "ELEC 364"]],
-      "coreq": [["ENGR 311", "ELEC 342", "ELEC 364"]],
-      "not_taken": ["ELEC 372", "MECH 371"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["PHYS 205"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: PHYS 205."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 311", "ELEC 342", "ELEC 364"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 311, ELEC 342, ELEC 364."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 372", "MECH 371"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 372, MECH 371."
+      }
+    ]
   },
   {
     "_id": "AERO 390",
@@ -52,12 +131,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: AERO 290, AERO 371; ENCS 282.",
-    "rules": {
-      "prereq": [["AERO 290"], ["AERO 371"], ["ENCS 282"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 290"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 290."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENCS 282"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENCS 282."
+      }
+    ]
   },
   {
     "_id": "AERO 417",
@@ -67,12 +166,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 201.",
-    "rules": {
-      "prereq": [["ENGR 201"]],
-      "coreq": [],
-      "not_taken": ["ENGR 417", "ENGR 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 201."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 417", "ENGR 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 417, ENGR 498."
+      }
+    ]
   },
   {
     "_id": "AERO 431",
@@ -82,12 +193,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 361; MECH 375.",
-    "rules": {
-      "prereq": [["MECH 375"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": ["MECH 431"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 375"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 375."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 431"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 431."
+      }
+    ]
   },
   {
     "_id": "AERO 446",
@@ -97,12 +228,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      }
+    ]
   },
   {
     "_id": "AERO 455",
@@ -112,12 +247,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 311, ENGR 391; MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["ENGR 311"], ["ENGR 391"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      }
+    ]
   },
   {
     "_id": "AERO 462",
@@ -127,12 +282,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["MECH 351"]],
-      "coreq": [],
-      "not_taken": ["MECH 462","MECH 468"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 351."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 462", "MECH 468"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 462, MECH 468."
+      }
+    ]
   },
   {
     "_id": "AERO 464",
@@ -142,12 +317,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"]],
-      "coreq": [],
-      "not_taken": ["MECH 464"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 464"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 464."
+      }
+    ]
   },
   {
     "_id": "AERO 465",
@@ -157,12 +344,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 462.",
-    "rules": {
-      "prereq": [["AERO 462"]],
-      "coreq": [],
-      "not_taken": ["MECH 465"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 462"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 462."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 465"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 465."
+      }
+    ]
   },
   {
     "_id": "AERO 471",
@@ -172,12 +371,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 201. If prerequisites are not satisfied, permission of the Department is required.",
-    "rules": {
-      "prereq": [["AERO 201"]],
-      "coreq":[],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 201."
+      }
+    ]
   },
   {
     "_id": "AERO 472",
@@ -187,12 +390,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: AERO 201; ENGR 361.",
-    "rules": {
-      "prereq": [["AERO 201"], ["ENGR 361"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 201"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 201."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 361."
+      }
+    ]
   },
   {
     "_id": "AERO 480",
@@ -202,12 +417,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 371 or ELEC 372 or MECH 371 or SOEN 385.",
-    "rules": {
-      "prereq": [["AERO 371", "ELEC 372", "MECH 371", "SOEN 385"]],
-      "coreq": [],
-      "not_taken": ["MECH 480","ELEC 415"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "ELEC 372", "MECH 371", "SOEN 385"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, ELEC 372, MECH 371, SOEN 385."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 415", "MECH 480"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 415, MECH 480."
+      }
+    ]
   },
   {
     "_id": "AERO 481",
@@ -217,12 +444,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MECH 221 or MIAE 221.",
-    "rules": {
-      "prereq": [["MECH 221", "MIAE 221"]],
-      "coreq": [],
-      "not_taken": ["MECH 481","MECH 321"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 221", "MIAE 221"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 221, MIAE 221."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 481", "MECH 321"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 481, MECH 321."
+      }
+    ]
   },
   {
     "_id": "AERO 482",
@@ -232,12 +471,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 371 or COMP 233; AERO 371 or ELEC 372 or MECH 370 or MECH 371 or SOEN 385.",
-    "rules": {
-      "prereq": [["ENGR 371", "COMP 233"], ["AERO 371", "ELEC 372", "MECH 370", "MECH 371", "SOEN 385"]],
-      "coreq": [],
-      "not_taken": ["MECH 482","ELEC 416"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371", "COMP 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371, COMP 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 371", "ELEC 372", "MECH 370", "MECH 371", "SOEN 385"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 371, ELEC 372, MECH 370, MECH 371, SOEN 385."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 416", "MECH 482"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 416, MECH 482."
+      }
+    ]
   },
   {
     "_id": "AERO 483",
@@ -247,12 +506,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: AERO 482; ELEC 481.",
-    "rules": {
-      "prereq": [["AERO 482"], ["ELEC 481"]],
-      "coreq": [],
-      "not_taken": ["ENGR 418"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 482"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 482."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 481"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 481."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ENGR 418"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ENGR 418."
+      }
+    ]
   },
   {
     "_id": "AERO 485",
@@ -262,12 +541,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: MECH 351, MECH 361.",
-    "rules": {
-      "prereq": [["MECH 361"], ["MECH 351"]],
-      "coreq": [],
-      "not_taken": ["MECH 485", "MECH 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 351"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 351."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MECH 361"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MECH 361."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 485", "MECH 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 485, MECH 498."
+      }
+    ]
   },
   {
     "_id": "AERO 486",
@@ -277,12 +576,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 243, ENGR 244.",
-    "rules": {
-      "prereq": [["ENGR 244"], ["ENGR 243"]],
-      "coreq": [],
-      "not_taken": ["MECH 486"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 486"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 486."
+      }
+    ]
   },
   {
     "_id": "AERO 487",
@@ -292,12 +611,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: AERO 486.",
-    "rules": {
-      "prereq": [["AERO 486"]],
-      "coreq": [],
-      "not_taken": ["MECH 487"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 486"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 486."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["MECH 487"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: MECH 487."
+      }
+    ]
   },
   {
     "_id": "AERO 490",
@@ -307,11 +638,30 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: AERO 390; ENGR 301. Students must have completed 75 credits in the program prior to enrolling.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["AERO 390"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["AERO 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: AERO 390."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75.0
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   }
 ]

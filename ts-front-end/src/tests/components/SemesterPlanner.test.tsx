@@ -24,9 +24,8 @@ describe("SemesterPlanner", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "Intro OOP",
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -34,9 +33,8 @@ describe("SemesterPlanner", () => {
       title: "System Hardware",
       credits: 4,
       description: "Hardware course",
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };

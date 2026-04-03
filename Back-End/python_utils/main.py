@@ -220,9 +220,8 @@ def init_instances():
     # Step 2: Initialize Course Data Scraper  
     if course_scraper_instance is None:
         logger.info("Initializing Course Data Scraper...")
-        init_course_scraper_instance(cache_dir=cache_path)
+        init_course_scraper_instance()
         course_scraper_instance = get_course_scraper_instance()
-        course_scraper_instance.load_cache_from_file()
         logger.info("Course scraper instance created")
         module_status["course_scraper"] = "ready"
     

@@ -453,6 +453,145 @@ describe('User Routes', () => {
       });
     });
 
+    describe('PATCH /users/:id', () => {
+  let testUser;
+
+  beforeEach(async () => {
+    testUser = await User.create({
+      _id: new mongoose.Types.ObjectId().toString(),
+      email: 'test@example.com',
+      fullname: 'Test User',
+      type: 'student',
+    });
+  });
+
+  it('should update fullname', async () => {
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({ fullname: 'Updated Name' })
+      .expect(200);
+
+    expect(res.body.message).toBe('User updated successfully');
+
+    const updated = await User.findById(testUser._id);
+    expect(updated?.fullname).toBe('Updated Name');
+  });
+
+  it('should return 400 if no fields provided', async () => {
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({})
+      .expect(400);
+
+    expect(res.body.error).toBe(
+      'Provide at least one field to update: fullname or newPassword'
+    );
+  });
+
+  it('should return 400 for empty fullname', async () => {
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({ fullname: '   ' })
+      .expect(400);
+
+    expect(res.body.error).toBe('fullname cannot be empty');
+  });
+
+  it('should require currentPassword when updating password', async () => {
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({ newPassword: 'newpass123' })
+      .expect(400);
+
+    expect(res.body.error).toBe(
+      'currentPassword is required to set a new password'
+    );
+  });
+
+  it('should enforce minimum password length', async () => {
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({
+        currentPassword: 'oldpass',
+        newPassword: '123',
+      })
+      .expect(400);
+
+    expect(res.body.error).toBe(
+      'newPassword must be at least 6 characters'
+    );
+  });
+
+  it('should return 401 if current password is incorrect', async () => {
+    const original = require('../controllers/authController')
+      .authController.changePassword;
+
+    require('../controllers/authController').authController.changePassword =
+      jest.fn().mockResolvedValue(false);
+
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({
+        currentPassword: 'wrongpass',
+        newPassword: 'newpassword',
+      })
+      .expect(401);
+
+    expect(res.body.error).toBe('Current password is incorrect');
+
+    require('../controllers/authController').authController.changePassword =
+      original;
+  });
+
+  it('should update password successfully', async () => {
+    const original = require('../controllers/authController')
+      .authController.changePassword;
+
+    require('../controllers/authController').authController.changePassword =
+      jest.fn().mockResolvedValue(true);
+
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({
+        currentPassword: 'oldpass',
+        newPassword: 'newpassword',
+      })
+      .expect(200);
+
+    expect(res.body.message).toBe('User updated successfully');
+
+    require('../controllers/authController').authController.changePassword =
+      original;
+  });
+
+  it('should return 400 for invalid id', async () => {
+    const res = await request(app)
+      .patch('/users/invalid-id')
+      .send({ fullname: 'Test' })
+      .expect(400);
+
+    expect(res.body.error).toBe('Invalid user id format');
+  });
+
+  it('should handle server errors', async () => {
+    const original = require('../controllers/userController')
+      .userController.updateUser;
+
+    require('../controllers/userController').userController.updateUser =
+      jest.fn().mockRejectedValue(new Error('Database error'));
+
+    const res = await request(app)
+      .patch(`/users/${testUser._id}`)
+      .send({ fullname: 'Test' })
+      .expect(500);
+
+    expect(res.body.error).toBe('Internal server error');
+
+    require('../controllers/userController').userController.updateUser =
+      original;
+  });
+});
+
    
 
   // Additional tests for uncovered error handling branches
