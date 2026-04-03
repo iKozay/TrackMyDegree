@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { queue, CourseProcessorJobData } from '../workers/queue';
 import type { RequestWithJobId } from '../middleware/assignJobId';
+import { cacheJobResult } from '@lib/cache';
 
 export const uploadController: RequestHandler = async (
   req: Request,
@@ -17,6 +18,13 @@ export const uploadController: RequestHandler = async (
       res.status(400).json({ message: 'Job ID missing. Did assignJobId run?' });
       return;
     }
+
+    await cacheJobResult(jobId, {
+      payload: {
+        status: 'processing',
+        data: null,
+      },
+    });
 
     let jobData: CourseProcessorJobData;
 

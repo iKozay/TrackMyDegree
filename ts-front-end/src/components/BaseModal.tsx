@@ -20,10 +20,7 @@ export const BaseModal: React.FC<BaseModalProps> = ({
   };
 
   return (
-    <div
-      className="modal-backdrop "
-      onClick={handleOnClose}
-      role="presentation">
+    <div className="modal-backdrop " role="presentation">
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()} // don't close when clicking inside

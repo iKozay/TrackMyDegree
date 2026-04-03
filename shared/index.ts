@@ -16,7 +16,7 @@ export interface ProgressStats {
   percentage: number;
 }
 
-export type NoticeType = 'warning' | 'info' | 'success';
+export type NoticeType = "warning" | "info" | "success";
 
 export interface Notice {
   id: string;
@@ -24,7 +24,11 @@ export interface Notice {
   message: string;
 }
 
-export type CourseAuditStatus = 'Completed' | 'In Progress' | 'Missing' | 'Not Started';
+export type CourseAuditStatus =
+  | "Completed"
+  | "In Progress"
+  | "Missing"
+  | "Not Started";
 
 export interface AuditCourse {
   id: string;
@@ -36,7 +40,12 @@ export interface AuditCourse {
   term?: string;
 }
 
-export type RequirementStatus = 'Complete' | 'In Progress' | 'Incomplete' | 'Not Started' | 'Missing';
+export type RequirementStatus =
+  | "Complete"
+  | "In Progress"
+  | "Incomplete"
+  | "Not Started"
+  | "Missing";
 
 export interface RequirementCategory {
   id: string;
@@ -62,26 +71,26 @@ export interface GenerateAuditParams {
 
 // creditForm.ts
 export interface ICreditFormData {
-    programId: string;
-    title: string;
-    subtitle: string;
-    pdf: string;
-    uploadedAt?: string;
+  programId: string;
+  title: string;
+  subtitle: string;
+  pdf: string;
+  uploadedAt?: string;
 }
 
 export interface CreateCreditFormInput {
-    programId: string;
-    title: string;
-    subtitle: string;
-    filename: string;
-    uploadedBy: string | null;
+  programId: string;
+  title: string;
+  subtitle: string;
+  filename: string;
+  uploadedBy: string | null;
 }
 
 export interface UpdateCreditFormInput {
-    title?: string;
-    subtitle?: string;
-    filename?: string;
-    uploadedBy: string | null;
+  title?: string;
+  subtitle?: string;
+  filename?: string;
+  uploadedBy: string | null;
 }
 
 // degree.ts
@@ -118,21 +127,26 @@ export interface CourseData {
 
 export interface Rule {
   type: RuleType;
-  level: 'warning' | 'info';
+  level: "warning" | "info";
   message: string;
-  params: MinCoursesFromSetParams | MaxCoursesFromSetParams | MinCreditsFromSetParams | MaxCreditsFromSetParams | MinCreditsCompletedParams;
+  params:
+    | MinCoursesFromSetParams
+    | MaxCoursesFromSetParams
+    | MinCreditsFromSetParams
+    | MaxCreditsFromSetParams
+    | MinCreditsCompletedParams;
 }
 
 export enum RuleType {
-  MinCoursesFromSet = 'min_courses_from_set',
-  MaxCoursesFromSet = 'max_courses_from_set',
-  MinCreditsFromSet = 'min_credits_from_set',
-  MaxCreditsFromSet = 'max_credits_from_set',
-  Prerequisite = 'prerequisite',
-  Corequisite = 'corequisite',
-  PrerequisiteOrCorequisite = 'prerequisite_or_corequisite',
-  NotTaken = 'not_taken',
-  MinimumCredits = 'min_credits',
+  MinCoursesFromSet = "min_courses_from_set",
+  MaxCoursesFromSet = "max_courses_from_set",
+  MinCreditsFromSet = "min_credits_from_set",
+  MaxCreditsFromSet = "max_credits_from_set",
+  Prerequisite = "prerequisite",
+  Corequisite = "corequisite",
+  PrerequisiteOrCorequisite = "prerequisite_or_corequisite",
+  NotTaken = "not_taken",
+  MinimumCredits = "min_credits",
 }
 
 export interface MinCoursesFromSetParams {
@@ -160,10 +174,14 @@ export interface MinCreditsCompletedParams {
 }
 
 // timeline.ts
-export type CourseStatus = "completed" | "incomplete" | "inprogress" | "planned";
+export type CourseStatus =
+  | "completed"
+  | "incomplete"
+  | "inprogress"
+  | "planned";
 
 export interface TimelineResult {
-  _id?: string; 
+  _id?: string;
   timelineName?: string;
   degree?: DegreeData;
   pools?: CoursePoolData[];
