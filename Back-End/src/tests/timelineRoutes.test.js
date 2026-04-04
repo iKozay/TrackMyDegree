@@ -28,6 +28,8 @@ jest.mock('../lib/cache', () => ({
 const cache = require('../lib/cache');
 const { getJobResult } = cache;
 
+const { queue } = require('../workers/queue');
+
 const timelineRoutes = require('../routes/timelineRoutes').default;
 
 // Create test app
