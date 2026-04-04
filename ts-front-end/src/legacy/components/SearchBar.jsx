@@ -1,5 +1,6 @@
 // src/components/SearchBar.js
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { Form, Button, InputGroup } from 'react-bootstrap';
 
 const SearchBar = ({ onSearch }) => {
@@ -29,3 +30,8 @@ const SearchBar = ({ onSearch }) => {
 };
 
 export default SearchBar;
+
+SearchBar.propTypes = {
+  onSearch: PropTypes.func.isRequired,
+};
+

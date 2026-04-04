@@ -44,6 +44,42 @@ vi.mock("../../reducers/timelineReducer", () => ({
         timelineName: action.payload.timelineName,
       };
     }
+    if (action.type === TimelineActionConstants.AddFallWinterSemester) {
+      return {
+        ...state,
+        semesters: [
+          ...state.semesters,
+          { term: "FALL/WINTER 2025-26", courses: [] },
+        ],
+      };
+    }
+    if (action.type === TimelineActionConstants.MoveSemester) {
+      const { fromIndex, toIndex } = action.payload;
+      const semesters = [...state.semesters];
+      const [moved] = semesters.splice(fromIndex, 1);
+      semesters.splice(toIndex, 0, moved);
+      return { ...state, semesters };
+    }
+    if (action.type === TimelineActionConstants.RemoveCourse) {
+      const { courseId, type } = action.payload;
+      const poolName = type === "exemption" ? "exemptions" : type === "deficiency" ? "deficiencies" : null;
+      if (!poolName) return state;
+      return {
+        ...state,
+        pools: state.pools.map((pool: any) =>
+          pool.name === poolName
+            ? { ...pool, courses: pool.courses.filter((c: string) => c !== courseId) }
+            : pool,
+        ),
+        courses: {
+          ...state.courses,
+          [courseId]: {
+            ...state.courses[courseId],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+      };
+    }
     return state;
   },
 }));
@@ -273,5 +309,120 @@ describe("useTimelineState", () => {
     });
 
     expect(result.current.state.timelineName).toBe("My Timeline");
+  });
+
+  it("dispatches removeCourse action for exemption pool", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        pools: [
+          {
+            _id: "exemptions",
+            name: "exemptions",
+            creditsRequired: 3,
+            courses: ["COMP 248"],
+            rules: [],
+          },
+        ],
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            status: { status: "completed", semester: null },
+          },
+        },
+        semesters: [],
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-remove"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.removeCourse("COMP 248", "exemption");
+    });
+
+    expect(result.current.state.pools[0].courses).not.toContain("COMP 248");
+    expect(result.current.state.courses["COMP 248"].status.status).toBe("incomplete");
+  });
+
+  it("dispatches removeCourse action for deficiency pool", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        pools: [
+          {
+            _id: "deficiencies",
+            name: "deficiencies",
+            creditsRequired: 3,
+            courses: ["COMP 248"],
+            rules: [],
+          },
+        ],
+        courses: {
+          "COMP 248": {
+            id: "COMP 248",
+            title: "OOP",
+            credits: 3,
+            description: "",
+            offeredIn: [],
+            status: { status: "incomplete", semester: null },
+          },
+        },
+        semesters: [],
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-remove-def"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.removeCourse("COMP 248", "deficiency");
+    });
+
+    expect(result.current.state.pools[0].courses).not.toContain("COMP 248");
+    expect(result.current.state.courses["COMP 248"].status.status).toBe("incomplete");
+  });
+
+  it("dispatches addFallWinterSemester action", () => {
+    const { result } = renderHook(() => useTimelineState(undefined));
+
+    act(() => {
+      result.current.actions.addFallWinterSemester();
+    });
+
+    expect(
+      result.current.state.semesters.some((s) => s.term.startsWith("FALL/WINTER"))
+    ).toBe(true);
+  });
+
+  it("dispatches moveSemester action", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(
+      makeDoneResponse({
+        semesters: [
+          { term: "FALL 2025", courses: [] },
+          { term: "FALL/WINTER 2025-26", courses: [] },
+          { term: "WINTER 2026", courses: [] },
+        ],
+        courses: {},
+        timelineName: "Test",
+      }) as any,
+    );
+
+    const { result } = renderHook(() => useTimelineState("job-move"));
+
+    await act(async () => {});
+
+    act(() => {
+      result.current.actions.moveSemester(1, 2);
+    });
+
+    // After moving index 1 → index 2, the FALL/WINTER term should be at position 2
+    expect(result.current.state.semesters[2].term).toMatch(/^FALL\/WINTER/);
   });
 });

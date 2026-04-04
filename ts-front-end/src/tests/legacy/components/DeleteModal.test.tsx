@@ -38,8 +38,8 @@ describe('DeleteModal', () => {
       </DeleteModal>,
     );
 
-    const overlay = screen.getByText('Modal').parentElement!.parentElement;
-    fireEvent.click(overlay!);
+    const overlay = screen.getByRole('button', { name: /close modal/i });
+    fireEvent.click(overlay);
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });
 
@@ -50,7 +50,7 @@ describe('DeleteModal', () => {
       </DeleteModal>,
     );
 
-    const closeButton = screen.getByRole('button');
+    const closeButton = screen.getByRole('button', { name: /^close$/i });
     fireEvent.click(closeButton);
     expect(onCloseMock).toHaveBeenCalledTimes(1);
   });

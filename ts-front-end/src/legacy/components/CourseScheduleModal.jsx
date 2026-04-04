@@ -1,8 +1,10 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { api } from '../../api/http-api-client';
 
 export const CourseScheduleModal = ({ code }) => {
+
     const [sections, setSections] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
@@ -48,7 +50,7 @@ export const CourseScheduleModal = ({ code }) => {
         };
 
         const yearDigits = termCode.substring(1, 3);
-        const academicYearStart = 2000 + parseInt(yearDigits);
+        const academicYearStart = 2000 + Number.parseInt(yearDigits, 10);
         const seasonCode = termCode[3];
         const season = seasonCodes[seasonCode] || 'Unknown';
 
@@ -307,3 +309,6 @@ export const CourseScheduleModal = ({ code }) => {
     );
 };
 
+CourseScheduleModal.propTypes = {
+    code: PropTypes.string.isRequired,
+};

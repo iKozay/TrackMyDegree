@@ -85,7 +85,7 @@ const StudentPage: React.FC = () => {
     try {
       if (user?.id) {
         const data = await api.get<UserTimelinesResponse>(`/users/${user.id}/data`);
-        setTimelines(data.timelines);
+        setTimelines(data.timelines ?? []);
         setDisplayName(data.user.fullname ?? user.name ?? "");
         setUserEmail(data.user.email ?? user.email ?? "");
         setNameInput(data.user.fullname ?? user.name ?? "");
@@ -105,7 +105,7 @@ const StudentPage: React.FC = () => {
     }
 
     fetchUserTimelines();
-  }, [isAuthenticated, navigate, user]);
+  }, [isAuthenticated, navigate, user?.id]);
 
   // timeline handlers 
   const handleTimelineClick = async (obj: Timeline) => {
@@ -190,7 +190,7 @@ const StudentPage: React.FC = () => {
       setTimeout(() => setPasswordSuccess(false), 3000);
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "";
-      if (message.includes("401")) {
+      if (message?.includes("401")) {
         setPasswordError("Current password is incorrect");
       } else {
         setPasswordError("Failed to update password.");
@@ -363,8 +363,9 @@ const StudentPage: React.FC = () => {
                       >
                         <div className="sp-password-form">
                           <div className="sp-field">
-                            <label className="sp-label">Current Password</label>
+                            <label className="sp-label" htmlFor="current-password">Current Password</label>
                             <input
+                              id="current-password"
                               type="password"
                               className="sp-input"
                               value={passwordForm.currentPassword}
@@ -374,8 +375,9 @@ const StudentPage: React.FC = () => {
                             />
                           </div>
                           <div className="sp-field">
-                            <label className="sp-label">New Password</label>
+                            <label className="sp-label" htmlFor="new-password">New Password</label>
                             <input
+                              id="new-password"
                               type="password"
                               className="sp-input"
                               value={passwordForm.newPassword}
@@ -385,8 +387,9 @@ const StudentPage: React.FC = () => {
                             />
                           </div>
                           <div className="sp-field">
-                            <label className="sp-label">Confirm New Password</label>
+                            <label className="sp-label" htmlFor="confirm-password">Confirm New Password</label>
                             <input
+                              id="confirm-password"
                               type="password"
                               className="sp-input"
                               value={passwordForm.confirmPassword}
@@ -441,17 +444,9 @@ const StudentPage: React.FC = () => {
               <div className="sp-timeline-list">
                 {timelines.map((obj) => (
                   <div key={obj._id} className="sp-timeline-item">
-                    <div
+                    <button
                       className="sp-timeline-info"
                       onClick={() => handleTimelineClick(obj)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault();
-                          handleTimelineClick(obj);
-                        }
-                      }}
-                      role="button"
-                      tabIndex={0}
                     >
                       <span className="sp-timeline-name">{obj.name}</span>
                       {obj.last_modified && (
@@ -459,7 +454,7 @@ const StudentPage: React.FC = () => {
                           Modified {moment(obj.last_modified).fromNow()}
                         </span>
                       )}
-                    </div>
+                    </button>
                     <div className="sp-timeline-actions">
                       <button
                         className="sp-btn-audit"

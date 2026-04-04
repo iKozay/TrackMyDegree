@@ -62,7 +62,6 @@
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
   color: #334155;
-  /* border-bottom: 1px solid #f1f5f9; */
 }
 
 .pool-section {
@@ -142,6 +141,7 @@
 .course-content {
   flex: 1;
   cursor: pointer;
+  text-align: left;
 }
 .course-btn {
   display: flex;
@@ -266,6 +266,119 @@
   background: #eff6ff;
 }
 
+.semester--dragging {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+/* Drag handle button inside semester header */
+.semester-drag-handle {
+  background: none;
+  border: none;
+  padding: 0.125rem 0.25rem;
+  margin-right: 0.25rem;
+  cursor: grab;
+  color: #94a3b8;
+  border-radius: 0.25rem;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+
+.semester-drag-handle:hover {
+  color: #475569;
+  background: #f1f5f9;
+}
+
+.semester-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Drop slot — narrow vertical gap between semesters, visible only while dragging */
+.semester-drop-slot {
+  width: 12px;
+  min-height: 200px;
+  flex-shrink: 0;
+  border-radius: 0.5rem;
+  border: 2px dashed transparent;
+  transition: all 0.15s;
+}
+
+.semester-drop-slot--over {
+  width: 48px;
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+/* Lightweight overlay card shown while dragging a semester */
+.semester-drag-overlay {
+  opacity: 0.9;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+  pointer-events: none;
+}
+
+/* ---- Gap insert button between semester cards ---- */
+.semester-gap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  min-height: 200px;
+  flex-shrink: 0;
+  cursor: default;
+}
+
+.semester-gap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px dashed #94a3b8;
+  background: white;
+  color: #94a3b8;
+  cursor: pointer;
+  opacity: 1;
+  transform: scale(1);
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.15s;
+  flex-shrink: 0;
+}
+
+.semester-gap-btn:hover {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Tooltip label shown below the button on hover */
+.semester-gap-label {
+  position: absolute;
+  top: calc(50% + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #3b82f6;
+  background: white;
+  border: 1px solid #bfdbfe;
+  border-radius: 0.375rem;
+  padding: 0.2rem 0.4rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 10;
+}
+
+.semester-gap:hover .semester-gap-label {
+  opacity: 1;
+}
+
 .semester-header {
   display: flex;
   justify-content: space-between;
@@ -289,6 +402,26 @@
   gap: 0.25rem;
   font-size: 0.75rem;
   color: #64748b;
+}
+
+.semester-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  margin-left: 0.375rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+  line-height: 0;
+}
+
+.semester-remove-btn:hover {
+  color: #ef4444;
+  background: #fee2e2;
 }
 
 .semester-courses {
@@ -319,6 +452,7 @@
 
 .course-content {
   flex: 1;
+  text-align: left;
 }
 
 .remove-course-btn {
@@ -532,6 +666,75 @@
 
 .planner-header h2 {
   margin: 0;
+}
+
+/* ── Add Semester Popover ───────────────────────────────────── */
+
+.add-semester-wrapper {
+  position: relative;
+}
+
+.add-semester-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 200;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  min-width: 240px;
+  padding: 0.375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.add-semester-popover-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: #1e293b;
+  transition: background-color 0.12s ease;
+}
+
+.add-semester-popover-item:hover {
+  background: #f1f5f9;
+}
+
+.add-semester-popover-item svg {
+  flex-shrink: 0;
+  color: #64748b;
+}
+
+.add-semester-popover-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.add-semester-popover-item strong {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.add-semester-popover-item small {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+.add-semester-popover-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0.25rem 0;
 }
 
 .share-download-group {
