@@ -592,7 +592,14 @@ describe('User Routes', () => {
   });
 });
 
-   
+   it('should return 400 if fullname is not a string', async () => {
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({ fullname: ['not', 'a', 'string'] })
+    .expect(400);
+
+  expect(res.body.error).toBe('fullname must be a string');
+});
 
   // Additional tests for uncovered error handling branches
   describe('Error handling edge cases', () => {
