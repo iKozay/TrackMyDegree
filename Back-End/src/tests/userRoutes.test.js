@@ -610,6 +610,14 @@ it('should return 400 if currentPassword is not a string', async () => {
   expect(res.body.error).toBe('currentPassword must be a string');
 });
 
+it('should return 400 if newPassword is not a string', async () => {
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({ newPassword: { value: 'hack' } })
+    .expect(400);
+
+  expect(res.body.error).toBe('newPassword must be a string');
+});
 
   // Additional tests for uncovered error handling branches
   describe('Error handling edge cases', () => {
