@@ -290,7 +290,17 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-     if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (
+      typeof updates !== 'object' ||
+      Array.isArray(updates) ||
+      updates === null
+    ) {
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'Invalid request body' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
