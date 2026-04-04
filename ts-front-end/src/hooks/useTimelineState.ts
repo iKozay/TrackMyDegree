@@ -50,6 +50,7 @@ export interface TimelineActions {
   addFallWinterSemester: () => void;
   removeSemester: (semesterId: SemesterId) => void;
   moveSemester: (fromIndex: number, toIndex: number) => void;
+  insertSemesterAt: (semesterId: SemesterId, atIndex: number) => void;
   setTimelineName: (timelineName: string) => void;
 }
 
@@ -167,6 +168,12 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       dispatch({
         type: TimelineActionConstants.MoveSemester,
         payload: { fromIndex, toIndex },
+      });
+    },
+    insertSemesterAt(semesterId, atIndex) {
+      dispatch({
+        type: TimelineActionConstants.InsertSemesterAt,
+        payload: { semesterId, atIndex },
       });
     },
     setTimelineName(timelineName: string) {

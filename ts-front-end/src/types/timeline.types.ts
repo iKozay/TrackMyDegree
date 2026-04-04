@@ -161,4 +161,8 @@ export type TimelineActionType =
   | {
       type: typeof TimelineActionConstants.MoveSemester;
       payload: { fromIndex: number; toIndex: number };
+    }
+  | {
+      type: typeof TimelineActionConstants.InsertSemesterAt;
+      payload: { semesterId: SemesterId; atIndex: number };
     };

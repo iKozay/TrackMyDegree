@@ -592,3 +592,159 @@ export function canAddCourse(
 
   return "ok";
 }
+
+/**
+ * If `left` is a FALL/WINTER term, find the previous regular semester before it and return that semester's term.
+ * If `left` is not a FALL/WINTER term, return it as is.
+ * If no suitable semester is found, return null.
+ * @param left
+ * @param semesters
+ */
+function resolveLeftSemester(
+    left: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    if (!left.startsWith("FALL/WINTER")) return left;
+
+    const leftIdx = semesters.findIndex((s) => s.term === left);
+    if (leftIdx === -1) return null;
+
+    const regularTerm = semesters
+        .slice(0, leftIdx)
+        .reverse()
+        .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+    return regularTerm?.term ?? null;
+}
+
+/**
+ * If `right` is a FALL/WINTER term, find the next regular semester after it and return that semester's term.
+ * If `right` is not a FALL/WINTER term, return it as is.
+ * If no suitable semester is found, return null.
+ * @param right
+ * @param semesters
+ */
+function resolveRightSemester(
+    right: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    if (!right.startsWith("FALL/WINTER")) return right;
+
+    const rightIdx = semesters.findIndex((s) => s.term === right);
+    if (rightIdx === -1) return null;
+
+    const regularTerm = semesters
+        .slice(rightIdx + 1)
+        .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+    return regularTerm?.term ?? null;
+}
+
+/**
+ * Given two semester IDs and the list of semesters, determine if there's a missing semester between them.
+ * This is used to decide whether to show a "+" button for adding a semester in the UI.
+ * @param left
+ * @param right
+ * @param semesters
+ */
+export function getMissingSemesterBetween(
+    left: SemesterId,
+    right: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    const leftIsFallWinter = left.startsWith("FALL/WINTER");
+    const rightIsFallWinter = right.startsWith("FALL/WINTER");
+
+    const resolvedLeft = resolveLeftSemester(left, semesters);
+    if (!resolvedLeft) return null;
+
+    const resolvedRight = resolveRightSemester(right, semesters);
+    if (!resolvedRight) return null;
+
+    const parsed = parseSemester(resolvedLeft);
+    if (!parsed) return null;
+
+    const next = getNextSemester(parsed.season, parsed.year);
+    if (!next) return null;
+
+    const candidate = `${next.season} ${next.year}` as SemesterId;
+    if (candidate === resolvedRight) return null;
+
+    // This prevents showing Fall or Winter gaps between consecutive Fall/Winter terms
+    if (leftIsFallWinter && rightIsFallWinter && next.season !== "SUMMER") {
+        return null;
+    }
+
+    // Edge case: If we have two consecutive Fall/Winter semesters in the list,
+    // only show the Summer (+) button BETWEEN them, not before the first or after the second
+    if (next.season === "SUMMER") {
+        if (shouldHideSummerGapBetweenFallWinter(leftIsFallWinter, rightIsFallWinter, left, right, semesters)) {
+            return null;
+        }
+    }
+
+    return candidate;
+}
+
+/**
+ * Parses a semester ID into its season and year components.
+ * Returns null if the semester format is invalid.
+ */
+function parseSemester(semesterId: SemesterId): { season: string; year: number } | null {
+    const [season, yearStr] = semesterId.split(" ");
+    const year = Number.parseInt(yearStr, 10);
+
+    if (Number.isNaN(year)) return null;
+
+    return { season, year };
+}
+
+/**
+ * Returns the next semester in the sequence after the given season and year.
+ * Returns null if the season is invalid.
+ */
+function getNextSemester(season: string, year: number): { season: string; year: number } | null {
+    if (season === "SUMMER") {
+        return { season: "FALL", year };
+    }
+    if (season === "FALL") {
+        return { season: "WINTER", year: year + 1 };
+    }
+    if (season === "WINTER") {
+        return { season: "SUMMER", year };
+    }
+    return null;
+}
+
+/**
+ * Checks if we should hide the semester gap button between two consecutive Fall/Winter semesters.
+ * Returns true if the gap should be hidden.
+ */
+function shouldHideSummerGapBetweenFallWinter(
+    leftIsFallWinter: boolean,
+    rightIsFallWinter: boolean,
+    left: SemesterId,
+    right: SemesterId,
+    semesters: SemesterList,
+): boolean {
+    const leftIdx = semesters.findIndex((s) => s.term === left);
+    const rightIdx = semesters.findIndex((s) => s.term === right);
+
+    // Check if right is a Fall/Winter and there's another Fall/Winter after it
+    if (rightIsFallWinter && rightIdx < semesters.length - 1) {
+        const nextSemester = semesters[rightIdx + 1];
+        if (nextSemester.term.startsWith("FALL/WINTER")) {
+            return true;
+        }
+    }
+
+    // Check if left is a Fall/Winter and there's another Fall/Winter before it
+    if (leftIsFallWinter && leftIdx > 0) {
+        const prevSemester = semesters[leftIdx - 1];
+        if (prevSemester.term.startsWith("FALL/WINTER")) {
+            return true;
+        }
+    }
+
+    return false;
+}

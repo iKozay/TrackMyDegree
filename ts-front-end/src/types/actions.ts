@@ -19,4 +19,5 @@ export const TimelineActionConstants = {
   RemoveSemester: "REMOVE-SEMESTER",
   SetTimelineName: "SET-TIMELINE-NAME",
   MoveSemester: "MOVE-SEMESTER",
+  InsertSemesterAt: "INSERT-SEMESTER-AT",
 } as const;

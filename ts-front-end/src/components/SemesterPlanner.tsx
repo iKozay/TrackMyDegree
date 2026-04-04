@@ -12,7 +12,7 @@ import type {
 import type { DroppableSemesterSlotData } from "../types/dnd.types";
 import { Plus, CalendarDays } from "lucide-react";
 import { toast } from "react-toastify";
-import { wouldCreateDuplicateFallWinter } from "../utils/timelineUtils";
+import { getMissingSemesterBetween, wouldCreateDuplicateFallWinter } from "../utils/timelineUtils";
 
 interface SemesterPlannerProps {
   semesters: SemesterList;
@@ -22,6 +22,7 @@ interface SemesterPlannerProps {
   onAddSemester: () => void;
   onAddFallWinterSemester: () => void;
   onRemoveSemester: (semesterId: SemesterId) => void;
+  onInsertSemesterAt: (semesterId: SemesterId, atIndex: number) => void;
   timelineName?: string;
 }
 
@@ -43,6 +44,32 @@ const SemesterSlot: React.FC<{ index: number; isActive: boolean }> = ({ index, i
   );
 };
 
+/** Hoverable gap between two adjacent semester cards that shows a + button when
+ *  exactly one semester is missing in the sequence. */
+const SemesterGap: React.FC<{
+  leftTerm: SemesterId;
+  rightTerm: SemesterId;
+  semesters: SemesterList;
+  insertIndex: number;
+  onInsert: (semesterId: SemesterId, atIndex: number) => void;
+}> = ({ leftTerm, rightTerm, semesters, insertIndex, onInsert }) => {
+  const missing = getMissingSemesterBetween(leftTerm, rightTerm, semesters);
+  if (!missing) return null;
+
+  return (
+    <div className="semester-gap" title={`Insert ${missing}`}>
+      <button
+        className="semester-gap-btn"
+        aria-label={`Insert missing semester ${missing}`}
+        onClick={() => onInsert(missing, insertIndex)}
+      >
+        <Plus size={14} />
+      </button>
+      <span className="semester-gap-label">{missing}</span>
+    </div>
+  );
+};
+
 const getDisplayName = (timelineName: string | undefined): string => {
     if (!timelineName) {
         return "Academic Plan";
@@ -58,6 +85,7 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   onAddSemester,
   onAddFallWinterSemester,
   onRemoveSemester,
+  onInsertSemesterAt,
   timelineName
 }) => {
   const [popoverOpen, setPopoverOpen] = useState(false);
@@ -147,6 +175,16 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
               selectedCourse={selectedCourse}
               onRemoveSemester={onRemoveSemester}
             />
+            {/* Show a gap insert button between this card and the next when not dragging */}
+            {!isSemesterDragging && idx < semesters.length - 1 && (
+              <SemesterGap
+                leftTerm={term}
+                rightTerm={semesters[idx + 1].term}
+                semesters={semesters}
+                insertIndex={idx + 1}
+                onInsert={onInsertSemesterAt}
+              />
+            )}
           </React.Fragment>
         ))}
         {/* trailing slot — allows dropping after the last card */}

@@ -514,10 +514,8 @@ function deriveFallYear(
 }
 
 /**
- * After reordering, only the FALL/WINTER semester's year needs to be updated
- * based on its new neighbours. All regular semesters (FALL/WINTER/SUMMER) keep
- * their original terms unchanged — moving a FALL/WINTER card must never
- * renumber any regular semester.
+ * Recomputes the terms of all FALL/WINTER semesters based on their position relative to regular semesters. This is necessary after reordering FALL/WINTER semesters to ensure their academic years remain correct. For example, if a FALL/WINTER semester is moved before "FALL 2025", it should become "FALL/WINTER 2024-25". If it's moved between "WINTER 2026" and "FALL 2026", it should become "FALL/WINTER 2025-26".
+ * @param semesters
  */
 export function rebuildSemesterTerms(semesters: Semester[]): Semester[] {
     if (semesters.length === 0) return [];
@@ -657,6 +655,28 @@ export function removeSemester(
         ...s1,
         semesters: updatedSemesters,
     };
+}
+
+/**
+ * Inserts a new empty semester at the specified index. The new semester's term is determined based on its neighbours to maintain chronological order. For example, inserting between "FALL 2025" and "FALL/WINTER 2025-26" would create "WINTER 2026". Inserting between "WINTER 2026" and "FALL 2026" would create "SUMMER 2026".
+ * @param state
+ * @param payload
+ */
+export function insertSemesterAt(
+    state: TimelineState,
+    payload: { semesterId: SemesterId; atIndex: number },
+): TimelineState {
+    const { semesterId, atIndex } = payload;
+
+    // Guard: don't add if it already exists
+    if (state.semesters.some((s) => s.term === semesterId)) return state;
+
+    const s1 = withPushedHistory(state);
+    const newSemester: Semester = { term: semesterId, courses: [] };
+    const updated = [...s1.semesters];
+    updated.splice(atIndex, 0, newSemester);
+
+    return { ...s1, semesters: updated };
 }
 
 export function validateTimeline(state: TimelineState): TimelineState {
