@@ -592,7 +592,32 @@ describe('User Routes', () => {
   });
 });
 
-   
+   it('should return 400 if fullname is not a string', async () => {
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({ fullname: ['not', 'a', 'string'] })
+    .expect(400);
+
+  expect(res.body.error).toBe('fullname must be a string');
+});
+
+it('should return 400 if currentPassword is not a string', async () => {
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({ currentPassword: 123, newPassword: 'validpass' })
+    .expect(400);
+
+  expect(res.body.error).toBe('currentPassword must be a string');
+});
+
+it('should return 400 if newPassword is not a string', async () => {
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({ newPassword: { value: 'hack' } })
+    .expect(400);
+
+  expect(res.body.error).toBe('newPassword must be a string');
+});
 
   // Additional tests for uncovered error handling branches
   describe('Error handling edge cases', () => {
@@ -745,6 +770,15 @@ describe('User Routes', () => {
           originalUpdateUser;
       });
     });
+
+    it('should return 400 if body is an array', async () => {
+  const res = await request(app)
+    .put(`/users/${testUser._id}`)
+    .send([{ fullname: 'hacked' }])
+    .expect(400);
+
+  expect(res.body.error).toBe('Invalid request body');
+  });
 
     describe('DELETE /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
