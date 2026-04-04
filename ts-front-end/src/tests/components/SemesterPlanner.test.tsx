@@ -39,6 +39,7 @@ vi.mock("react-toastify", () => ({
 // 🔹 Mock wouldCreateDuplicateFallWinter so we can control its return value
 vi.mock("../../utils/timelineUtils", () => ({
   wouldCreateDuplicateFallWinter: vi.fn(() => false),
+  getMissingSemesterBetween: vi.fn(() => null),
 }));
 
 import { useTimelineDnd } from "../../contexts/timelineDndContext";

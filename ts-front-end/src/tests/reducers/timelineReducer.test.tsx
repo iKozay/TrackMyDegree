@@ -441,4 +441,55 @@ describe("timelineReducer", () => {
     // State returned unchanged (no history push)
     expect(result.semesters).toEqual(initialState.semesters);
   });
+
+  it("handles INSERT_SEMESTER_AT by inserting a new semester at the given index", () => {
+    // initialState has [FALL 2025, WINTER 2026]; insert SUMMER 2026 at index 2
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2026", atIndex: 2 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(3);
+    expect(result.semesters[2].term).toBe("SUMMER 2026");
+    expect(result.semesters[2].courses).toEqual([]);
+  });
+
+  it("handles INSERT_SEMESTER_AT by inserting in the middle of the list", () => {
+    // initialState has [FALL 2025, WINTER 2026]; insert FALL 2025's missing would be e.g. a SUMMER
+    // Insert a semester at index 1 between the two existing ones
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2025" as const, atIndex: 1 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(3);
+    expect(result.semesters[0].term).toBe("FALL 2025");
+    expect(result.semesters[1].term).toBe("SUMMER 2025");
+    expect(result.semesters[2].term).toBe("WINTER 2026");
+  });
+
+  it("does not insert a duplicate semester for INSERT_SEMESTER_AT", () => {
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "FALL 2025" as const, atIndex: 1 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(initialState.semesters.length);
+  });
+
+  it("pushes to history on INSERT_SEMESTER_AT", () => {
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2026" as const, atIndex: 2 },
+    };
+
+    const result = timelineReducer(initialState, action);
+    expect(result.history.length).toBe(1);
+  });
 });

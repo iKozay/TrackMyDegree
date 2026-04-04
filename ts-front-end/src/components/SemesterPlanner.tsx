@@ -21,8 +21,8 @@ interface SemesterPlannerProps {
   selectedCourse?: CourseCode | null;
   onAddSemester: () => void;
   onAddFallWinterSemester: () => void;
-  onRemoveSemester: (semesterId: SemesterId) => void;
-  onInsertSemesterAt: (semesterId: SemesterId, atIndex: number) => void;
+  onRemoveSemester?: (semesterId: SemesterId) => void;
+  onInsertSemesterAt?: (semesterId: SemesterId, atIndex: number) => void;
   timelineName?: string;
 }
 
@@ -51,7 +51,7 @@ const SemesterGap: React.FC<{
   rightTerm: SemesterId;
   semesters: SemesterList;
   insertIndex: number;
-  onInsert: (semesterId: SemesterId, atIndex: number) => void;
+  onInsert?: (semesterId: SemesterId, atIndex: number) => void;
 }> = ({ leftTerm, rightTerm, semesters, insertIndex, onInsert }) => {
   const missing = getMissingSemesterBetween(leftTerm, rightTerm, semesters);
   if (!missing) return null;
@@ -61,7 +61,7 @@ const SemesterGap: React.FC<{
       <button
         className="semester-gap-btn"
         aria-label={`Insert missing semester ${missing}`}
-        onClick={() => onInsert(missing, insertIndex)}
+        onClick={() => onInsert?.(missing, insertIndex)}
       >
         <Plus size={14} />
       </button>

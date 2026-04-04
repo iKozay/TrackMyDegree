@@ -9,6 +9,7 @@ import {
   canAddCourse,
   compareCourseIds,
   wouldCreateDuplicateFallWinter,
+  getMissingSemesterBetween,
 } from "../../utils/timelineUtils";
 import { RuleType, type CoursePoolData, type Rule } from "@trackmydegree/shared";
 import type {
@@ -1345,6 +1346,72 @@ describe("timelineUtils", () => {
         { term: "FALL/WINTER 2099-00" as SemesterId, courses: [] },
       ];
       expect(wouldCreateDuplicateFallWinter(semesters)).toBe(true);
+    });
+  });
+
+  describe("getMissingSemesterBetween", () => {
+    it("returns null when semesters are already consecutive (FALL → WINTER)", () => {
+      expect(getMissingSemesterBetween("FALL 2025", "WINTER 2026", [])).toBeNull();
+    });
+
+    it("returns null when semesters are already consecutive (WINTER → SUMMER)", () => {
+      expect(getMissingSemesterBetween("WINTER 2026", "SUMMER 2026", [])).toBeNull();
+    });
+
+    it("returns null when semesters are already consecutive (SUMMER → FALL)", () => {
+      expect(getMissingSemesterBetween("SUMMER 2026", "FALL 2026", [])).toBeNull();
+    });
+
+    it("returns the missing FALL semester between SUMMER and WINTER", () => {
+      // SUMMER 2026 → FALL 2026 → WINTER 2027
+      expect(getMissingSemesterBetween("SUMMER 2026", "WINTER 2027", [])).toBe("FALL 2026");
+    });
+
+    it("returns the missing WINTER semester between FALL and SUMMER", () => {
+      // FALL 2025 → WINTER 2026 → SUMMER 2026
+      expect(getMissingSemesterBetween("FALL 2025", "SUMMER 2026", [])).toBe("WINTER 2026");
+    });
+
+    it("returns the missing SUMMER semester between WINTER and FALL of same year", () => {
+      // WINTER 2026 → SUMMER 2026 → FALL 2026
+      expect(getMissingSemesterBetween("WINTER 2026", "FALL 2026", [])).toBe("SUMMER 2026");
+    });
+
+    it("returns the immediate next semester even when more than one is missing", () => {
+      // FALL 2025 → gap: WINTER 2026, SUMMER 2026 → FALL 2026
+      // Should return WINTER 2026 (the very next step after FALL 2025)
+      expect(getMissingSemesterBetween("FALL 2025", "FALL 2026", [])).toBe("WINTER 2026");
+    });
+
+    it("handles Fall/Winter semester edge cases correctly", () => {
+      // Test the edge case: consecutive Fall/Winter semesters
+      const semesters = [
+        { term: "FALL 2026" as SemesterId, courses: [] },
+        { term: "WINTER 2027" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2026-27" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2027-28" as SemesterId, courses: [] },
+        { term: "FALL 2027" as SemesterId, courses: [] },
+      ];
+
+      // Gap between Winter 2027 and Fall/Winter 2026-27: should NOT show Summer 2027
+      expect(getMissingSemesterBetween("WINTER 2027" as SemesterId, "FALL/WINTER 2026-27" as SemesterId, semesters)).toBeNull();
+
+      // Gap between Fall/Winter 2026-27 and Fall/Winter 2027-28: SHOULD show Summer 2027
+      expect(getMissingSemesterBetween("FALL/WINTER 2026-27" as SemesterId, "FALL/WINTER 2027-28" as SemesterId, semesters)).toBe("SUMMER 2027");
+
+      // Gap between Fall/Winter 2027-28 and Fall 2027: should NOT show Summer 2027
+      expect(getMissingSemesterBetween("FALL/WINTER 2027-28" as SemesterId, "FALL 2027" as SemesterId, semesters)).toBeNull();
+    });
+
+    it("shows missing Fall semester when not consecutive Fall/Winter", () => {
+      const semesters = [
+        { term: "SUMMER 2027" as SemesterId, courses: [] },
+        { term: "FALL/WINTER 2027-28" as SemesterId, courses: [] },
+        { term: "WINTER 2028" as SemesterId, courses: [] },
+      ];
+      // Summer 2027 → Fall/Winter 2027-28 (resolves to Winter 2028)
+      // Next after Summer 2027 is Fall 2027, which is missing
+      expect(getMissingSemesterBetween("SUMMER 2027" as SemesterId, "FALL/WINTER 2027-28" as SemesterId, semesters)).toBe("FALL 2027");
     });
   });
 });
