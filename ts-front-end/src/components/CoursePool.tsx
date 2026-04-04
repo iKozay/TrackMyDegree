@@ -24,7 +24,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [showIncompleted, setShowIncompleted] = useState(true);
+  const [showIncompleted, setShowIncompleted] = useState(false);
   const hasActiveSearch = searchTerm.trim().length > 0;
   const search = searchTerm.trim().toLowerCase();
 
@@ -36,7 +36,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
     if (name.startsWith("ECP_")) {
       return name.replace("ECP_", "ECP ").replaceAll("_", " ");
     }
-    return name; // Return the name unchanged for non-ECP course pools
+    return name.charAt(0).toUpperCase() + name.slice(1); // Return the name unchanged for non-ECP course pools
   };
 
   return (

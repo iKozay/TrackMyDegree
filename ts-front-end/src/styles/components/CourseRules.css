@@ -29,20 +29,11 @@
 }
 
 .rule-section.section-satisfied .rule-header {
-  background: #f0fdf4;
-  border-bottom-color: #bbf7d0;
+  background: #f8fafc;
 }
 
 .rule-section.section-unsatisfied .rule-header {
   background: #f8fafc;
-}
-
-.rule-header:hover {
-  background: #f1f5f9;
-}
-
-.rule-section.section-satisfied .rule-header:hover {
-  background: #dcfce7;
 }
 
 .rule-header h4 {
@@ -74,10 +65,6 @@
   border-bottom: none;
 }
 
-.rule-item.satisfied {
-  background-color: #f0fdf4;
-}
-
 .rule-item.unsatisfied {
   background-color: inherit;
 }
@@ -106,7 +93,7 @@
   display: inline-block;
   padding: 4px 8px;
   font-size: 0.85rem;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
   font-weight: 500;
   border-radius: 4px;
   border: 1px solid;

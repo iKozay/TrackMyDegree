@@ -10,6 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
+import { adminRateLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
 
 // ==========================
@@ -18,6 +19,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 router.use(adminCheckMiddleware);
+router.use(adminRateLimiter);
 
 // ==========================
 // ADMIN ROUTES

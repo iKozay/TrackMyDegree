@@ -39,10 +39,10 @@ vi.mock("../../reducers/timelineReducer", () => ({
       };
     }
     if (action.type === TimelineActionConstants.SetTimelineName) {
-        return {
-            ...state,
-            timelineName: action.payload.timelineName,
-        };
+      return {
+        ...state,
+        timelineName: action.payload.timelineName,
+      };
     }
     if (action.type === TimelineActionConstants.AddFallWinterSemester) {
       return {
@@ -154,7 +154,6 @@ describe("useTimelineState", () => {
 
     const { result } = renderHook(() => useTimelineState("job-1"));
 
-    // Immediate fetch (no timer advance needed)
     await act(async () => {});
 
     expect(api.get).toHaveBeenCalledTimes(1);
@@ -163,47 +162,56 @@ describe("useTimelineState", () => {
     expect(result.current.state.courses["COMP 248"]).toBeDefined();
   });
 
-  it("tolerates errors and only fails after 3 consecutive errors", async () => {
-    vi.mocked(api.get)
-      .mockRejectedValueOnce(new Error("HTTP 410: Gone"))
-      .mockRejectedValueOnce(new Error("HTTP 410: Gone"))
-      .mockRejectedValueOnce(new Error("HTTP 410: Gone"));
+  it("fails immediately on network error", async () => {
+    vi.mocked(api.get).mockRejectedValueOnce(new Error("Network failure"));
 
-    const { result } = renderHook(() => useTimelineState("job-2"));
+    const { result } = renderHook(() => useTimelineState("job-err"));
 
-    // Immediate fetch — error 1
     await act(async () => {});
-    expect(result.current.status).toBe("processing");
 
-    // Error 2
-    await act(async () => {
-      vi.advanceTimersByTime(POLL_INTERVAL);
-    });
-    expect(result.current.status).toBe("processing");
+    expect(result.current.status).toBe("failed");
+    expect(result.current.errorMessage).toMatch(/unable to reach server/i);
+  });
 
-    // Error 3 — now it should fail
-    await act(async () => {
-      vi.advanceTimersByTime(POLL_INTERVAL);
-    });
-    expect(result.current.status).toBe("error");
+  it("shows expiration message for HTTP 410 errors", async () => {
+    vi.mocked(api.get).mockRejectedValueOnce(new Error("HTTP 410: Gone"));
+
+    const { result } = renderHook(() => useTimelineState("job-410"));
+
+    await act(async () => {});
+
+    expect(result.current.status).toBe("failed");
     expect(result.current.errorMessage).toMatch(/expired/i);
   });
 
-  it("recovers if a successful response comes before max errors", async () => {
+  it("fails when job status is failed", async () => {
+    vi.mocked(api.get).mockResolvedValueOnce({ status: "failed" } as any);
+
+    const { result } = renderHook(() => useTimelineState("job-fail"));
+
+    await act(async () => {});
+
+    expect(result.current.status).toBe("failed");
+    expect(result.current.errorMessage).toMatch(/job failed/i);
+  });
+
+  it("polls while processing then resolves on done", async () => {
     vi.mocked(api.get)
-      .mockRejectedValueOnce(new Error("HTTP 410: Gone"))
+      .mockResolvedValueOnce({ status: "processing" } as any)
       .mockResolvedValueOnce(makeDoneResponse() as any);
 
-    const { result } = renderHook(() => useTimelineState("job-recover"));
+    const { result } = renderHook(() => useTimelineState("job-poll"));
 
-    // Immediate fetch — error 1
+    // First fetch — processing
     await act(async () => {});
     expect(result.current.status).toBe("processing");
 
-    // Next poll — success
+    // Advance past the poll delay, let the next fetch resolve
     await act(async () => {
       vi.advanceTimersByTime(POLL_INTERVAL);
     });
+
+    expect(api.get).toHaveBeenCalledTimes(2);
     expect(result.current.status).toBe("done");
     expect(result.current.state.timelineName).toBe("Saved Timeline");
   });
@@ -212,8 +220,18 @@ describe("useTimelineState", () => {
     vi.mocked(api.get).mockResolvedValueOnce(
       makeDoneResponse({
         pools: [
-          { _id: "exemptions", name: "exemptions", creditsRequired: 0, courses: [] },
-          { _id: "deficiencies", name: "deficiencies", creditsRequired: 0, courses: [] },
+          {
+            _id: "exemptions",
+            name: "exemptions",
+            creditsRequired: 0,
+            courses: [],
+          },
+          {
+            _id: "deficiencies",
+            name: "deficiencies",
+            creditsRequired: 0,
+            courses: [],
+          },
         ],
         courses: {
           "COMP 248": {
@@ -251,7 +269,11 @@ describe("useTimelineState", () => {
 
   it("falls back to empty timelineName when missing", async () => {
     vi.mocked(api.get).mockResolvedValueOnce(
-      makeDoneResponse({ timelineName: undefined, courses: {}, semesters: [] }) as any,
+      makeDoneResponse({
+        timelineName: undefined,
+        courses: {},
+        semesters: [],
+      }) as any,
     );
 
     const { result } = renderHook(() => useTimelineState("job-no-name"));
@@ -264,7 +286,11 @@ describe("useTimelineState", () => {
 
   it("falls back to empty timelineName when null", async () => {
     vi.mocked(api.get).mockResolvedValueOnce(
-      makeDoneResponse({ timelineName: null, courses: {}, semesters: [] }) as any,
+      makeDoneResponse({
+        timelineName: null,
+        courses: {},
+        semesters: [],
+      }) as any,
     );
 
     const { result } = renderHook(() => useTimelineState("job-null-name"));

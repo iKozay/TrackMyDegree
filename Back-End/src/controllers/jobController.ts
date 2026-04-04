@@ -1,17 +1,16 @@
 // controllers/resultController.ts
 import type { RequestHandler } from 'express';
 import { cacheJobResult, getJobResult } from '../lib/cache';
+
 interface GetResultParams {
   jobId: string;
 }
-
 export interface CachedJobResult<T = unknown> {
   payload: {
     status: string;
     data: T;
   };
 }
-
 export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
 
@@ -26,6 +25,14 @@ export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
 
     if (!cached) {
       return res.status(410).json({ error: 'result expired' });
+    }
+
+    if (cached.payload?.status === 'failed') {
+      return res.status(422).json({
+        jobId,
+        status: 'failed',
+        error: 'Job processing failed',
+      });
     }
 
     return res.json({
@@ -117,7 +124,7 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
 
     // handle timelineName update
     if (partialUpdate.timelineName !== undefined) {
-        timeline.timelineName = partialUpdate.timelineName;
+      timeline.timelineName = partialUpdate.timelineName;
     }
 
     await cacheJobResult(jobId, {

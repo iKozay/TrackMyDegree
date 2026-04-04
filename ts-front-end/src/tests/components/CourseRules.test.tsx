@@ -2,7 +2,11 @@ import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { RuleType, type Rule } from "@trackmydegree/shared";
 import CourseRules from "../../components/CourseRules";
-import type { Course, CourseMap, SemesterList } from "../../types/timeline.types";
+import type {
+  Course,
+  CourseMap,
+  SemesterList,
+} from "../../types/timeline.types";
 
 const semesters: SemesterList = [
   { term: "FALL 2025", courses: [] },
@@ -11,7 +15,8 @@ const semesters: SemesterList = [
     courses: [
       {
         code: "COMP 352",
-        message: "At least 1 of the following courses must be completed previously: COMP 248.",
+        message:
+          "At least 1 of the following courses must be completed previously: COMP 248.",
       },
     ],
   },
@@ -41,7 +46,8 @@ const courses: CourseMap = {
 const prerequisiteRule: Rule = {
   type: RuleType.Prerequisite,
   level: "warning",
-  message: "At least 1 of the following courses must be completed previously: COMP 248.",
+  message:
+    "At least 1 of the following courses must be completed previously: COMP 248.",
   params: { courseList: ["COMP 248"], minCourses: 1 },
 };
 
@@ -62,7 +68,7 @@ describe("CourseRules (new)", () => {
         course={{ ...baseCourse, rules: [] }}
         courses={courses}
         semesters={semesters}
-      />
+      />,
     );
 
     expect(container.firstChild).toBeNull();
@@ -74,11 +80,10 @@ describe("CourseRules (new)", () => {
         course={baseCourse}
         courses={courses}
         semesters={semesters}
-      />
+      />,
     );
 
     expect(screen.getByText("Prerequisites")).toBeInTheDocument();
-    expect(screen.getByText("COMP 248")).toHaveClass("status-completed");
   });
 
   it("marks violated rules as unsatisfied", () => {
@@ -87,7 +92,7 @@ describe("CourseRules (new)", () => {
         course={baseCourse}
         courses={courses}
         semesters={semesters}
-      />
+      />,
     );
 
     const section = screen.getByText("Prerequisites").closest(".rule-section");
@@ -100,18 +105,13 @@ describe("CourseRules (new)", () => {
         course={baseCourse}
         courses={courses}
         semesters={semesters}
-      />
+      />,
     );
-
-    expect(screen.getByText("COMP 248")).toBeInTheDocument();
-
+    expect(screen.queryByText("COMP 248")).not.toBeInTheDocument();
     const header = screen.getByText("Prerequisites").closest(".rule-header");
     expect(header).not.toBeNull();
 
     fireEvent.click(header as HTMLElement);
-    expect(screen.queryByText("COMP 248")).not.toBeInTheDocument();
-
-    fireEvent.click(header as HTMLElement);
-    expect(screen.getByText("COMP 248")).toBeInTheDocument();
+    expect(screen.queryByText("COMP 248")).toBeInTheDocument();
   });
 });

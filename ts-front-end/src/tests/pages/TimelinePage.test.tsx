@@ -59,10 +59,10 @@ vi.mock("react-router-dom", async () => {
 });
 
 vi.mock("react-toastify", () => ({
-    toast: {
-        info: vi.fn(),
-        error: vi.fn(),
-    },
+  toast: {
+    info: vi.fn(),
+    error: vi.fn(),
+  },
 }));
 
 const mockUseAuth = vi.spyOn(useAuthHook, "useAuth");
@@ -104,7 +104,12 @@ const mockTimelineState = {
 };
 
 const mockAuthState = {
-  user: { id: "test-user-id", name: "Test User", email: "test@example.com", role: "user" },
+  user: {
+    id: "test-user-id",
+    name: "Test User",
+    email: "test@example.com",
+    role: "user",
+  },
   isAuthenticated: true,
   loading: false,
   login: vi.fn(),
@@ -116,7 +121,7 @@ const renderPage = () => {
   render(
     <BrowserRouter>
       <TimeLinePage />
-    </BrowserRouter>
+    </BrowserRouter>,
   );
 };
 
@@ -125,8 +130,11 @@ describe("TimeLinePage", () => {
     vi.resetAllMocks();
     mockUseAuth.mockReturnValue(mockAuthState);
     mockUseTimelineState.mockReturnValue({
-        ...mockTimelineState,
-        state: { ...mockTimelineState.state, modal: { open: true, type: "save" } },
+      ...mockTimelineState,
+      state: {
+        ...mockTimelineState.state,
+        modal: { open: true, type: "save" },
+      },
     });
   });
 
@@ -138,13 +146,15 @@ describe("TimeLinePage", () => {
 
     renderPage();
 
-    expect(screen.getByText(/preparing your academic plan/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/preparing your academic plan/i),
+    ).toBeInTheDocument();
   });
 
   it("renders TimelineError when status is error", () => {
     mockUseTimelineState.mockReturnValue({
       ...mockTimelineState,
-      status: "error",
+      status: "failed",
       errorMessage: "Timeline generation expired. Please try again.",
     });
 
@@ -152,7 +162,7 @@ describe("TimeLinePage", () => {
 
     expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
     expect(
-      screen.getByText(/timeline generation expired/i)
+      screen.getByText(/timeline generation expired/i),
     ).toBeInTheDocument();
 
     const retryButton = screen.getByRole("button", { name: /try again/i });
@@ -198,7 +208,7 @@ describe("TimeLinePage", () => {
     expect(timelineUtils.saveTimeline).toHaveBeenCalledWith(
       "test-user-id",
       "Saved Timeline",
-      "test-job-id"
+      "test-job-id",
     );
   });
 
@@ -216,17 +226,24 @@ describe("TimeLinePage", () => {
     const { onAdd, onClose } = (vi.mocked(MainModal) as any).mock.calls[0][0];
 
     onAdd("course-1", "elective");
-    expect(mockTimelineState.actions.addCourse).toHaveBeenCalledWith("course-1", "elective");
+    expect(mockTimelineState.actions.addCourse).toHaveBeenCalledWith(
+      "course-1",
+      "elective",
+    );
 
     onClose(false);
-    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(false, undefined);
+    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(
+      false,
+      undefined,
+    );
   });
 
   it("calls header actions correctly", () => {
     mockUseTimelineState.mockReturnValue(mockTimelineState);
     renderPage();
 
-    const { onUndo, onRedo } = (vi.mocked(TimelineHeader) as any).mock.calls[0][0];
+    const { onUndo, onRedo } = (vi.mocked(TimelineHeader) as any).mock
+      .calls[0][0];
 
     onUndo();
     expect(mockTimelineState.actions.undo).toHaveBeenCalled();
@@ -241,9 +258,12 @@ describe("TimeLinePage", () => {
 
     const { onCourseSelect } = (vi.mocked(CoursePool) as any).mock.calls[0][0];
     onCourseSelect("course-1");
-    expect(mockTimelineState.actions.selectCourse).toHaveBeenCalledWith("course-1");
+    expect(mockTimelineState.actions.selectCourse).toHaveBeenCalledWith(
+      "course-1",
+    );
 
-    const { onAddSemester } = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+    const { onAddSemester } = (vi.mocked(SemesterPlanner) as any).mock
+      .calls[0][0];
     onAddSemester();
     expect(mockTimelineState.actions.addSemester).toHaveBeenCalled();
   });
@@ -254,18 +274,27 @@ describe("TimeLinePage", () => {
       state: {
         ...mockTimelineState.state,
         selectedCourse: "course-1",
-        courses: { "course-1": { id: "course-1", title: "Test Course" } } as any
-      }
+        courses: {
+          "course-1": { id: "course-1", title: "Test Course" },
+        } as any,
+      },
     });
     renderPage();
 
-    const { onRemoveCourse, onChangeCourseStatus } = (vi.mocked(CourseDetails) as any).mock.calls[0][0];
+    const { onRemoveCourse, onChangeCourseStatus } = (
+      vi.mocked(CourseDetails) as any
+    ).mock.calls[0][0];
 
     onRemoveCourse("course-1");
-    expect(mockTimelineState.actions.removeFromSemester).toHaveBeenCalledWith("course-1");
+    expect(mockTimelineState.actions.removeFromSemester).toHaveBeenCalledWith(
+      "course-1",
+    );
 
     onChangeCourseStatus("course-1", "completed");
-    expect(mockTimelineState.actions.changeCourseStatus).toHaveBeenCalledWith("course-1", "completed");
+    expect(mockTimelineState.actions.changeCourseStatus).toHaveBeenCalledWith(
+      "course-1",
+      "completed",
+    );
   });
 
   it("does not call saveTimeline from modal save when unauthenticated", () => {
@@ -291,7 +320,7 @@ describe("TimeLinePage", () => {
   });
 
   it("redirects to signin when trying to save while unauthenticated", () => {
-    vi.stubGlobal('location', { pathname: '/timeline/test-job-id' });
+    vi.stubGlobal("location", { pathname: "/timeline/test-job-id" });
     mockUseAuth.mockReturnValue({
       ...mockAuthState,
       user: null,
@@ -316,7 +345,10 @@ describe("TimeLinePage", () => {
     const { onOpenModal } = (vi.mocked(TimelineHeader) as any).mock.calls[0][0];
     onOpenModal(true, "save");
 
-    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(true, "save");
+    expect(mockTimelineState.actions.openModal).toHaveBeenCalledWith(
+      true,
+      "save",
+    );
   });
 
   it("uses fallback pools when they are not found in state", () => {
@@ -325,7 +357,7 @@ describe("TimeLinePage", () => {
       state: {
         ...mockTimelineState.state,
         pools: [],
-      }
+      },
     });
 
     renderPage();
@@ -339,10 +371,20 @@ describe("TimeLinePage", () => {
       state: {
         ...mockTimelineState.state,
         pools: [
-          { _id: "exemption-id", name: "ExemPtion", creditsRequired: 0, courses: [], rules: [] },
-          { _id: "deficiency-id", name: "DefiCiency", creditsRequired: 3, courses: [], rules: [] },
+          {
+            _id: "exemption-id",
+            name: "ExemPtion",
+            creditsRequired: 0,
+            courses: [],
+          },
+          {
+            _id: "deficiency-id",
+            name: "DefiCiency",
+            creditsRequired: 3,
+            courses: [],
+          },
         ],
-      }
+      },
     });
 
     renderPage();
@@ -350,65 +392,73 @@ describe("TimeLinePage", () => {
   });
 
   it("passes non-empty timelineName to SemesterPlanner", () => {
-      mockUseTimelineState.mockReturnValue(mockTimelineState);
-       renderPage();
-       const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
-      expect(props.timelineName).toBe("Test Timeline");
+    mockUseTimelineState.mockReturnValue(mockTimelineState);
+    renderPage();
+    const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+    expect(props.timelineName).toBe("Test Timeline");
   });
 
   it("passes empty timelineName to SemesterPlanner", () => {
-      mockUseTimelineState.mockReturnValue({
-          ...mockTimelineState,
-          state: { ...mockTimelineState.state, timelineName: "" },
-      });
-       renderPage();
-       const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
-      expect(props.timelineName).toBe("");
+    mockUseTimelineState.mockReturnValue({
+      ...mockTimelineState,
+      state: { ...mockTimelineState.state, timelineName: "" },
+    });
+    renderPage();
+    const props = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+    expect(props.timelineName).toBe("");
   });
 
   it("calls saveTimeline and setTimelineName when authenticated", async () => {
-      vi.mocked(timelineUtils.saveTimeline).mockResolvedValueOnce(undefined as any);
+    vi.mocked(timelineUtils.saveTimeline).mockResolvedValueOnce(
+      undefined as any,
+    );
 
-      renderPage();
+    renderPage();
 
-      const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
-      await onSave("New Timeline Name");
+    const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
+    await onSave("New Timeline Name");
 
-      expect(timelineUtils.saveTimeline).toHaveBeenCalledWith(
-          "test-user-id",
-          "New Timeline Name",
-          "test-job-id"
-      );
-      expect(mockTimelineState.actions.setTimelineName).toHaveBeenCalledWith("New Timeline Name");
+    expect(timelineUtils.saveTimeline).toHaveBeenCalledWith(
+      "test-user-id",
+      "New Timeline Name",
+      "test-job-id",
+    );
+    expect(mockTimelineState.actions.setTimelineName).toHaveBeenCalledWith(
+      "New Timeline Name",
+    );
   });
 
   it("does not call setTimelineName when unauthenticated (early return)", async () => {
-      mockUseAuth.mockReturnValue({
-          ...mockAuthState,
-          user: null,
-          isAuthenticated: false,
-      });
+    mockUseAuth.mockReturnValue({
+      ...mockAuthState,
+      user: null,
+      isAuthenticated: false,
+    });
 
-      renderPage();
+    renderPage();
 
-      const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
-      await onSave("Should Not Save");
+    const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
+    await onSave("Should Not Save");
 
-      expect(timelineUtils.saveTimeline).not.toHaveBeenCalled();
-      expect(mockTimelineState.actions.setTimelineName).not.toHaveBeenCalled();
+    expect(timelineUtils.saveTimeline).not.toHaveBeenCalled();
+    expect(mockTimelineState.actions.setTimelineName).not.toHaveBeenCalled();
   });
 
   it("shows toast error and does not set name on save failure", async () => {
-      const { toast } = await import("react-toastify");
-      vi.mocked(timelineUtils.saveTimeline).mockRejectedValueOnce(new Error("network"));
+    const { toast } = await import("react-toastify");
+    vi.mocked(timelineUtils.saveTimeline).mockRejectedValueOnce(
+      new Error("network"),
+    );
 
-      renderPage();
+    renderPage();
 
-      const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
-      await onSave("Failing Name");
-      expect(timelineUtils.saveTimeline).toHaveBeenCalled();
-      expect(mockTimelineState.actions.setTimelineName).not.toHaveBeenCalled();
-      expect(toast.error).toHaveBeenCalledWith("Failed to save timeline. Please try again.");
+    const { onSave } = (vi.mocked(MainModal) as any).mock.calls[0][0];
+    await onSave("Failing Name");
+    expect(timelineUtils.saveTimeline).toHaveBeenCalled();
+    expect(mockTimelineState.actions.setTimelineName).not.toHaveBeenCalled();
+    expect(toast.error).toHaveBeenCalledWith(
+      "Failed to save timeline. Please try again.",
+    );
   });
 
   it("calls onAddFallWinterSemester from SemesterPlanner prop", () => {
