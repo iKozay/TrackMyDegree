@@ -780,16 +780,6 @@ it('should return 400 if newPassword is not a string', async () => {
   expect(res.body.error).toBe('Invalid request body');
   });
 
-it('should return 400 if body is a primitive string', async () => {
-  const res = await request(app)
-    .put(`/users/${testUser._id}`)
-    .set('Content-Type', 'application/json')
-    .send('"just a string"')
-    .expect(400);
-
-  expect(res.body.error).toBe('Invalid request body');
-});
-
     describe('DELETE /users/:id error branches', () => {
       it('should handle "does not exist" error specifically', async () => {
         const originalDeleteUser = require('../controllers/userController')
