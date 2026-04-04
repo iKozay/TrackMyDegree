@@ -12,7 +12,7 @@
     "deploy": "npm run build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run --coverage",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
   "dependencies": {

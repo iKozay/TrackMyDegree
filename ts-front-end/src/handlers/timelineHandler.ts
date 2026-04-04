@@ -329,7 +329,7 @@ export function addCourse(
     let poolsChanged = false;
 
     const updatedPools = state.pools.map((pool) => {
-        if (pool.name !== poolName) return pool;
+        if (!pool.name.toLowerCase().includes(poolName.toLowerCase())) return pool;
 
         if (pool.courses.includes(courseId)) {
             return pool;
@@ -398,7 +398,7 @@ export function removeCourse(
     let poolsChanged = false;
 
     const updatedPools = state.pools.map((pool) => {
-        if (pool.name !== poolName) return pool;
+        if (!pool.name.toLowerCase().includes(poolName.toLowerCase())) return pool;
         if (!pool.courses.includes(courseId)) return pool;
 
         poolsChanged = true;

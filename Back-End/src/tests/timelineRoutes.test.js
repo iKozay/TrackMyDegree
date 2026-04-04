@@ -235,7 +235,6 @@ describe('Timeline Routes', () => {
     });
 
     it('should handle queue errors', async () => {
-      const queue = require('../workers/queue').queue;
 
       jest.spyOn(queue, 'add').mockRejectedValue(new Error('Queue error'));
 
@@ -478,7 +477,7 @@ describe('Timeline Routes', () => {
   });
 
   describe('DELETE /timeline/user/:userId', () => {
-    const userId = new mongoose.Types.ObjectId().toString();;
+    const userId = new mongoose.Types.ObjectId().toString();
     const userId2 = new mongoose.Types.ObjectId();
     const userWithNoTimeline = new mongoose.Types.ObjectId().toString();
     beforeEach(async () => {
