@@ -3,9 +3,9 @@ import sys
 import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.bs4_utils import get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
+from utils.bs4_utils import extract_coursepool_rules, get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
-from models import AnchorLink, CoursePool, DegreeType
+from models import AnchorLink, CoursePool, DegreeType, RuleType
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
 from scraper.course_data_scraper import get_course_scraper_instance
 
@@ -32,7 +32,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         self._set_program_requirements(program_name, total_credits, DegreeType.STANDALONE, course_pool_objects)
 
         # Extract courses for each course pool
-        failed_course_pools = self._extract_course_pool_courses(course_pool_objects)
+        failed_course_pools = self._extract_course_pool_data(course_pool_objects)
         self._handle_failed_course_pools(failed_course_pools)
     
     def _get_program_node(self, soup):
@@ -62,11 +62,12 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         
         return course_pool_objects
     
-    def _extract_course_pool_courses(self, course_pools: list[CoursePool]) -> list[CoursePool]:
+    def _extract_course_pool_data(self, course_pools: list[CoursePool]) -> list[CoursePool]:
         failed_course_pools = []
         for pool in course_pools:
-            success = extract_coursepool_courses(self.requirements_url, pool)
-            if not success or not pool.courses:
+            parse_courses_success = extract_coursepool_courses(self.requirements_url, pool)
+            extract_coursepool_rules(self.requirements_url, pool)
+            if not parse_courses_success or not pool.courses:
                 failed_course_pools.append(pool)
         return failed_course_pools
 
@@ -86,6 +87,41 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         gen_education_electives_pool = self._get_general_education_pool()
         self.program_requirements.coursePools.append(gen_education_electives_pool)
         self.program_requirements.degree.coursePools.append(gen_education_electives_pool._id)
+
+        self._parse_engineering_core_rules(pool)
+
+    def _parse_engineering_core_rules(self, pool: CoursePool):
+        # Parse rules for engineering core (additions, removes and substitutions) and apply them
+        extract_coursepool_rules(self.ENGINEERING_CORE_COURSES_URL, pool)
+        _INTERMEDIATE_TYPES = {
+            RuleType.COURSE_ADDITION,
+            RuleType.COURSE_REMOVAL,
+            RuleType.COURSE_SUBSTITUTION,
+            RuleType.OVERRIDE_COURSEPOOL_COURSES,
+        }
+        # Split: remove intermediate rules from the pool (they are applied directly here),
+        # keep general rules (MAX_COURSES_FROM_SET etc.) on the pool for later use.
+        rules_to_apply = [r for r in pool.rules if r.type in _INTERMEDIATE_TYPES]
+        pool.rules = [r for r in pool.rules if r.type not in _INTERMEDIATE_TYPES]
+
+        for rule in rules_to_apply:
+            if rule.params.degreeId and rule.params.degreeId not in self.degree_name:
+                continue
+            if rule.type == RuleType.COURSE_ADDITION:
+                self.add_courses_to_pool(pool.name, [rule.params.courseId])
+            elif rule.type == RuleType.COURSE_REMOVAL:
+                self.remove_courses_from_pool(pool.name, [rule.params.courseId])
+            elif rule.type == RuleType.COURSE_SUBSTITUTION:
+                self.remove_courses_from_pool(pool.name, [rule.params.oldCourseId])
+                self.add_courses_to_pool(pool.name, [rule.params.newCourseId])
+            elif rule.type == RuleType.OVERRIDE_COURSEPOOL_COURSES:
+                for cp in self.program_requirements.coursePools:
+                    if cp._id == rule.params.coursePoolId:
+                        cp._id = f"{self.degree_short_name}_{rule.params.coursePoolId}"
+                        self.program_requirements.degree.coursePools.remove(rule.params.coursePoolId)
+                        self.program_requirements.degree.coursePools.append(cp._id)
+                        cp.courses = rule.params.newCourseList
+                        break
 
     def _get_general_education_pool(self, credits_required: float = 3.0) -> CoursePool:
         allowed_course_subjects = ["ANTH", "FPST", "HIST", "PHIL", "RELI", "SOCI", "THEO", "WSDB", "ARTE", "ARTH", "JHIS", "MHIS"]
@@ -108,7 +144,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         )
 
     def _handle_special_cases(self):
-        # To be implemented by child classes for degree-specific special case handling
+        # To be implemented by child classes (Other than Engineering Degrees) for degree-specific special case handling
         pass
 
 class AeroDegreeScraper(GinaCodyDegreeScraper):
@@ -178,71 +214,3 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
         for pool in pools_to_remove:
             coursepools.remove(pool)
         return pool_credits
-
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Aerospace Engineering students are not required to take ELEC 275‌ in their program
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-
-class BldgDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Building Engineering students are not required to take ENGR 202‌ in their program.
-        # - Students in BEng in Building Engineering‌ shall replace ENGR 392‌ with BLDG 482.
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, ["ENGR 202"])
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, ["ENGR 392"])
-        self.add_courses_to_pool(self.ENGINEERING_CORE, ["BLDG 482"])
-
-class ChemDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Students in the BEng in Chemical Engineering are not required to take ELEC 275‌ in their program
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-
-class CiviDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # No special cases for Civil Engineering
-        pass
-
-class CoenDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Students in the BEng in Computer Engineering‌ and the BEng in Computer Engineering shall replace ELEC 275‌ with ELEC 273‌.
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-        self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
-
-class ElecDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Students in the BEng in Electrical Engineering‌ and the BEng in Computer Engineering shall replace ELEC 275‌ with ELEC 273‌.
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-        self.add_courses_to_pool(self.ENGINEERING_CORE, [self.ELEC_273])
-
-class InduDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Industrial Engineering students are not required to take ELEC 275‌ in their program
-        # - Students in the BEng in Industrial Engineering‌ shall take ACCO 220‌ as their General Education elective
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-        # Rename self.GENERAL_ELECTIVES to 'INDU_'+self.GENERAL_ELECTIVES to avoid conflicts with other degrees' general electives
-        for pool in self.program_requirements.coursePools:
-            if pool._id == self.GENERAL_ELECTIVES:
-                pool._id = f"INDU_{self.GENERAL_ELECTIVES}"
-                pool.courses = ["ACCO 220"]
-        # Update the pool id in the degree's coursePools list as well
-        for i, pool_id in enumerate(self.program_requirements.degree.coursePools):
-            if pool_id == self.GENERAL_ELECTIVES:
-                self.program_requirements.degree.coursePools[i] = f"INDU_{self.GENERAL_ELECTIVES}"
-                break
-
-class MechDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Mechanical Engineering students are not required to take ELEC 275‌ in their program
-        self.remove_courses_from_pool(self.ENGINEERING_CORE, [self.ELEC_275])
-
-class SoenDegreeScraper(GinaCodyDegreeScraper):
-    def _handle_special_cases(self):
-        # Engineering Core:
-        # - Students in the BEng in Software Engineering‌ may replace ENGR 391‌ with COMP 361‌.
-        self.add_courses_to_pool(self.ENGINEERING_CORE, ["COMP 361"])

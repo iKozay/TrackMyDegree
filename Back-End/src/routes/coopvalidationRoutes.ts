@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import {  getJobResult } from '../lib/cache';
+import { getJobResult } from '../lib/cache';
 import { validateCoopTimeline } from '../services/coop/coopvalidationService';
 import { buildFilledCoopSequenceForm } from '../services/coop/coopFormService';
 import { CachedJobResult } from '../controllers/jobController';
@@ -16,9 +16,8 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'jobId is required' });
     }
 
-      // get result from cache
-      const cachedTimeline = await getJobResult<CachedJobResult>(jobId as string);
-  
+    // get result from cache
+    const cachedTimeline = await getJobResult<CachedJobResult>(jobId as string);
 
     if (!cachedTimeline) {
       return res.status(404).json({ error: 'Timeline not found in cache' });
@@ -63,9 +62,15 @@ router.get('/form/:jobId', async (req: Request, res: Response) => {
       'Access-Control-Expose-Headers',
       'Content-Disposition, X-Coop-Form-Notes',
     );
-    res.setHeader('X-Coop-Form-Notes', encodeURIComponent(JSON.stringify(notes)));
+    res.setHeader(
+      'X-Coop-Form-Notes',
+      encodeURIComponent(JSON.stringify(notes)),
+    );
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${safeFilename}"`,
+    );
 
     return res.status(200).send(Buffer.from(pdfBytes));
   } catch (error) {

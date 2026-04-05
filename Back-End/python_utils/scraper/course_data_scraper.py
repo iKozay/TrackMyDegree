@@ -8,7 +8,7 @@ from utils.bs4_utils import get_all_links_from_div, get_soup
 from utils.parsing_utils import clean_text, parse_course_title_and_credits, parse_course_rules, split_sections, parse_course_components, get_course_sort_key
 from utils.logging_utils import get_logger
 from utils.concordia_api_utils import get_concordia_api_instance
-from models import AnchorLink, Course, CourseRules, serialize
+from models import AnchorLink, Course, serialize
 
 class CourseDataScraper:
     QUICK_LINKS_ROOT_URL = "https://www.concordia.ca/academics/undergraduate/calendar/current/quick-links.html"
@@ -23,26 +23,8 @@ class CourseDataScraper:
 
     all_courses: dict[str, Course] = {}
 
-    def __init__(self, cache_dir: str = None):
+    def __init__(self):
         self.logger = get_logger("CourseDataScraper")
-        self.local_cache_file = os.path.join(cache_dir, "course_data_cache.json")
-
-    def load_cache_from_file(self) -> None:
-        if os.path.exists(self.local_cache_file):
-            self.logger.info(f"Loading course data from local cache file: {self.local_cache_file}")
-            with open(self.local_cache_file, "r") as f:
-                cached_courses = json.load(f)
-                for course_data in cached_courses.values():
-                    course = Course(**course_data)
-                    self.all_courses[course._id] = course
-        else:
-            self.logger.info("No local cache file found. Scraping course data from website...")
-            self.scrape_all_courses()
-            self._save_cache_to_file()
-    
-    def _save_cache_to_file(self) -> None:
-        with open(self.local_cache_file, "w") as f:
-            json.dump({course_id: serialize(course) for course_id, course in self.all_courses.items()}, f, indent=4)
 
     def scrape_all_courses(self) -> None:
         self.logger.info("Scraping all courses from website...")
@@ -53,6 +35,8 @@ class CourseDataScraper:
             subjects = get_all_links_from_div(link.url, ["content-main"])
 
             if link.text == "Gina Cody School of Engineering and Computer Science Courses":
+                # Add missing INSE link
+                subjects.append(AnchorLink(text="Information Systems Engineering Courses", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-100-concordia-institute-for-information-systems-engineering/section-71-100-3-information-systems-engineering-courses.html"))
                 # Add missing CIVI link
                 subjects.append(AnchorLink(text="Civil Engineering Courses", url="https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-60-engineering-course-descriptions/civil-engineering-courses.html"))
 
@@ -72,6 +56,8 @@ class CourseDataScraper:
             self.logger.info(f"Extracted {len(courses)} courses for faculty: {link.text}")
             for course in courses:
                 self.all_courses[course._id] = course
+        self.logger.info("Patching CWT 101,201,301 and 401 courses with correct rules and credits...")
+        self._patch_cwt_courses()
         self.logger.info("Adding extra CWT 100,200,300 and 400 courses...")
         self._add_extra_cwt_courses()
         self.logger.info(f"Total courses scraped: {len(self.all_courses)}")
@@ -158,7 +144,7 @@ class CourseDataScraper:
                 title=title,
                 credits=course_credits,
                 description=sections.get("Description:", ""),
-                offered_in=offered_in,
+                offeredIn=offered_in,
                 prereqCoreqText=sections.get("Prerequisite/Corequisite:", ""),
                 rules=parse_course_rules(sections.get("Prerequisite/Corequisite:", ""), sections.get("Notes:", "")),
                 notes=sections.get("Notes:", ""),
@@ -169,22 +155,33 @@ class CourseDataScraper:
 
         return courses
 
+    def _patch_cwt_courses(self) -> None:
+        # Patch CWT 101, 201, 301 and 401 courses with correct rules and credits
+        cwt_courses = ["CWT 101", "CWT 201", "CWT 301", "CWT 401"]
+        for course_id in cwt_courses:
+            if course_id in self.all_courses:
+                course = self.all_courses[course_id]
+                course.credits = 0.0
+                course.prereqCoreqText = f"Must be completed concurrently: {course_id.replace('101', '100').replace('201', '200').replace('301', '300').replace('401', '400')}."
+                course.rules = parse_course_rules(course.prereqCoreqText, course.notes)
+                self.all_courses[course_id] = course
+
     def _add_extra_cwt_courses(self) -> None:
         # Add CWT courses that are not listed in the quick links
         extra_cwt_courses = [
-            Course(_id="CWT 100", title="Co-op Work Term 1", credits=0.0, description="Co-op Work Term 1", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed concurrently: CWT 101", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 200", title="Co-op Work Term 2", credits=0.0, description="Co-op Work Term 2", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 100, CWT 101. Must be completed concurrently: CWT 201", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 300", title="Co-op Work Term 3", credits=0.0, description="Co-op Work Term 3", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 200, CWT 201. Must be completed concurrently: CWT 301", rules=CourseRules(), notes="", components=[]),
-            Course(_id="CWT 400", title="Co-op Work Term 4", credits=0.0, description="Co-op Work Term 4", offered_in=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 300, CWT 301. Must be completed concurrently: CWT 401", rules=CourseRules(), notes="", components=[])
+            Course(_id="CWT 100", title="Co-op Work Term 1", credits=0.0, description="Co-op Work Term 1", offeredIn=self.ALL_SEMESTERS, prereqCoreqText="Must be completed concurrently: CWT 101", rules=[], notes="", components=[]),
+            Course(_id="CWT 200", title="Co-op Work Term 2", credits=0.0, description="Co-op Work Term 2", offeredIn=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 100, CWT 101. Must be completed concurrently: CWT 201", rules=[], notes="", components=[]),
+            Course(_id="CWT 300", title="Co-op Work Term 3", credits=0.0, description="Co-op Work Term 3", offeredIn=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 200, CWT 201. Must be completed concurrently: CWT 301", rules=[], notes="", components=[]),
+            Course(_id="CWT 400", title="Co-op Work Term 4", credits=0.0, description="Co-op Work Term 4", offeredIn=self.ALL_SEMESTERS, prereqCoreqText="Must be completed previously: CWT 300, CWT 301. Must be completed concurrently: CWT 401", rules=[], notes="", components=[])
         ]
         for course in extra_cwt_courses:
             course.rules = parse_course_rules(course.prereqCoreqText, course.notes)
             self.all_courses[course._id] = course
 
 course_scraper_instance: CourseDataScraper = None
-def init_course_scraper_instance(cache_dir: str) -> None:
+def init_course_scraper_instance() -> None:
     global course_scraper_instance
-    course_scraper_instance = CourseDataScraper(cache_dir=cache_dir)
+    course_scraper_instance = CourseDataScraper()
 
 def get_course_scraper_instance() -> CourseDataScraper:
     global course_scraper_instance

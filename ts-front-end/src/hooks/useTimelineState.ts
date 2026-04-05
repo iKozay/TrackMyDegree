@@ -11,12 +11,12 @@ import type {
   SemesterId,
   TimelineJobResponse,
   JobStatus,
-  Pool,
   CourseMap,
   SemesterList,
   CourseStatusValue,
   Degree,
 } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 import { api } from "../api/http-api-client.ts";
 
 type TimelineDispatch = Dispatch<TimelineActionType>;
@@ -25,19 +25,19 @@ export interface TimelineActions {
   initTimelineState: (
     timelineName: string,
     degree: Degree,
-    pools: Pool[],
+    pools: CoursePoolData[],
     courses: CourseMap,
-    semesters: SemesterList
+    semesters: SemesterList,
   ) => void;
   selectCourse: (courseId: CourseCode | null) => void;
   moveFromPoolToSemester: (
     courseId: CourseCode,
-    toSemesterId: SemesterId
+    toSemesterId: SemesterId,
   ) => void;
   moveBetweenSemesters: (
     courseId: CourseCode,
     fromSemesterId: SemesterId,
-    toSemesterId: SemesterId
+    toSemesterId: SemesterId,
   ) => void;
   removeFromSemester: (courseId: CourseCode, semesterId: SemesterId) => void;
   undo: () => void;
@@ -76,6 +76,7 @@ const EMPTY_TIMELINE_STATE: TimelineState = {
     type: "",
   },
 };
+
 function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
   return {
     initTimelineState(timelineName, degree, pools, courses, semesters) {
@@ -90,32 +91,27 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
         payload: { courseId },
       });
     },
-
     moveFromPoolToSemester(courseId, toSemesterId) {
       dispatch({
         type: TimelineActionConstants.MoveFromPoolToSemester,
         payload: { courseId, toSemesterId },
       });
     },
-
     moveBetweenSemesters(courseId, fromSemesterId, toSemesterId) {
       dispatch({
         type: TimelineActionConstants.MoveBetweenSemesters,
         payload: { courseId, fromSemesterId, toSemesterId },
       });
     },
-
     removeFromSemester(courseId, semesterId) {
       dispatch({
         type: TimelineActionConstants.RemoveFromSemester,
         payload: { courseId, semesterId },
       });
     },
-
     undo() {
       dispatch({ type: TimelineActionConstants.Undo });
     },
-
     redo() {
       dispatch({ type: TimelineActionConstants.Redo });
     },
@@ -138,12 +134,13 @@ function createTimelineActions(dispatch: TimelineDispatch): TimelineActions {
       });
     },
     addSemester() {
-      dispatch({
-        type: TimelineActionConstants.AddSemester,
-      });
+      dispatch({ type: TimelineActionConstants.AddSemester });
     },
     setTimelineName(timelineName: string) {
-        dispatch({ type: TimelineActionConstants.SetTimelineName, payload: { timelineName } });
+      dispatch({
+        type: TimelineActionConstants.SetTimelineName,
+        payload: { timelineName },
+      });
     },
   };
 }
@@ -155,104 +152,110 @@ export function useTimelineState(jobId?: string): UseTimelineStateResult {
 
   const [state, dispatch] = useReducer(timelineReducer, EMPTY_TIMELINE_STATE);
 
-  const actions = useMemo(() => createTimelineActions(dispatch), [dispatch]);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const mountedRef = useRef(true);
-
-  useEffect(() => {
-    mountedRef.current = true;
-
-    if (!jobId) return;
-    if (initialized) return;
-
-    const POLL_INTERVAL_MS = 1_500;
-    const MAX_ERRORS = 3;
-    let consecutiveErrors = 0;
-
-    const stopPolling = () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
-    };
-
-    const fetchResult = async () => {
-      try {
-        const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
-        if (!mountedRef.current) return;
-
-        consecutiveErrors = 0;
-
-        if (data.status === "done" && data.result) {
-          const { degree, pools, courses, semesters } = data.result;
-          actions.initTimelineState(
-            data.result.timelineName ?? "",
-            degree,
-            pools,
-            courses,
-            semesters,
-          );
-          setInitialized(true);
-          setStatus("done");
-          stopPolling();
-        }
-      } catch (err) {
-        if (!mountedRef.current) return;
-        consecutiveErrors++;
-
-        if (consecutiveErrors < MAX_ERRORS) return;
-
-        console.error("Error fetching timeline result:", err);
-        setStatus("error");
-        setErrorMessage(
-          err instanceof Error && err.message.includes("HTTP 410")
-            ? "Timeline generation expired. Please try again."
-            : null,
-        );
-        stopPolling();
-      }
-    };
-
-    fetchResult();
-    intervalRef.current = setInterval(fetchResult, POLL_INTERVAL_MS);
-
-    return () => {
-      mountedRef.current = false;
-      stopPolling();
-    };
-  }, [jobId, initialized, actions]);
+  const actions = useMemo(() => createTimelineActions(dispatch), []);
 
   const prevStateRef = useRef<TimelineState | null>(null);
+  const cancelledRef = useRef(false);
 
+  // Polling effect — uses a loop instead of recursion, no AbortController
+  useEffect(() => {
+    if (!jobId || initialized) return;
+
+    cancelledRef.current = false;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+
+    const poll = async () => {
+      const start = Date.now();
+
+      while (!cancelledRef.current && Date.now() - start <= 180_000) {
+        try {
+          const data = await api.get<TimelineJobResponse>(`/jobs/${jobId}`);
+          if (cancelledRef.current) return;
+
+          if (data.status === "done" && data.result) {
+            const { degree, pools, courses, semesters } = data.result;
+            dispatch({
+              type: TimelineActionConstants.Init,
+              payload: {
+                timelineName: data.result.timelineName ?? "",
+                degree,
+                pools,
+                courses,
+                semesters,
+              },
+            });
+            // Set the sync baseline to the initialized state so the
+            // sync effect doesn't POST the entire initial payload back.
+            prevStateRef.current = null; // will be set on next sync render
+            setInitialized(true);
+            setStatus("done");
+            return;
+          }
+
+          if (data.status === "failed") {
+            setStatus("failed");
+            setErrorMessage("Job failed. Please try again.");
+            return;
+          }
+        } catch (err) {
+          if (cancelledRef.current) return;
+          setStatus("failed");
+          setErrorMessage(
+            err instanceof Error && err.message.includes("HTTP 410")
+              ? "Timeline generation expired. Please try again."
+              : "Unable to reach server. Please try again.",
+          );
+          return;
+        }
+
+        await new Promise<void>((resolve) => {
+          timerId = setTimeout(() => {
+            timerId = null;
+            resolve();
+          }, 1_500);
+        });
+      }
+
+      if (!cancelledRef.current) {
+        setStatus("failed");
+        setErrorMessage("Processing is taking too long. Please try again.");
+      }
+    };
+
+    poll();
+
+    return () => {
+      cancelledRef.current = true;
+      if (timerId !== null) clearTimeout(timerId);
+    };
+  }, [jobId, initialized]);
+
+  // Sync effect — skips the first render after init so we don't POST the
+  // initial state back to the server
   useEffect(() => {
     if (!jobId || !initialized) return;
 
     const prev = prevStateRef.current;
-    if (!prev) {
-      prevStateRef.current = state;
-      return;
-    }
+    prevStateRef.current = state;
+
+    // Skip the first render after initialization
+    if (!prev) return;
 
     const update = computeTimelinePartialUpdate(prev, state);
-
     if (update) {
       api.post(`/jobs/${jobId}`, update).catch((err) => {
         console.error("Failed to sync timeline update", err);
+        setErrorMessage("Failed to save changes. Please try again.");
       });
     }
-
-    prevStateRef.current = state;
   }, [state, jobId, initialized]);
-
-  const canUndo = state.history.length > 0;
-  const canRedo = state.future.length > 0;
 
   return {
     status,
     state,
     actions,
-    canUndo,
-    canRedo,
+    canUndo: state.history.length > 0,
+    canRedo: state.future.length > 0,
     errorMessage,
   };
 }

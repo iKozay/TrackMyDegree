@@ -7,12 +7,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
-    "rules": {
-      "prereq": [["MATH 204"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      }
+    ]
   },
   {
     "_id": "COEN 231",
@@ -22,12 +26,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
-    "rules": {
-      "prereq": [["MATH 204"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      }
+    ]
   },
   {
     "_id": "COEN 243",
@@ -37,12 +45,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 204 (Cegep Mathematics 105).",
-    "rules": {
-      "prereq": [["MATH 204"]],
-      "coreq": [],
-      "not_taken": ["COMP 248", "MIAE 215", "MECH 215"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 248", "MIAE 215", "MECH 215"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 248, MIAE 215, MECH 215."
+      }
+    ]
   },
   {
     "_id": "COEN 244",
@@ -52,12 +72,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 243 or MECH 215 or MIAE 215.",
-    "rules": {
-      "prereq": [["COEN 243", "MECH 215", "MIAE 215"]],
-      "coreq": [],
-      "not_taken": ["COMP 249"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 243", "MECH 215", "MIAE 215"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 243, MECH 215, MIAE 215."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 249"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 249."
+      }
+    ]
   },
   {
     "_id": "COEN 311",
@@ -67,12 +99,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 243.",
-    "rules": {
-      "prereq": [["COEN 243", "COEN 212"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 212."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 243."
+      }
+    ]
   },
   {
     "_id": "COEN 313",
@@ -82,12 +126,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 231.",
-    "rules": {
-      "prereq": [["COEN 231"], ["COEN 212"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 212."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 231."
+      }
+    ]
   },
   {
     "_id": "COEN 314",
@@ -97,12 +153,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 212; ELEC 273.",
-    "rules": {
-      "prereq": [["COEN 212"], ["ELEC 273"]],
-      "coreq": [],
-      "not_taken": ["COEN 315","COEN 415"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 212."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 273"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 273."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 315", "COEN 415"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 315, COEN 415."
+      }
+    ]
   },
   {
     "_id": "COEN 316",
@@ -112,12 +188,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 311, COEN 313.",
-    "rules": {
-      "prereq": [["COEN 311"], ["COEN 313"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 313"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 313."
+      }
+    ]
   },
   {
     "_id": "COEN 317",
@@ -127,12 +215,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 311 or COMP 228 or SOEN 228; COEN 313.",
-    "rules": {
-      "prereq": [["COEN 313", "COMP 228", "SOEN 228"], ["COEN 311"]],
-      "coreq": [],
-      "not_taken": ["COEN 417"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 311", "COMP 228", "SOEN 228"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 311, COMP 228, SOEN 228."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 313"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 313."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 417"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 417."
+      }
+    ]
   },
   {
     "_id": "COEN 320",
@@ -142,12 +250,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 346 or COMP 346.",
-    "rules": {
-      "prereq": [["COEN 346", "COMP 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 346", "COMP 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 346, COMP 346."
+      }
+    ]
   },
   {
     "_id": "COEN 346",
@@ -157,12 +269,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 311; COMP 352 or COEN 352.",
-    "rules": {
-      "prereq": [["COEN 311"], ["COMP 352", "COEN 352"]],
-      "coreq": [],
-      "not_taken": ["COMP 346"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COMP 352", "COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COMP 352, COEN 352."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 346"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 346."
+      }
+    ]
   },
   {
     "_id": "COEN 352",
@@ -172,12 +304,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 231, COEN 244.",
-    "rules": {
-      "prereq": [["COEN 244"], ["COEN 231"]],
-      "coreq": [],
-      "not_taken": ["COMP 352"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 244."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COMP 352"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COMP 352."
+      }
+    ]
   },
   {
     "_id": "COEN 366",
@@ -187,12 +339,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 346.",
-    "rules": {
-      "prereq": [["COEN 346"]],
-      "coreq": [],
-      "not_taken": ["ELEC 366","ELEC 463","COEN 445"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 346."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["ELEC 366", "ELEC 463", "COEN 445"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: ELEC 366, ELEC 463, COEN 445."
+      }
+    ]
   },
   {
     "_id": "COEN 390",
@@ -202,12 +366,39 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 311, COEN 352; ENGR 290. Students must complete a minimum of 45 credits in the BEng (Computer) prior to enrolling.",
-    "rules": {
-      "prereq": [["ENGR 290"], ["COEN 311"], ["COEN 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 45.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 311"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 311."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 352."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 290"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 290."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 45
+        },
+        "message": "Students must complete at least 45.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "COEN 413",
@@ -217,12 +408,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 313.",
-    "rules": {
-      "prereq": [["COEN 313"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 313"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 313."
+      }
+    ]
   },
   {
     "_id": "COEN 414",
@@ -232,12 +427,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 314.",
-    "rules": {
-      "prereq": [["COEN 314"]],
-      "coreq": [],
-      "not_taken": ["COEN 315", "COEN 415"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 314"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 314."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 315", "COEN 415"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 315, COEN 415."
+      }
+    ]
   },
   {
     "_id": "COEN 421",
@@ -247,12 +454,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 317, COEN 320; SOEN 341.",
-    "rules": {
-      "prereq": [["COEN 317"], ["COEN 320"], ["SOEN 341"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 317"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 317."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 320"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 320."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["SOEN 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: SOEN 341."
+      }
+    ]
   },
   {
     "_id": "COEN 422",
@@ -262,12 +489,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 346; ELEC 372.",
-    "rules": {
-      "prereq": [["COEN 346"], ["ELEC 372"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 346."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 372"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 372."
+      }
+    ]
   },
   {
     "_id": "COEN 424",
@@ -277,12 +516,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 346.",
-    "rules": {
-      "prereq": [["COEN 346"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 346"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 346."
+      }
+    ]
   },
   {
     "_id": "COEN 432",
@@ -292,12 +535,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 352 or COMP 352.",
-    "rules": {
-      "prereq": [["COEN 352"], ["COMP 352"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 352", "COMP 352"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 352, COMP 352."
+      }
+    ]
   },
   {
     "_id": "COEN 433",
@@ -307,27 +554,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 212, COEN 244.",
-    "rules": {
-      "prereq": [["COEN 244"], ["COEN 212"]],
-      "coreq": [],
-      "not_taken": ["BIOL 475", "BIOL 498"],
-      "min_credits": 0.0
-    }
-  },
-  {
-    "_id": "COEN 434",
-    "code": "COEN 434",
-    "title": "Microfluidic Devices for Synthetic Biology",
-    "credits": 3.0,
-    "description": "",
-    "offeredIn": [],
-    "prereqCoreqText": "The following courses must be completed previously: COEN 244 and ENGR 290; or BIOL 261 and COMP 249.",
-    "rules": {
-      "prereq": [["COEN 244", "BIOL 261"], ["ENGR 290", "COMP 249"]],
-      "coreq": [],
-      "not_taken": ["BIOL 476", "BIOL 498"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 212."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 244."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BIOL 475", "BIOL 498"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BIOL 475, BIOL 498."
+      }
+    ]
   },
   {
     "_id": "COEN 446",
@@ -337,12 +589,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: COEN 366 or 445 or ELEC 366 or 463.",
-    "rules": {
-      "prereq": [["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 366, COEN 445, ELEC 366, ELEC 463."
+      }
+    ]
   },
   {
     "_id": "COEN 447",
@@ -352,12 +608,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 317; COEN 366 or 445 or ELEC 366 or 463.",
-    "rules": {
-      "prereq": [["COEN 317"], ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 317"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 317."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 366", "COEN 445", "ELEC 366", "ELEC 463"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 366, COEN 445, ELEC 366, ELEC 463."
+      }
+    ]
   },
   {
     "_id": "COEN 448",
@@ -367,12 +635,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: SOEN 341.",
-    "rules": {
-      "prereq": [["SOEN 341"]],
-      "coreq": [],
-      "not_taken": ["COEN 345"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["SOEN 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: SOEN 341."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["COEN 345"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: COEN 345."
+      }
+    ]
   },
   {
     "_id": "COEN 451",
@@ -382,12 +662,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: COEN 212; ELEC 311 or COEN 314.",
-    "rules": {
-      "prereq": [["COEN 212"], ["ELEC 311", "COEN 314"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 212."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ELEC 311", "COEN 314"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ELEC 311, COEN 314."
+      }
+    ]
   },
   {
     "_id": "COEN 490",
@@ -397,12 +689,47 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be complete previously: ENGR 301, ENGR 371; COEN 390; SOEN 341. Students must complete a minimum of 75 credits in the BEng (Computer), as well as the C.Edge work term or one co-op work term prior to enrolling. If prerequisites are not satisfied, permission of the Department is required.",
-    "rules": {
-      "prereq": [["ENGR 301"], ["ENGR 371"], ["COEN 390"], ["SOEN 341"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 75.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 371"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 371."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["COEN 390"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: COEN 390."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["SOEN 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: SOEN 341."
+      },
+      {
+        "type": "min_credits",
+        "params": {
+          "minCredits": 75
+        },
+        "message": "Students must complete at least 75.0 credits before taking this course."
+      }
+    ]
   },
   {
     "_id": "COEN 498",
@@ -412,11 +739,6 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "Permission of the Department is required.",
-    "rules": {
-      "prereq": [],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": []
   }
 ]

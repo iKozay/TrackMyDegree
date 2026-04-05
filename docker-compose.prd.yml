@@ -79,7 +79,7 @@ services:
     container_name: backend-worker
     image: ghcr.io/ikozay/trackmydegree-backend:production
     restart: always
-    command: ["dist/Back-End/src/worker.js"]
+    command: ["dist/worker.js"]
     volumes:
       - pdf-uploads:/app/tmp/pdf-uploads
     env_file:

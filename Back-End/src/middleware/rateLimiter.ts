@@ -72,6 +72,19 @@ const creditFormDeleteLimiter = createLimiter({
   message: { error: 'Too many delete attempts. Try again later.' },
 });
 
+const adminRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each admin to 100 requests per windowMs
+  message: { error: 'Too many admin requests. Try again later.' },
+});
+
+// Rate limiter for admin invitation (tightly restricted — triggers DB write + email)
+const inviteAdminLimiter = createLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 invitations per hour per IP
+  message: { error: 'Too many admin invitation attempts. Try again later.' },
+});
+
 export {
   forgotPasswordLimiter,
   resetPasswordLimiter,
@@ -79,5 +92,7 @@ export {
   signupLimiter,
   creditFormDownloadLimiter,
   creditFormUploadLimiter,
-  creditFormDeleteLimiter
+  creditFormDeleteLimiter,
+  adminRateLimiter,
+  inviteAdminLimiter,
 };

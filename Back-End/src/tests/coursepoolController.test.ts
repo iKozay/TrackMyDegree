@@ -40,6 +40,7 @@ describe('CoursePoolController', () => {
         name: 'Pool 1',
         creditsRequired: 3,
         courses: ['COMP 248'],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     ]);
@@ -50,6 +51,7 @@ describe('CoursePoolController', () => {
         name: 'Pool 1',
         creditsRequired: 3,
         courses: ['COMP 248'],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     ]);
@@ -72,6 +74,8 @@ describe('CoursePoolController', () => {
         _id: poolId,
         name: 'Pool 1',
         creditsRequired: 3,
+        courses: [],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     ]);
@@ -81,6 +85,8 @@ describe('CoursePoolController', () => {
         _id: poolId,
         name: 'Pool 1',
         creditsRequired: 3,
+        courses: [],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     ]);
@@ -99,6 +105,8 @@ describe('CoursePoolController', () => {
         _id: poolId,
         name: updatedPoolName,
         creditsRequired: 6,
+        courses: [],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     });
@@ -108,6 +116,7 @@ describe('CoursePoolController', () => {
       name: updatedPoolName,
       creditsRequired: 6,
       courses: [],
+      rules: [],
       baseAcademicYear: '2026-2027',
     });
   });
@@ -136,6 +145,7 @@ describe('CoursePoolController', () => {
         name: updatedPoolName,
         creditsRequired: 6,
         courses: ['COMP 248', 'COMP 249'],
+        rules: [],
         baseAcademicYear: '2026-2027',
       },
     });
@@ -145,6 +155,7 @@ describe('CoursePoolController', () => {
       name: updatedPoolName,
       creditsRequired: 6,
       courses: ['COMP 248', 'COMP 249'],
+      rules: [],
       baseAcademicYear: '2026-2027',
     });
   });
@@ -228,6 +239,7 @@ describe('CoursePoolController', () => {
       name: 'Pool 1',
       creditsRequired: 3,
       courses: [],
+      rules: [],
     });
   });
 });

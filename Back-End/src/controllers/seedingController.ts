@@ -1,7 +1,7 @@
-import { DegreeController } from './degreeController';
-import { CoursePoolController } from './coursepoolController';
-import { CourseController } from './courseController';
-import { CourseData } from '@shared/degree';
+import { degreeController } from '@controllers/degreeController';
+import { coursepoolController } from '@controllers/coursepoolController';
+import { courseController } from '@controllers/courseController';
+import { CourseData } from '@trackmydegree/shared';
 import { getDegreeNames, parseDegree, parseAllDegrees, getAllCourses, ParseDegreeResponse } from '@utils/pythonUtilsApi';
 
 /* Seed degree data (without courses) in the database */
@@ -61,9 +61,6 @@ export async function seedAllDegreeData(): Promise<string> {
 async function saveDegreeRequirementsToDB(
   data: ParseDegreeResponse,
 ): Promise<void> {
-  const degreeController = new DegreeController();
-  const coursepoolController = new CoursePoolController();
-
   const degreeCreated = await degreeController.createDegree(data.degree);
   if (degreeCreated) {
     console.log(`Degree ${data.degree._id} created successfully.`);
@@ -77,7 +74,6 @@ async function saveDegreeRequirementsToDB(
 }
 
 async function saveCoursesToDB(courses: CourseData[]): Promise<void> {
-  const courseController = new CourseController();
   await courseController.bulkCreateCourses(courses);
   console.log(`Courses created/updated successfully.`);
 }

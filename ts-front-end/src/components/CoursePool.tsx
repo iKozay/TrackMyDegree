@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { PoolHeader } from "./PoolHeader";
 import { PoolCoursesList } from "./PoolCoursesList";
-import type { Pool, CourseMap, CourseCode } from "../types/timeline.types";
+import type { CourseMap, CourseCode } from "../types/timeline.types";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 interface CoursePoolProps {
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
@@ -23,7 +24,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
   );
 
   const [searchTerm, setSearchTerm] = useState("");
-  const [showIncompleted, setShowIncompleted] = useState(true);
+  const [showIncompleted, setShowIncompleted] = useState(false);
   const hasActiveSearch = searchTerm.trim().length > 0;
   const search = searchTerm.trim().toLowerCase();
 
@@ -54,7 +55,7 @@ const CoursePool: React.FC<CoursePoolProps> = ({
     if (name.startsWith("ECP_")) {
       return name.replace("ECP_", "ECP ").replace(/_/g, " ");
     }
-    return name; // Return the name unchanged for non-ECP course pools
+    return name.charAt(0).toUpperCase() + name.slice(1); // Return the name unchanged for non-ECP course pools
   };
 
   return (
