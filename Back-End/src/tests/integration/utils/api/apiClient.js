@@ -51,11 +51,12 @@ class ApiClient {
       request.set('Cookie', `access_token=${this.authToken}`);
     }
 
+    console.log("CSRF TOKEN in post - ", this.csrfToken);
     if (this.csrfToken) {
       request.set('X-CSRF-Token', this.csrfToken);
     }
 
-    return await request.expect(expectedStatus);
+    return await request.send(data).expect(expectedStatus);
   }
 
   async get(endpoint, expectedStatus = 200) {
@@ -68,7 +69,7 @@ class ApiClient {
     // GET requests don't need CSRF tokens, but capture it from response for future use
     const response = await request.expect(expectedStatus);
     
-    console.log("CSRF TOKEN - ", response.headers['x-csrf-token']);
+    console.log("CSRF TOKEN in get - ", response.headers['x-csrf-token']);
     if (response.headers['x-csrf-token']) {
       this.setCsrfToken(response.headers['x-csrf-token']);
     }
