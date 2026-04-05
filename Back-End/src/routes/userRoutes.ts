@@ -4,6 +4,7 @@ import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
 import { authMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
 import mongoose from 'mongoose';
+import { userRateLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -15,6 +16,7 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
 const INVALID_ID_FORMAT = 'Invalid user id format';
 const DOES_NOT_EXIST = 'does not exist';
 
+router.use(userRateLimiter);
 router.use(authMiddleware);
 
 /**

@@ -8,24 +8,8 @@ const { Degree } = require('../models/degree');
 const { Timeline } = require('../models/timeline');
 
 jest.mock('../middleware/authMiddleware', () => ({
-  authMiddleware: (req, _res, next) => {
-    const urlUserId = req.originalUrl?.match(/\/users\/([^/?]+)/)?.[1];
-    req.user = {
-      userId: req.params?.userId || req.params?.id || urlUserId || 'test-user-id',
-      orgId: 'test-org',
-      type: 'student',
-    };
-    next();
-  },
-  userCheckMiddleware: (req, _res, next) => {
-    req.user = {
-      userId: req.params?.userId || req.params?.id || 'test-user-id',
-      orgId: 'test-org',
-      type: 'student',
-    };
-    next();
-  },
-  adminCheckMiddleware: (_req, _res, next) => next(),
+  authMiddleware: (req, _res, next) => next(),
+  userCheckMiddleware: (req, _res, next) => next()
 }));
 
 const userRoutes = require('../routes/userRoutes').default;
