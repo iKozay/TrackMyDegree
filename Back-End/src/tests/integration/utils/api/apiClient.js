@@ -1,13 +1,15 @@
+const supertest = require('supertest');
+
+/*
+ * Custom API client for integration tests using Supertest.
+ * Handles authentication via cookies and CSRF tokens.
+ */
 class ApiClient {
   constructor(app) {
     this.app = app;
-    this.authToken = null;
+    this.agent = supertest.agent(app);
     this.csrfToken = null;
     this.base = '/api';
-  }
-
-  setAuthToken(token) {
-    this.authToken = token;
   }
 
   setCsrfToken(token) {
@@ -28,48 +30,49 @@ class ApiClient {
       throw new Error('access_token cookie not found in login response');
     }
 
-    const token = accessTokenCookie.split('access_token=')[1].split(';')[0];
-    return token;
+    return accessTokenCookie.split('access_token=')[1].split(';')[0];
   }
 
   async login(credentials) {
-    // Send a safe GET route to init CSRF token
+    // Safe GET request to initialize CSRF token
     await this.get(`${this.base}/degree`, 200);
 
-    // After init CSRF token, we can send unsafe requests (POST/PUT/PATCH/DELETE)
-    const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
-    const token = this.extractTokenFromCookies(loginResponse);
-    this.setAuthToken(token);
-    
+    // Unsafe POST login now includes valid CSRF token
+    const loginResponse = await this.post(
+      `${this.base}/auth/login`,
+      credentials
+    );
+
     return loginResponse;
   }
 
   async post(endpoint, data = {}, expectedStatus = 200) {
-    const request = require('supertest')(this.app).post(endpoint).send(data);
+    let request = this.agent.post(endpoint);
 
-    if (this.authToken) {
-      request.set('Cookie', `access_token=${this.authToken}`);
-    }
+    console.log('CSRF TOKEN in post - ', this.csrfToken);
 
-    console.log("CSRF TOKEN in post - ", this.csrfToken);
     if (this.csrfToken) {
-      request.set('X-CSRF-Token', this.csrfToken);
+      request = request.set('X-CSRF-Token', this.csrfToken);
     }
 
-    return await request.send(data).expect(expectedStatus);
+    const response = await request.send(data).expect(expectedStatus);
+
+    // Refresh CSRF token
+    if (response.headers['x-csrf-token']) {
+      this.setCsrfToken(response.headers['x-csrf-token']);
+    }
+
+    return response;
   }
 
   async get(endpoint, expectedStatus = 200) {
-    const request = require('supertest')(this.app).get(endpoint);
+    const response = await this.agent
+      .get(endpoint)
+      .expect(expectedStatus);
 
-    if (this.authToken) {
-      request.set('Cookie', `access_token=${this.authToken}`);
-    }
+    console.log('CSRF TOKEN in get - ', response.headers['x-csrf-token']);
 
-    // GET requests don't need CSRF tokens, but capture it from response for future use
-    const response = await request.expect(expectedStatus);
-    
-    console.log("CSRF TOKEN in get - ", response.headers['x-csrf-token']);
+    // Capture CSRF token for future unsafe requests
     if (response.headers['x-csrf-token']) {
       this.setCsrfToken(response.headers['x-csrf-token']);
     }
