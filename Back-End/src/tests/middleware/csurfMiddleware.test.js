@@ -4,7 +4,7 @@ jest.mock('csurf', () => {
   return jest.fn(() => mockCsrfProtection);
 });
 
-const { csrfMiddleware } = require('../../middleware/csrfMiddleware');
+const { csrfMiddleware } = require('../../middleware/csurfMiddleware');
 
 describe('csrfMiddleware', () => {
   let req, res, next;
