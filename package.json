@@ -19,5 +19,8 @@
     "dev:backend": "npm --prefix Back-End/src run dev:api",
     "dev:worker": "npm --prefix Back-End/src run dev:worker",
     "dev:frontend": "npm --prefix ts-front-end run dev"
+  },
+  "dependencies": {
+    "node-cron": "^4.2.1"
   }
 }
