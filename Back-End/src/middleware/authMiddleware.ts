@@ -25,6 +25,22 @@ export async function authMiddleware(
   next();
 }
 
+export async function userCheckMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) {
+  const { userId } = req.params;
+  const jwtUserId = (req as any).user?.userId;
+
+  if (jwtUserId !== userId) {
+    return res.status(HTTP.FORBIDDEN).json({
+      error: 'Forbidden',
+    });
+  }
+  next();
+}
+
 export async function adminCheckMiddleware(
   req: Request,
   res: Response,
