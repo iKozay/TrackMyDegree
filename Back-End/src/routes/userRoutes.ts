@@ -166,7 +166,7 @@ router.patch('/:userId', userCheckMiddleware, async (req: Request<{ userId: stri
         .json({ error: 'newPassword must be a string' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
       return res.status(HTTP.BAD_REQUEST).json({ error: INVALID_ID_FORMAT });
     }
 
@@ -221,7 +221,7 @@ router.put('/:userId', userCheckMiddleware, async (req: Request, res: Response) 
         .json({ error: 'Invalid request body' });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });

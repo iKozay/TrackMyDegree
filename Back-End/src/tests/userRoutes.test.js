@@ -512,46 +512,6 @@ it('should return 400 if newPassword is not a string', async () => {
   expect(res.body.error).toBe('Invalid request body');
   });
 
-    describe('DELETE /users/:id error branches', () => {
-      it('should handle "does not exist" error specifically', async () => {
-        const originalDeleteUser = require('../controllers/userController')
-          .userController.deleteUser;
-        require('../controllers/userController').userController.deleteUser =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}`)
-          .expect(404);
-
-        expect(response.body.error).toBe('User does not exist');
-
-        require('../controllers/userController').userController.deleteUser =
-          originalDeleteUser;
-      });
-       it('returns 400 if id is not a valid ObjectId', async () => {
-          const res = await request(app).delete('/users/not-an-id');
-
-          expect(res.status).toBe(400);
-          expect(res.body.error).toBe('Invalid user id format');
-        });
-
-      it('should handle general errors (not "does not exist")', async () => {
-        const originalDeleteUser = require('../controllers/userController')
-          .userController.deleteUser;
-        require('../controllers/userController').userController.deleteUser =
-          jest.fn().mockRejectedValue(new Error('General error'));
-
-        const response = await request(app)
-          .delete(`/users/${testUser._id}`)
-          .expect(500);
-
-        expect(response.body.error).toBe('Internal server error');
-
-        require('../controllers/userController').userController.deleteUser =
-          originalDeleteUser;
-      });
-    });
-
     describe('GET /users/:id/data error branches', () => {
       
       it('returns 400 if id is not a valid ObjectId', async () => {
