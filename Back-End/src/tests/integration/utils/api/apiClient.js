@@ -81,6 +81,7 @@ class ApiClient {
   }
 
   async seedDegreeData() {
+    console.log(this.agent.jar.getCookies({ path: '/', secure: false }));
     return await this.get(`${this.base}/admin/seed-data`);
   }
 }
