@@ -8,8 +8,13 @@ class ApiClient {
   constructor(app) {
     this.app = app;
     this.agent = supertest.agent(app);
+    this.authToken = null;
     this.csrfToken = null;
     this.base = '/api';
+  }
+
+  setAuthToken(token) {
+    this.authToken = token;
   }
 
   setCsrfToken(token) {
@@ -34,14 +39,18 @@ class ApiClient {
   }
 
   async login(credentials) {
-    // Safe GET request to initialize CSRF token
+    // Initialize csrf token with safe GET request
     await this.get(`${this.base}/degree`, 200);
 
-    // Unsafe POST login now includes valid CSRF token
+    // Login with csrf token
     const loginResponse = await this.post(
       `${this.base}/auth/login`,
       credentials
     );
+
+    // Extract access token from login response
+    const token = this.extractTokenFromCookies(loginResponse);
+    this.setAuthToken(token);
 
     return loginResponse;
   }
@@ -49,30 +58,27 @@ class ApiClient {
   async post(endpoint, data = {}, expectedStatus = 200) {
     let request = this.agent.post(endpoint);
 
-    console.log('CSRF TOKEN in post - ', this.csrfToken);
+    if (this.authToken) {
+      request = request.set('Cookie', `access_token=${this.authToken}`);
+    }
 
     if (this.csrfToken) {
       request = request.set('X-CSRF-Token', this.csrfToken);
     }
 
-    const response = await request.send(data).expect(expectedStatus);
-
-    // Refresh CSRF token
-    if (response.headers['x-csrf-token']) {
-      this.setCsrfToken(response.headers['x-csrf-token']);
-    }
-
-    return response;
+    return await request.send(data).expect(expectedStatus);
   }
 
   async get(endpoint, expectedStatus = 200) {
-    const response = await this.agent
-      .get(endpoint)
-      .expect(expectedStatus);
+    let request = this.agent.get(endpoint);
 
-    console.log('CSRF TOKEN in get - ', response.headers['x-csrf-token']);
+    if (this.authToken) {
+      request = request.set('Cookie', `access_token=${this.authToken}`);
+    }
 
-    // Capture CSRF token for future unsafe requests
+    const response = await request.expect(expectedStatus);
+
+    // Refresh csrf token
     if (response.headers['x-csrf-token']) {
       this.setCsrfToken(response.headers['x-csrf-token']);
     }
@@ -81,7 +87,6 @@ class ApiClient {
   }
 
   async seedDegreeData() {
-    console.log(this.agent.jar.getCookies({ path: '/', secure: false }));
     return await this.get(`${this.base}/admin/seed-data`);
   }
 }
