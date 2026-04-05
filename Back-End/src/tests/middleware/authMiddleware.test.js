@@ -3,6 +3,7 @@ process.env.SESSION_ALGO = 'aes-256-gcm';
 
 const {
   authMiddleware,
+  userCheckMiddleware,
   adminCheckMiddleware,
 } = require('../../middleware/authMiddleware');
 
@@ -69,6 +70,29 @@ describe('authMiddleware', () => {
       await authMiddleware(req, res, next);
 
       expect(req.user).toEqual(mockPayload);
+      expect(next).toHaveBeenCalled();
+      expect(res.status).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('userCheckMiddleware', () => {
+    test('should return 403 when JWT user id does not match params userId', async () => {
+      req.params = { userId: 'user-params' };
+      req.user = { userId: 'user-jwt' };
+
+      await userCheckMiddleware(req, res, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Forbidden' });
+      expect(next).not.toHaveBeenCalled();
+    });
+
+    test('should call next when JWT user id matches params userId', async () => {
+      req.params = { userId: 'user-123' };
+      req.user = { userId: 'user-123' };
+
+      await userCheckMiddleware(req, res, next);
+
       expect(next).toHaveBeenCalled();
       expect(res.status).not.toHaveBeenCalled();
     });
