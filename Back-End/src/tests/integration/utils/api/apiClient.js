@@ -33,12 +33,8 @@ class ApiClient {
   }
 
   async login(credentials) {
-    // Extract CSRF token from response header of safe GET route
-    const safeGetResponse = await this.get(`${this.base}/degree`, 200);
-    const csrfToken = safeGetResponse.headers['x-csrf-token'];
-    if (csrfToken) {
-      this.setCsrfToken(csrfToken);
-    }
+    // Send a safe GET route to init CSRF token
+    await this.get(`${this.base}/degree`, 200);
 
     // After init CSRF token, we can send unsafe requests (POST/PUT/PATCH/DELETE)
     const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
@@ -72,6 +68,7 @@ class ApiClient {
     // GET requests don't need CSRF tokens, but capture it from response for future use
     const response = await request.expect(expectedStatus);
     
+    console.log("CSRF TOKEN - ", response.headers['x-csrf-token']);
     if (response.headers['x-csrf-token']) {
       this.setCsrfToken(response.headers['x-csrf-token']);
     }
