@@ -101,15 +101,19 @@ mongoose.connection.on('disconnected', () => {
 
 Sentry.setupExpressErrorHandler(app);
 
-if (process.env.NODE_ENV === 'development') {
-  const corsOptions = {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+app.use(
+  cors({
+    origin: process.env.CLIENT?.split(","),
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  app.use(cors(corsOptions));
-}
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-CSRF-Token",
+    ],
+    exposedHeaders: ["X-CSRF-Token"],
+  })
+);
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
