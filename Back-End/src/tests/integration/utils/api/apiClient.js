@@ -1,7 +1,3 @@
-/*
- * Custom API client for integration tests using Supertest.
- * Handles authentication via cookies and CSRF tokens.
- */
 class ApiClient {
   constructor(app) {
     this.app = app;
@@ -32,36 +28,28 @@ class ApiClient {
       throw new Error('access_token cookie not found in login response');
     }
 
-    return accessTokenCookie.split('access_token=')[1].split(';')[0];
-  }
-
-  captureCsrfToken(response) {
-    const token = response.headers['x-csrf-token'];
-    if (token) {
-      this.setCsrfToken(token);
-    }
+    const token = accessTokenCookie.split('access_token=')[1].split(';')[0];
+    return token;
   }
 
   async login(credentials) {
-    await this.get(`${this.base}/auth/me`, 401); // safe route to get csrf token
-    const loginResponse = await this.post(
-      `${this.base}/auth/login`,
-      credentials
-    );
-
+    const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
     const token = this.extractTokenFromCookies(loginResponse);
     this.setAuthToken(token);
-
+    
+    // Extract CSRF token from response headers after login
+    const csrfToken = loginResponse.headers['x-csrf-token'];
+    if (csrfToken) {
+      this.setCsrfToken(csrfToken);
+    }
+    
     return loginResponse;
   }
 
   async post(endpoint, data = {}, expectedStatus = 200) {
-    let request = require('supertest')(this.app)
-      .post(endpoint)
-      .send(data);
+    const request = require('supertest')(this.app).post(endpoint).send(data);
 
     if (this.authToken) {
-      // Use cookie authentication instead of Bearer token
       request.set('Cookie', `access_token=${this.authToken}`);
     }
 
@@ -69,21 +57,23 @@ class ApiClient {
       request.set('X-CSRF-Token', this.csrfToken);
     }
 
-    const response = await request.expect(expectedStatus);
-    this.captureCsrfToken(response); // keep token fresh
-    return response;
+    return await request.expect(expectedStatus);
   }
 
   async get(endpoint, expectedStatus = 200) {
-    let request = require('supertest')(this.app).get(endpoint);
+    const request = require('supertest')(this.app).get(endpoint);
 
     if (this.authToken) {
-      // Use cookie authentication instead of Bearer token
       request.set('Cookie', `access_token=${this.authToken}`);
     }
 
+    // GET requests don't need CSRF tokens, but capture it from response for future use
     const response = await request.expect(expectedStatus);
-    this.captureCsrfToken(response); // capture token from safe requests
+    
+    if (response.headers['x-csrf-token']) {
+      this.setCsrfToken(response.headers['x-csrf-token']);
+    }
+
     return response;
   }
 
