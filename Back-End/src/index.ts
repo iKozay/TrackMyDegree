@@ -117,7 +117,12 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CSRF protection: apply after cookies are parsed and before routes
-const csrfProtection = csurf({ cookie: { secure: true, httpOnly: true } });
+const csrfProtection = csurf({ 
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', 
+    httpOnly: true 
+  } 
+});
 
 app.use((req, res, next) => {
   // Allow safe methods without requiring a CSRF token, but expose one for the client
