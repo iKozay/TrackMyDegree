@@ -24,7 +24,6 @@ import { Footer } from "./components/Footer";
 
 import { AuthProvider } from "./providers/authProvider";
 import { ProtectedRoute } from "./ProtectedRoute";
-import { api } from './api/http-api-client';
 
 import "./App.css";
 import ClassBuilderPage from "./pages/ClassBuilderPage.tsx";
@@ -48,10 +47,6 @@ const App: React.FC = () => {
     if (NODE_ENV !== 'development') {
       posthog.capture('app_loaded', { deployment_version, NODE_ENV });
     }
-    // any safe GET route that passes CSRF middleware to initialize CSRF token
-    api.get("/auth/me").catch(() => {
-      // ignore errors
-    });
   }, []);
 
   return (
