@@ -1,18 +1,18 @@
-jest.mock("csurf");
+const mockCsrfProtection = jest.fn();
 
-const csurf = require("csurf");
-const { csrfMiddleware } = require("../../middleware/csurfMiddleware");
+jest.mock('csurf', () => {
+  return jest.fn(() => mockCsrfProtection);
+});
 
-describe("csrfMiddleware", () => {
-  let req;
-  let res;
-  let next;
-  let mockCsrfProtection;
+const { csrfMiddleware } = require('../../middleware/csrfMiddleware');
+
+describe('csrfMiddleware', () => {
+  let req, res, next;
 
   beforeEach(() => {
     req = {
-      method: "GET",
-      csrfToken: jest.fn(() => "mock-csrf-token"),
+      method: 'GET',
+      csrfToken: jest.fn(() => 'mock-csrf-token'),
     };
 
     res = {
@@ -22,65 +22,70 @@ describe("csrfMiddleware", () => {
 
     next = jest.fn();
 
-    mockCsrfProtection = jest.fn((req, res, callback) => {
-      callback();
-    });
-
-    csurf.mockReturnValue(mockCsrfProtection);
-  });
-
-  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it("should attach csrf token header for safe GET requests", () => {
+  test('should set CSRF token header for safe methods', () => {
+    mockCsrfProtection.mockImplementation((req, res, cb) => cb());
+
     csrfMiddleware(req, res, next);
 
+    expect(mockCsrfProtection).toHaveBeenCalled();
     expect(req.csrfToken).toHaveBeenCalled();
     expect(res.setHeader).toHaveBeenCalledWith(
-      "X-CSRF-Token",
-      "mock-csrf-token"
+      'X-CSRF-Token',
+      'mock-csrf-token'
     );
     expect(next).toHaveBeenCalled();
   });
 
-  it("should skip setting header if csrfToken is unavailable", () => {
-    req.csrfToken = undefined;
+  test('should call next with error if csrfProtection fails on safe method', () => {
+    const mockError = new Error('CSRF error');
+
+    mockCsrfProtection.mockImplementation((req, res, cb) => cb(mockError));
 
     csrfMiddleware(req, res, next);
 
+    expect(next).toHaveBeenCalledWith(mockError);
     expect(res.setHeader).not.toHaveBeenCalled();
-    expect(next).toHaveBeenCalled();
   });
 
-  it("should pass errors from csrfProtection on safe methods", () => {
-    const error = new Error("CSRF failure");
-
-    mockCsrfProtection.mockImplementation((req, res, callback) => {
-      callback(error);
+  test('should continue even if req.csrfToken throws error', () => {
+    req.csrfToken = jest.fn(() => {
+      throw new Error('Token generation failed');
     });
 
+    mockCsrfProtection.mockImplementation((req, res, cb) => cb());
+
     csrfMiddleware(req, res, next);
 
-    expect(next).toHaveBeenCalledWith(error);
+    expect(next).toHaveBeenCalled();
+    expect(res.setHeader).not.toHaveBeenCalled();
   });
 
-  it("should enforce csrfProtection directly for unsafe POST requests", () => {
-    req.method = "POST";
+  test('should call csrfProtection directly for unsafe methods', () => {
+    req.method = 'POST';
+
+    mockCsrfProtection.mockImplementation((req, res, nextFn) => nextFn());
 
     csrfMiddleware(req, res, next);
 
     expect(mockCsrfProtection).toHaveBeenCalledWith(req, res, next);
+    expect(next).toHaveBeenCalled();
   });
 
-  it("should treat OPTIONS as safe and attach token", () => {
-    req.method = "OPTIONS";
+  test('should recognize HEAD and OPTIONS as safe methods', () => {
+    ['HEAD', 'OPTIONS'].forEach((method) => {
+      req.method = method;
 
-    csrfMiddleware(req, res, next);
+      mockCsrfProtection.mockImplementation((req, res, cb) => cb());
 
-    expect(res.setHeader).toHaveBeenCalledWith(
-      "X-CSRF-Token",
-      "mock-csrf-token"
-    );
+      csrfMiddleware(req, res, next);
+
+      expect(res.setHeader).toHaveBeenCalledWith(
+        'X-CSRF-Token',
+        'mock-csrf-token'
+      );
+    });
   });
 });
