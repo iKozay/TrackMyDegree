@@ -245,6 +245,22 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
     const { id } = req.params;
     const { fullname, currentPassword, newPassword } = req.body;
 
+    if (fullname !== undefined && typeof fullname !== 'string') {
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'fullname must be a string' });
+    }
+    if (currentPassword !== undefined && typeof currentPassword !== 'string') {
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'currentPassword must be a string' });
+    }
+    if (newPassword !== undefined && typeof newPassword !== 'string') {
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'newPassword must be a string' });
+    }
+
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(HTTP.BAD_REQUEST).json({ error: INVALID_ID_FORMAT });
     }
@@ -290,7 +306,17 @@ router.put('/:id', async (req: Request, res: Response) => {
     const { id } = req.params;
     const updates = req.body;
 
-     if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (
+      typeof updates !== 'object' ||
+      Array.isArray(updates) ||
+      updates === null
+    ) {
+      return res
+        .status(HTTP.BAD_REQUEST)
+        .json({ error: 'Invalid request body' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
