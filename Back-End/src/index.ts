@@ -35,6 +35,7 @@ import {
 import { getSentryProfilingIntegrations } from '@utils/misc';
 import helmet from 'helmet';
 import csurf from 'csurf';
+import { terms } from 'tests/__fixtures__/data/mockTranscriptData';
 
 // sentry init
 Sentry.init({
@@ -116,7 +117,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CSRF protection: apply after cookies are parsed and before routes
-const csrfProtection = csurf({ cookie: true });
+const csrfProtection = csurf({ cookie: { secure: true, httpOnly: true } });
 
 app.use((req, res, next) => {
   // Allow safe methods without requiring a CSRF token, but expose one for the client
