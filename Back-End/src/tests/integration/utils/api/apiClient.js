@@ -33,17 +33,17 @@ class ApiClient {
   }
 
   async login(credentials) {
-    await this.get(`${this.base}/degree`, 200); // safe GET route to get csrf token
-
-    const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
-    const token = this.extractTokenFromCookies(loginResponse);
-    this.setAuthToken(token);
-    
-    // Extract CSRF token from response headers after login
-    const csrfToken = loginResponse.headers['x-csrf-token'];
+    // Extract CSRF token from response header of safe GET route
+    const safeGetResponse = await this.get(`${this.base}/degree`, 200);
+    const csrfToken = safeGetResponse.headers['x-csrf-token'];
     if (csrfToken) {
       this.setCsrfToken(csrfToken);
     }
+
+    // After init CSRF token, we can send unsafe requests (POST/PUT/PATCH/DELETE)
+    const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
+    const token = this.extractTokenFromCookies(loginResponse);
+    this.setAuthToken(token);
     
     return loginResponse;
   }
