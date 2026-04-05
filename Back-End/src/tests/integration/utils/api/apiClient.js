@@ -33,6 +33,8 @@ class ApiClient {
   }
 
   async login(credentials) {
+    await this.get(`${this.base}/degree`, 401); // safe GET route to get csrf token
+
     const loginResponse = await this.post(`${this.base}/auth/login`, credentials);
     const token = this.extractTokenFromCookies(loginResponse);
     this.setAuthToken(token);
