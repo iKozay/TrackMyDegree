@@ -96,7 +96,7 @@ export async function getCourseSchedule(subject: string, catalog: string): Promi
     throw new Error(`No schedule found for course ${courseCode}`);
   }
 
-  return JSON.parse(cached) as CourseData[];
+  return JSON.parse(cached.toString()) as CourseData[];
 }
 
 
