@@ -22,9 +22,6 @@ module.exports = {
     '!**/tests/**',
     '!**/coverage/**',
     '!swagger.ts',
-    // Exclude backup service files until it is decided whether to keep or remove the backup feature
-    // TODO: https://github.com/iKozay/TrackMyDegree/issues/228
-    '!services/backup/**',
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['lcov', 'text', 'text-summary', 'html'],

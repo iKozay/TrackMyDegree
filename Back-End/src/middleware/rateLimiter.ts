@@ -72,10 +72,16 @@ const creditFormDeleteLimiter = createLimiter({
   message: { error: 'Too many delete attempts. Try again later.' },
 });
 
-const adminRateLimiter = rateLimit({
+const adminRateLimiter = createLimiter({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each admin to 100 requests per windowMs
   message: { error: 'Too many admin requests. Try again later.' },
+});
+
+const userRateLimiter = createLimiter({
+  windowMs: 15 * 60 * 1000, // 15 minute window
+  max: 100, // 100 requests per 15 minutes per IP
+  message: { error: 'Too many user requests. Try again later.' },
 });
 
 export {
@@ -86,5 +92,6 @@ export {
   creditFormDownloadLimiter,
   creditFormUploadLimiter,
   creditFormDeleteLimiter,
-  adminRateLimiter
+  adminRateLimiter,
+  userRateLimiter
 };

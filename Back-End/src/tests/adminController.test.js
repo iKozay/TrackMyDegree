@@ -3,6 +3,13 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const { AdminController } = require('../controllers/adminController');
 const { User } = require('../models/user');
 const { Course } = require('../models/course');
+const BackupService = require('../services/backup/backupService');
+const Sentry = require('@sentry/node');
+
+jest.mock('../services/backup/backupService');
+jest.mock('@sentry/node', () => ({
+  captureException: jest.fn(),
+}));
 
 describe('AdminController', () => {
   let mongoServer, mongoUri, adminController;
@@ -24,6 +31,7 @@ describe('AdminController', () => {
   beforeEach(async () => {
     await User.deleteMany({});
     await Course.deleteMany({});
+    jest.clearAllMocks();
   });
 
   describe('Constructor', () => {
@@ -248,6 +256,157 @@ describe('AdminController', () => {
 
       // Restore original db
       mongoose.connection.db = originalDb;
+    });
+  });
+
+  describe('listBackups', () => {
+    it('should return all available backups', async () => {
+      BackupService.listBackups.mockResolvedValue([
+        'backup1.json',
+        'backup2.json',
+      ]);
+
+      const result = await adminController.listBackups();
+
+      expect(result).toEqual(['backup1.json', 'backup2.json']);
+      expect(BackupService.listBackups).toHaveBeenCalledTimes(1);
+    });
+
+    it('should rethrow database connection error', async () => {
+      BackupService.listBackups.mockRejectedValue(
+        new Error('Database connection not available'),
+      );
+
+      await expect(adminController.listBackups()).rejects.toThrow(
+        'Database connection not available',
+      );
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('should throw generic list backup error', async () => {
+      BackupService.listBackups.mockRejectedValue(
+        new Error('Random failure'),
+      );
+
+      await expect(adminController.listBackups()).rejects.toThrow(
+        'Error fetching backups',
+      );
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+  });
+
+  describe('createBackup', () => {
+    it('should create a backup successfully', async () => {
+      BackupService.createBackup.mockResolvedValue('backup-new.json');
+
+      const result = await adminController.createBackup();
+
+      expect(result).toBe('backup-new.json');
+      expect(BackupService.createBackup).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw database connection error when db is null', async () => {
+      const originalDb = mongoose.connection.db;
+      mongoose.connection.db = null;
+
+      await expect(adminController.createBackup()).rejects.toThrow(
+        'Database connection not available',
+      );
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+
+      mongoose.connection.db = originalDb;
+    });
+
+    it('should throw generic create backup error', async () => {
+      BackupService.createBackup.mockRejectedValue(
+        new Error('Backup failed'),
+      );
+
+      await expect(adminController.createBackup()).rejects.toThrow(
+        'Error creating a new backup file',
+      );
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteBackup', () => {
+    it('should delete backup successfully', async () => {
+      BackupService.deleteBackup.mockResolvedValue();
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).resolves.toBeUndefined();
+
+      expect(BackupService.deleteBackup).toHaveBeenCalledWith(
+        'backup1.json',
+      );
+    });
+
+    it('should rethrow database connection error', async () => {
+      BackupService.deleteBackup.mockRejectedValue(
+        new Error('Database connection not available'),
+      );
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).rejects.toThrow('Database connection not available');
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+
+    it('should throw generic delete backup error', async () => {
+      BackupService.deleteBackup.mockRejectedValue(
+        new Error('Delete failed'),
+      );
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).rejects.toThrow('Error deleting backup1.json!');
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+    });
+  });
+
+  describe('restoreBackup', () => {
+    it('should restore backup successfully', async () => {
+      BackupService.restoreBackup.mockResolvedValue();
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).resolves.toBeUndefined();
+
+      expect(BackupService.restoreBackup).toHaveBeenCalledWith(
+        'backup1.json',
+      );
+    });
+
+    it('should throw database connection error when db is null', async () => {
+      const originalDb = mongoose.connection.db;
+      mongoose.connection.db = null;
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).rejects.toThrow('Database connection not available');
+
+      expect(Sentry.captureException).toHaveBeenCalled();
+
+      mongoose.connection.db = originalDb;
+    });
+
+    it('should throw generic restore backup error', async () => {
+      BackupService.restoreBackup.mockRejectedValue(
+        new Error('Restore failed'),
+      );
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).rejects.toThrow('Error restoring backup1.json!');
+
+      expect(Sentry.captureException).toHaveBeenCalled();
     });
   });
 

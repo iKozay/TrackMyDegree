@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
-
+import { startBackupScheduler } from '@services/backup';
 import { connectRedis } from '@lib/redisClient';
 
 //Routes import
@@ -158,6 +158,8 @@ const start = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);
+    //Start backup service only after connecting to DB
+    startBackupScheduler();
   });
 };
 
