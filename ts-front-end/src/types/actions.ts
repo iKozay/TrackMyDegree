@@ -13,6 +13,11 @@ export const TimelineActionConstants = {
   OpenModal: "OPEN-MODAL",
   ChangeCourseStatus: "CHANGE-COURSE-STATUS",
   AddCourse: "ADD-COURSE",
+  RemoveCourse: "REMOVE-COURSE",
   AddSemester: "ADD-SEMESTER",
+  AddFallWinterSemester: "ADD-FALL-WINTER-SEMESTER",
+  RemoveSemester: "REMOVE-SEMESTER",
   SetTimelineName: "SET-TIMELINE-NAME",
+  MoveSemester: "MOVE-SEMESTER",
+  InsertSemesterAt: "INSERT-SEMESTER-AT",
 } as const;

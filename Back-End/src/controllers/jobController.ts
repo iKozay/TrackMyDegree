@@ -107,7 +107,7 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
     // IMPORTANT: generic is the DATA type, not CachedJobResult
     const cached = await getJobResult<CachedTimeline>(jobId);
 
-    if (!cached || !cached?.payload.data) {
+    if (!cached?.payload?.data) {
       return res.status(404).json({ message: 'Timeline not found' });
     }
 

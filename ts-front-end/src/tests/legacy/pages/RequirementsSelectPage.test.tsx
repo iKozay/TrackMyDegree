@@ -136,7 +136,7 @@ describe('RequirementsSelectPage', () => {
         expect(screen.getByText('Software Engineering')).toBeInTheDocument();
       });
 
-      const card = screen.getByText('Software Engineering').closest('div[role="button"]') as HTMLElement;
+      const card = screen.getByText('Software Engineering').closest('button') as HTMLElement;
       if (!card) throw new Error('Card not found');
       fireEvent.click(card);
       expect(mockNavigate).toHaveBeenCalledWith('/requirements/software-engineering');
@@ -149,7 +149,7 @@ describe('RequirementsSelectPage', () => {
         expect(screen.getByText('Computer Science')).toBeInTheDocument();
       });
 
-      const card = screen.getByText('Computer Science').closest('div[role="button"]') as HTMLElement;
+      const card = screen.getByText('Computer Science').closest('button') as HTMLElement;
       if (!card) throw new Error('Card not found');
       fireEvent.click(card);
       expect(mockNavigate).toHaveBeenCalledWith('/requirements/computer-science');
@@ -164,7 +164,7 @@ describe('RequirementsSelectPage', () => {
         expect(screen.getByText('Software Engineering')).toBeInTheDocument();
       });
 
-      const card = screen.getByText('Software Engineering').closest('div[role="button"]') as HTMLElement;
+      const card = screen.getByText('Software Engineering').closest('button') as HTMLElement;
       if (!card) throw new Error('Card not found');
       // Initial state
       expect(card.style.transform).toBe('');
@@ -181,7 +181,7 @@ describe('RequirementsSelectPage', () => {
         expect(screen.getByText('Computer Science')).toBeInTheDocument();
       });
 
-      const card = screen.getByText('Computer Science').closest('div[role="button"]') as HTMLElement;
+      const card = screen.getByText('Computer Science').closest('button') as HTMLElement;
       if (!card) throw new Error('Card not found');
       // Hover first
       fireEvent.mouseEnter(card);
@@ -194,14 +194,18 @@ describe('RequirementsSelectPage', () => {
   });
 
   describe('Accessibility', () => {
-    test('all program cards have role="button"', async () => {
+    test('all program cards are accessible as buttons', async () => {
       renderWithRouter();
 
       await waitFor(() => {
+        // getAllByRole('button') finds elements with the button role, whether explicit
+        // (role="button") or implicit (native <button> element). The cards use native
+        // <button> elements so they do not carry a redundant role attribute — querying
+        // by role is sufficient to verify they are accessible as buttons.
         const cards = screen.getAllByRole('button');
         expect(cards.length).toBeGreaterThan(0);
         cards.forEach(card => {
-          expect(card).toHaveAttribute('role', 'button');
+          expect(card.tagName.toLowerCase()).toBe('button');
         });
       });
     });

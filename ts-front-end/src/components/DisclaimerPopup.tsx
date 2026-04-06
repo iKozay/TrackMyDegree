@@ -10,13 +10,13 @@ export const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ show, onClose 
   if (!show) return null;
 
   return (
-    <div 
-      className="modal-overlay" 
-      role="dialog"
+    <dialog
+      className="modal-overlay"
+      open
       aria-modal="true"
+      onCancel={onClose}
       onClick={onClose}
-      onKeyDown={(e) => e.key === 'Escape' && onClose()}
-      tabIndex={-1}
+      onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
       style={{
         position: 'fixed',
         top: 0,
@@ -28,15 +28,30 @@ export const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ show, onClose 
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 9999,
-        padding: '1rem'
+        padding: '1rem',
+        border: 'none',
+        maxWidth: '100%',
+        maxHeight: '100%',
+        width: '100%',
+        height: '100%',
       }}
     >
-      <div 
-        className="modal-content" 
+      <button
+        aria-label="Close disclaimer"
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'transparent',
+          border: 'none',
+          cursor: 'default',
+        }}
+      />
+      <div
+        className="modal-content"
         role="document"
         onClick={(e) => e.stopPropagation()}
-        onKeyDown={(e) => e.key === 'Escape' && onClose()}
-        tabIndex={0}
+        onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}
         style={{
           backgroundColor: 'white',
           borderRadius: '12px',
@@ -44,7 +59,9 @@ export const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ show, onClose 
           width: '100%',
           maxHeight: '90vh',
           overflowY: 'auto',
-          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)',
+          position: 'relative',
+          zIndex: 1,
         }}
       >
         <div className="modal-header">
@@ -52,7 +69,7 @@ export const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ show, onClose 
             <Info size={24} />
             Important Disclaimer
           </h3>
-          <button 
+          <button
             className="modal-close"
             onClick={onClose}
             aria-label="Close"
@@ -97,7 +114,7 @@ export const DisclaimerPopup: React.FC<DisclaimerPopupProps> = ({ show, onClose 
           </button>
         </div>
       </div>
-    </div>
+    </dialog>
   );
 };
 

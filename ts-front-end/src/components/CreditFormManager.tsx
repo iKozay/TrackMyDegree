@@ -73,7 +73,7 @@ export const CreditFormManager: React.FC = () => {
         }
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault();
         setSubmitting(true);
 
@@ -104,7 +104,7 @@ export const CreditFormManager: React.FC = () => {
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (file && file.type === 'application/pdf') {
+        if (file?.type === 'application/pdf') {
             setPdfFile(file);
         } else if (file) {
             toast.error('Please select a PDF file');
@@ -114,46 +114,42 @@ export const CreditFormManager: React.FC = () => {
     const generateProgramId = (titleStr: string) => {
         return titleStr
             .toLowerCase()
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
+            .replaceAll(/[^a-z0-9\s-]/g, '')
+            .replaceAll(/\s+/g, '-')
+            .replaceAll(/-+/g, '-')
             .trim();
     };
 
-    return (
-        <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <h2 style={{ margin: 0, color: BURGUNDY }}>Credit Forms Management</h2>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                    <button
-                        onClick={openAddModal}
-                        style={{
-                            padding: '10px 16px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            background: BURGUNDY,
-                            color: '#fff',
-                            fontWeight: 600,
-                            cursor: 'pointer',
-                        }}
-                    >
-                        Add New Form
-                    </button>
-                </div>
-            </div>
+    let submitLabel: string;
+    if (submitting) {
+        submitLabel = 'Saving...';
+    } else if (editingForm) {
+        submitLabel = 'Update Form';
+    } else {
+        submitLabel = 'Create Form';
+    }
 
-            {loading ? (
-                <div style={{ textAlign: 'center', padding: '40px' }}>
-                    <p>Loading forms...</p>
-                </div>
-            ) : forms.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '12px' }}>
-                    <p style={{ color: '#666', marginBottom: '16px' }}>
-                        No credit forms found. Click "Migrate Existing Forms" to import the current forms, or add a new one.
-                    </p>
-                </div>
-            ) : (
-                <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
+    const submitCursor = submitting ? 'not-allowed' : 'pointer';
+    const submitOpacity = submitting ? 0.6 : 1;
+
+    let content: React.ReactNode;
+    if (loading) {
+        content = (
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+                <p>Loading forms...</p>
+            </div>
+        );
+    } else if (forms.length === 0) {
+        content = (
+            <div style={{ textAlign: 'center', padding: '40px', background: '#f9f9f9', borderRadius: '12px' }}>
+                <p style={{ color: '#666', marginBottom: '16px' }}>
+                    No credit forms found. Click "Migrate Existing Forms" to import the current forms, or add a new one.
+                </p>
+            </div>
+        );
+    } else {
+        content = (
+            <div style={{ background: '#fff', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', overflow: 'hidden' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                         <thead>
                             <tr style={{ background: '#f5f5f5' }}>
@@ -205,7 +201,32 @@ export const CreditFormManager: React.FC = () => {
                         </tbody>
                     </table>
                 </div>
-            )}
+        );
+    }
+
+    return (
+        <div style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                <h2 style={{ margin: 0, color: BURGUNDY }}>Credit Forms Management</h2>
+                <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                        onClick={openAddModal}
+                        style={{
+                            padding: '10px 16px',
+                            borderRadius: '8px',
+                            border: 'none',
+                            background: BURGUNDY,
+                            color: '#fff',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                        }}
+                    >
+                        Add New Form
+                    </button>
+                </div>
+            </div>
+
+            {content}
 
             {/* Modal */}
             {showModal && (
@@ -222,8 +243,18 @@ export const CreditFormManager: React.FC = () => {
                         justifyContent: 'center',
                         zIndex: 1000,
                     }}
-                    onClick={() => setShowModal(false)}
                 >
+                    <button
+                        aria-label="Close modal"
+                        onClick={() => setShowModal(false)}
+                        style={{
+                            position: 'absolute',
+                            inset: 0,
+                            background: 'transparent',
+                            border: 'none',
+                            cursor: 'default',
+                        }}
+                    />
                     <div
                         style={{
                             background: '#fff',
@@ -232,8 +263,9 @@ export const CreditFormManager: React.FC = () => {
                             width: '100%',
                             maxWidth: '500px',
                             boxShadow: '0 20px 60px rgba(0,0,0,0.3)',
+                            position: 'relative',
+                            zIndex: 1,
                         }}
-                        onClick={(e) => e.stopPropagation()}
                     >
                         <h3 style={{ margin: '0 0 24px 0', color: BURGUNDY }}>
                             {editingForm ? 'Edit Credit Form' : 'Add New Credit Form'}
@@ -364,12 +396,12 @@ export const CreditFormManager: React.FC = () => {
                                         border: 'none',
                                         background: BURGUNDY,
                                         color: '#fff',
-                                        cursor: submitting ? 'not-allowed' : 'pointer',
+                                        cursor: submitCursor,
                                         fontWeight: 500,
-                                        opacity: submitting ? 0.6 : 1,
+                                        opacity: submitOpacity,
                                     }}
                                 >
-                                    {submitting ? 'Saving...' : (editingForm ? 'Update Form' : 'Create Form')}
+                                    {submitLabel}
                                 </button>
                             </div>
                         </form>
@@ -380,4 +412,3 @@ export const CreditFormManager: React.FC = () => {
     );
 };
 
-export default CreditFormManager;

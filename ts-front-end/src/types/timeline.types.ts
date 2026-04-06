@@ -14,8 +14,11 @@ export interface Degree {
 
 export type CourseCode = string;
 
-export type Term = "FALL" | "WINTER" | "SUMMER"; // TODO: add FALL/WINTER
-export type SemesterId = `${Term} ${number}`; // e.g. "FALL 2025"
+export type Term = "FALL" | "WINTER" | "SUMMER" | "FALL/WINTER";
+// Used to know order of semesters for drag-and-drop reordering of Fall/Winter semesters to display the correct academic year
+export type SemesterId =
+  | `${"FALL" | "WINTER" | "SUMMER"} ${number}`   // e.g. "FALL 2025"
+  | `FALL/WINTER ${number}-${number}`;             // e.g. "FALL/WINTER 2025-26"
 
 export type SemesterCourse = {
   code: CourseCode;
@@ -146,8 +149,19 @@ export type TimelineActionType =
       type: typeof TimelineActionConstants.AddCourse;
       payload: { courseId: CourseCode; type: string };
     }
-  | { type: typeof TimelineActionConstants.AddSemester }
   | {
-      type: typeof TimelineActionConstants.SetTimelineName;
-      payload: { timelineName: string };
+      type: typeof TimelineActionConstants.RemoveCourse;
+      payload: { courseId: CourseCode; type: string };
+    }
+  | { type: typeof TimelineActionConstants.AddSemester }
+  | { type: typeof TimelineActionConstants.AddFallWinterSemester }
+  | { type: typeof TimelineActionConstants.RemoveSemester; payload: { semesterId: SemesterId } }
+  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } }
+  | {
+      type: typeof TimelineActionConstants.MoveSemester;
+      payload: { fromIndex: number; toIndex: number };
+    }
+  | {
+      type: typeof TimelineActionConstants.InsertSemesterAt;
+      payload: { semesterId: SemesterId; atIndex: number };
     };

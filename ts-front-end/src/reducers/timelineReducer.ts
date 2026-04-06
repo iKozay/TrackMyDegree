@@ -11,7 +11,12 @@ import {
   openModal,
   changeCourseStatus,
   addCourse,
+  removeCourse,
   addSemester,
+  addFallWinterSemester,
+  removeSemester,
+  moveSemester,
+  insertSemesterAt,
   validateTimeline,
 } from "../handlers/timelineHandler";
 
@@ -65,8 +70,28 @@ export function timelineReducer(
       nextState = addCourse(state, action.payload);
       break;
 
+    case TimelineActionConstants.RemoveCourse:
+      nextState = removeCourse(state, action.payload);
+      break;
+
     case TimelineActionConstants.AddSemester:
       nextState = addSemester(state);
+      break;
+
+    case TimelineActionConstants.AddFallWinterSemester:
+      nextState = addFallWinterSemester(state);
+      break;
+
+    case TimelineActionConstants.RemoveSemester:
+      nextState = removeSemester(state, action.payload);
+      break;
+
+    case TimelineActionConstants.MoveSemester:
+      nextState = moveSemester(state, action.payload);
+      break;
+
+    case TimelineActionConstants.InsertSemesterAt:
+      nextState = insertSemesterAt(state, action.payload);
       break;
 
     default:

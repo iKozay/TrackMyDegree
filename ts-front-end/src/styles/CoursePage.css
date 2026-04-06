@@ -148,6 +148,8 @@
   cursor: pointer;
   transition: all 0.2s ease;
   border-bottom: 1px solid var(--course-border);
+  text-align: left;
+  width: 100%;
 }
 
 .degree-dropdown-item:last-child {

@@ -207,8 +207,8 @@ const CourseRules: React.FC<CourseRulesProps> = ({
       {sortedRuleTypes.map((ruleType) => {
         const displayInfo = ruleTypeDisplayMap[ruleType] || {
           title: ruleType
-            .replace(/_/g, " ")
-            .replace(/\b\w/g, (l) => l.toUpperCase()),
+            .replaceAll("_", " ")
+            .replaceAll(/\b\w/g, (l) => l.toUpperCase()),
           icon: <History size={16} />,
         };
 
@@ -224,18 +224,19 @@ const CourseRules: React.FC<CourseRulesProps> = ({
           <div
             key={ruleType}
             className={`rule-section ${allRulesSatisfied ? "section-satisfied" : "section-unsatisfied"}`}>
-            <div
+            <button
               className="rule-header"
-              onClick={() => toggleSection(ruleType)}>
+              onClick={() => toggleSection(ruleType)}
+              aria-expanded={isCollapsed}>
               {displayInfo.icon}
               <h4>{displayInfo.title}</h4>
               <div className="spacer"></div>
-              {!isCollapsed ? (
-                <ChevronDown size={16} className="collapse-icon" />
-              ) : (
+              {isCollapsed ? (
                 <ChevronUp size={16} className="collapse-icon" />
+              ) : (
+                <ChevronDown size={16} className="collapse-icon" />
               )}
-            </div>
+            </button>
 
             {isCollapsed && (
               <div className="rule-items">

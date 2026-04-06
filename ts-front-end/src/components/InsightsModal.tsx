@@ -103,6 +103,11 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
 
   return (
     <div className="insights-modal-backdrop">
+      <button
+        className="insights-modal-backdrop-btn"
+        onClick={onClose}
+        aria-label="Dismiss modal"
+      />
       <div className="insights-modal-content">
         <button
           className="insights-modal-close"

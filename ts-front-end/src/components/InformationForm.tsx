@@ -73,7 +73,7 @@ const InformationForm = () => {
 
   const selectedDegree = degrees.find((d) => d._id === selectedDegreeId);
 
-  const getDegreeSequenceFile = (degreeName: string, entryTerm: string): string | null => {
+  const getDegreeSequenceFile = (degreeName: string, entryTerm: string): string | null => { // NOSONAR
     const name = degreeName.toLowerCase();
 
     // Aerospace is now selected as distinct concentrations.
@@ -128,6 +128,58 @@ const InformationForm = () => {
     return term === "fall";
   };
 
+  const submitFormData = async (formData: ProgramInfo) => {
+    const response = await api.post<UploadResponse>("/upload/form", formData);
+    if (response?.jobId) {
+      navigate(`/timeline/${response.jobId}`);
+      return;
+    }
+    alert("Unexpected response from server.");
+  };
+
+  const handlePredefinedSequence = async (
+    matched_degree: Degree,
+    startingSemester: string,
+  ): Promise<boolean> => {
+    const sequenceFile = getDegreeSequenceFile(matched_degree.name, selectedTerm);
+    if (!sequenceFile) {
+      alert("No predefined sequence available for this degree.");
+      return true; // handled, stop further processing
+    }
+
+    try {
+      const response = await fetch(`/coop-sequences/${sequenceFile}`);
+      if (!response.ok) {
+        console.error(`Failed to load sequence: ${response.statusText}`);
+        alert("Failed to load predefined sequence. Falling back to standard generation.");
+        return false;
+      }
+      const sequenceData = await response.json();
+
+      try {
+        await submitFormData({
+          degree: matched_degree._id,
+          firstTerm: startingSemester,
+          isCoop: true,
+          isExtendedCreditProgram: selectedRadio.extendedCredit,
+          predefinedSequence: sequenceData,
+        });
+        return true;
+      } catch (apiError: unknown) {
+        console.error("Error processing predefined sequence:", apiError);
+        const message = apiError instanceof Error
+          ? apiError.message
+          : "An unknown error occurred while processing the predefined sequence.";
+        alert(message);
+        return true;
+      }
+    } catch (error) {
+      console.error("Error loading predefined sequence:", error);
+      alert("Failed to load predefined sequence. Falling back to standard generation.");
+      return false; // fall through to standard generation
+    }
+  };
+
   const handleNextButtonClick = async () => {
     if (!selectedDegreeId) {
       alert("Please select a degree before continuing.");
@@ -143,75 +195,22 @@ const InformationForm = () => {
     const matched_degree = degrees.find((d) => d._id === selectedDegreeId);
 
     if (selectedRadio.coOp && loadPredefinedSequence && matched_degree) {
-      const sequenceFile = getDegreeSequenceFile(matched_degree.name, selectedTerm);
-
-      if (!sequenceFile) {
-        alert("No predefined sequence available for this degree.");
-        return;
-      }
-
-      try {
-        const response = await fetch(`/coop-sequences/${sequenceFile}`);
-        if (!response.ok) {
-          throw new Error(`Failed to load sequence: ${response.statusText}`);
-        }
-
-        const sequenceData = await response.json();
-
-        const formDataWithSequence: ProgramInfo = {
-          degree: matched_degree._id,
-          firstTerm: startingSemester,
-          isCoop: true,
-          isExtendedCreditProgram: selectedRadio.extendedCredit,
-          predefinedSequence: sequenceData,
-        };
-
-        try {
-          const apiResponse = await api.post<UploadResponse>("/upload/form", formDataWithSequence);
-
-          if (apiResponse?.jobId) {
-            navigate(`/timeline/${apiResponse.jobId}`);
-            return;
-          }
-
-          alert("Unexpected response from server.");
-        } catch (apiError: unknown) {
-          console.error("Error processing predefined sequence:", apiError);
-          const message =
-            apiError instanceof Error
-              ? apiError.message
-              : "An unknown error occurred while processing the predefined sequence.";
-          alert(message);
-        }
-        return;
-      } catch (error) {
-        console.error("Error loading predefined sequence:", error);
-        alert("Failed to load predefined sequence. Falling back to standard generation.");
-      }
+      const handled = await handlePredefinedSequence(matched_degree, startingSemester);
+      if (handled) return;
     }
 
-    const formData: ProgramInfo = {
-      degree: matched_degree?._id || selectedDegreeId,
-      firstTerm: startingSemester,
-      isCoop: selectedRadio.coOp,
-      isExtendedCreditProgram: selectedRadio.extendedCredit,
-    };
-
     try {
-      const response = await api.post<UploadResponse>("/upload/form", formData);
-
-      if (response?.jobId) {
-        navigate(`/timeline/${response.jobId}`);
-        return;
-      }
-
-      alert("Unexpected response from server.");
+      await submitFormData({
+        degree: matched_degree?._id ?? selectedDegreeId,
+        firstTerm: startingSemester,
+        isCoop: selectedRadio.coOp,
+        isExtendedCreditProgram: selectedRadio.extendedCredit,
+      });
     } catch (error: unknown) {
       console.error("Error processing form submission:", error);
-      const message =
-        error instanceof Error
-          ? error.message
-          : "An unknown error occurred while processing the form.";
+      const message = error instanceof Error
+        ? error.message
+        : "An unknown error occurred while processing the form.";
       alert(message);
     }
   };
@@ -233,7 +232,7 @@ const InformationForm = () => {
             <option value="" disabled hidden>Select Degree</option>
             {degrees.length > 0 ? (
               degrees
-                .sort((a, b) => a.name.localeCompare(b.name))
+                .toSorted((a, b) => a.name.localeCompare(b.name))
                 .map((degree) => (
                   <option key={degree._id} value={degree._id}>
                     {degree.name}
@@ -287,7 +286,7 @@ const InformationForm = () => {
               type="checkbox"
               name="extended-credit"
               value="yes"
-              checked={selectedRadio.extendedCredit === true}
+              checked={selectedRadio.extendedCredit}
               onChange={() => handleRadioChange("extendedCredit", true)}
               aria-label="Extended Credit Program?"
             />
@@ -301,7 +300,7 @@ const InformationForm = () => {
               type="checkbox"
               name="co-op"
               value="yes"
-              checked={selectedRadio.coOp === true}
+              checked={selectedRadio.coOp}
               onChange={() => handleRadioChange("coOp", true)}
               aria-label="Co-op Program?"
             />
