@@ -3,6 +3,10 @@ import type { CourseCode, CourseMap } from "../types/timeline.types";
 import { type CoursePoolData } from "@trackmydegree/shared";
 import "../styles/components/AddModal.css";
 
+/**
+ * ManageModal replaces and extends deprecated AddModal
+ * Modal to view, add, and remove courses from exemption/deficiency pools
+ */
 type CourseItemProps = {
   code: string;
   title?: string;
