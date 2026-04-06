@@ -329,4 +329,55 @@ describe("SemesterPlanner", () => {
     expect(toast.warning).not.toHaveBeenCalled();
     expect(screen.queryByRole("menu")).toBeNull();
   });
+
+  it("scrolls to the end of semester list when a new semester is added", () => {
+    // Start with 2 semesters
+    const initialSemesters = [
+      { term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] },
+      { term: "WINTER 2026", courses: [{ code: "SOEN 228", message: "" }] },
+    ];
+    const coursesCopy = { ...courses };
+    const onCourseSelectMock = vi.fn();
+    const onAddSemesterMock = vi.fn();
+    const onAddFallWinterSemesterMock = vi.fn();
+
+    // Render with initial semesters
+    const { rerender, container } = render(
+      <SemesterPlanner
+        semesters={initialSemesters}
+        courses={coursesCopy}
+        onCourseSelect={onCourseSelectMock}
+        selectedCourse={null}
+        onAddSemester={onAddSemesterMock}
+        onAddFallWinterSemester={onAddFallWinterSemesterMock}
+      />
+    );
+
+    // Find the semesters grid and mock scrollTo
+    const grid = container.querySelector('.semesters-grid');
+    expect(grid).toBeTruthy();
+    if (!grid) throw new Error('semesters-grid not found');
+    grid.scrollTo = vi.fn();
+    // Set scrollWidth to a fake value
+    Object.defineProperty(grid, 'scrollWidth', { value: 1234, configurable: true });
+
+    // Add a new semester
+    const newSemesters = [
+      ...initialSemesters,
+      { term: "SUMMER 2026", courses: [] },
+    ];
+    rerender(
+      <SemesterPlanner
+        semesters={newSemesters}
+        courses={coursesCopy}
+        onCourseSelect={onCourseSelectMock}
+        selectedCourse={null}
+        onAddSemester={onAddSemesterMock}
+        onAddFallWinterSemester={onAddFallWinterSemesterMock}
+      />
+    );
+
+    // Assert scrollTo was called with the end of the grid
+    expect(grid.scrollTo).toHaveBeenCalledWith({ left: 1234, behavior: 'smooth' });
+  });
 });

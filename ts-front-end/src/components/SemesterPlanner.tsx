@@ -92,6 +92,8 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
   const popoverRef = useRef<HTMLDivElement>(null);
   const { activeSemesterId } = useTimelineDnd();
   const isSemesterDragging = activeSemesterId !== null;
+  const semestersGridRef = useRef<HTMLDivElement>(null); // Ref to the scrollable container of semesters
+  const prevSemesterCountRef = useRef<number>(semesters.length); // Ref to track previous count of semesters for detecting additions
 
   // Close popover on outside click
   useEffect(() => {
@@ -104,6 +106,25 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [popoverOpen]);
+
+  // Scroll to end when semesters are added
+  useEffect(() => {
+    // Keep track of previous semester count to detect new semesters being added
+    const prevCount = prevSemesterCountRef.current;
+    const currentCount = semesters.length;
+
+    // Check if a semester was added
+    if (currentCount > prevCount && semestersGridRef.current) {
+        // Scroll to the end of the semesters grid
+        semestersGridRef.current?.scrollTo({
+        left: semestersGridRef.current.scrollWidth,
+        behavior: 'smooth'
+        });
+    }
+
+    // Update the ref for next comparison
+    prevSemesterCountRef.current = currentCount;
+  }, [semesters.length]);
 
   const handleAddSemester = () => {
     onAddSemester();
@@ -163,7 +184,7 @@ const SemesterPlanner: React.FC<SemesterPlannerProps> = ({
         </div>
       </div>
 
-      <div className="semesters-grid">
+      <div className="semesters-grid" ref={semestersGridRef}>
         {semesters.map(({ term, courses: semesterCourses }, idx) => (
           <React.Fragment key={term}>
             <SemesterSlot index={idx} isActive={isSemesterDragging} />
