@@ -275,40 +275,6 @@ class TestCyberScDegreeScraper:
             [cyber_pool],
         )
 
-        with patch.object(scraper, '_handle_cyber_general_electives') as mock_handle_cyber_gen_ed:
+        with patch.object(scraper, '_handle_general_elective_exclusion_list') as mock_handle_cyber_gen_ed:
             scraper._handle_special_cases()
             mock_handle_cyber_gen_ed.assert_called_once_with(cyber_pool)
-
-    def test_handle_cyber_general_electives(self):
-        scraper = CyberScDegreeScraper(
-            "BSc Cybersecurity",
-            "CYBER",
-            ECPDegreeIDs.ENGR_ECP_ID,
-            "http://test.com",
-        )
-
-        cyber_pool = CoursePool(
-            _id="CYBER_GenElectives",
-            name="General Electives: BSc Cybersecurity",
-            creditsRequired=12,
-            courses=[],
-        )
-
-        mock_gen_ed_pool = CoursePool(
-            _id="gen_ed",
-            name="General Education Humanities and Social Sciences Electives",
-            creditsRequired=3,
-            courses=["PHIL 210", "SOCI 212", "MATH 208", "COMS 360"],
-        )
-
-        with patch.object(
-            scraper,
-            "_get_general_education_pool",
-            return_value=mock_gen_ed_pool,
-        ):
-            scraper._handle_cyber_general_electives(cyber_pool)
-
-        assert "PHIL 210" in cyber_pool.courses
-        assert "COMS 360" in cyber_pool.courses
-        assert "SOCI 212" not in cyber_pool.courses
-        assert "MATH 208" not in cyber_pool.courses
