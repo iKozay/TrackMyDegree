@@ -148,6 +148,48 @@ class TestGinaCodyDegreeScraper:
         assert "SOCI 212" not in result.courses  # Should be excluded
         assert "COMS 360" in result.courses  # Should be added from other_allowed_courses
 
+    @patch('scraper.gina_cody_degree_scraper._get_all_links_from_element')
+    @patch('scraper.gina_cody_degree_scraper.get_soup')
+    def test_get_general_elective_exclusion_list(self, mock_get_soup, mock_get_links):
+        """Test extracting general elective exclusion list from requirements page."""
+        mock_get_soup.return_value = BeautifulSoup(
+            '<table><tr><td>The following courses may not be taken to fulfill the General Electives requirement</td></tr></table>',
+            'html.parser'
+        )
+        mock_get_links.return_value = [
+            AnchorLink(text="COMP 218", url="http://test.com"),
+            AnchorLink(text="MATH 208  ", url="http://test.com"),
+        ]
+
+        scraper = GinaCodyDegreeScraper("BEng in Computer Engineering", "COEN", ECPDegreeIDs.ENGR_ECP_ID, "http://test.com")
+        result = scraper._get_general_elective_exclusion_list()
+
+        assert result == ["COMP 218", "MATH 208"]
+
+    @patch('scraper.gina_cody_degree_scraper.GinaCodyDegreeScraper._get_general_education_pool')
+    @patch('scraper.gina_cody_degree_scraper.GinaCodyDegreeScraper._get_general_elective_exclusion_list')
+    def test_handle_general_elective_exclusion_list(self, mock_get_exclusions, mock_get_general_pool):
+        """Test applying exclusion list to computed general elective course set."""
+        mock_get_exclusions.return_value = ["COMP 218", "ENGL 233"]
+        mock_get_general_pool.return_value = CoursePool(
+            _id="gen_ed",
+            name="General Education",
+            creditsRequired=3.0,
+            courses=["COMP 218", "ENGL 233", "PHIL 210"],
+        )
+
+        pool = CoursePool(
+            _id="target_pool",
+            name="General Electives: BSc Cybersecurity",
+            creditsRequired=12.0,
+            courses=[],
+        )
+
+        scraper = GinaCodyDegreeScraper("BSc in Cybersecurity", "CYBER_SC", "", "http://test.com")
+        scraper._handle_general_elective_exclusion_list(pool)
+
+        assert set(pool.courses) == {"PHIL 210"}
+
 
 class TestAeroDegreeScraper:
     """Test AeroDegreeScraper class"""
