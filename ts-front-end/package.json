@@ -16,9 +16,9 @@
     "test:watch": "vitest"
   },
   "dependencies": {
-    "@trackmydegree/shared": "*",
     "@dnd-kit/core": "^6.3.1",
     "@sentry/react": "^10.32.1",
+    "@trackmydegree/shared": "*",
     "@zumer/snapdom": "^2.0.1",
     "bootstrap": "^5.3.8",
     "framer-motion": "^12.23.26",
@@ -53,7 +53,7 @@
     "jsdom": "^27.2.0",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.46.3",
-    "vite": "^7.2.2",
+    "vite": "^8.0.5",
     "vitest": "^4.0.13"
   }
 }
