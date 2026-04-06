@@ -1,8 +1,8 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { cacheGET } from '@middleware/cacheGet';
-import { NotFoundError, INTERNAL_SERVER_ERROR } from '@utils/errors';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -50,14 +50,23 @@ const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 router.get(
   '/:id',
   cacheGET(COURSEPOOL_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const id  = req.params.id as string;
       const academicYear = req.query.academicYear as string | undefined;
+      if (!id || id.trim() === '') {
+        throw new BadRequestError('Course pool ID is required');
+      }
+
       const coursePool = await coursepoolController.getCoursePool(
-        req.params.id as string,
+        id,
         academicYear,
       );
 
       return res.status(HTTP.OK).json(coursePool);
+    } catch (error) {
+      next(error)
+    }
   },
 );
 
@@ -86,11 +95,16 @@ router.get(
 router.get(
   '/',
   cacheGET(COURSEPOOL_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
       const academicYear = req.query.academicYear as string | undefined;
       const coursePools =
         await coursepoolController.getAllCoursePools(academicYear);
       return res.status(HTTP.OK).json(coursePools);
+    } catch (error) {
+      next(error);
+    }
   },
 );
 

@@ -1,12 +1,10 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { degreeAuditController } from '@controllers/degreeAuditController';
 import mongoose from 'mongoose';
-import { BadRequestError } from '@utils/errors';
+import { BadRequestError, INVALID_ID_FORMAT } from '@utils/errors';
 
 const router = express.Router();
-
-const INVALID_ID_FORMAT = 'Invalid id format';
 
 /**
  * @openapi
@@ -98,7 +96,8 @@ const INVALID_ID_FORMAT = 'Invalid id format';
  *       500:
  *         description: Internal server error
  */
-router.get('/timeline/:timelineId', async (req: Request, res: Response) => {
+router.get('/timeline/:timelineId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const timelineId = req.params.timelineId as string;
     const userId = req.query.userId as string | undefined;
 
@@ -119,10 +118,14 @@ router.get('/timeline/:timelineId', async (req: Request, res: Response) => {
       userId,
     );
     return res.status(HTTP.OK).json(audit);
+  }catch (error) {
+    next(error);
+  }
 });
 
 
-router.get('/timeline/job/:jobId', async (req, res) => {
+router.get('/timeline/job/:jobId', async (req, res, next) => {
+  try {
     const { jobId } = req.params;
 
     if (!jobId) {
@@ -133,6 +136,9 @@ router.get('/timeline/job/:jobId', async (req, res) => {
       await degreeAuditController.getAuditByCachedTimeline(jobId);
 
     return res.status(HTTP.OK).json(audit);
+  } catch (error) {
+    next(error);
+  }
 });
 
 
@@ -163,7 +169,8 @@ router.get('/timeline/job/:jobId', async (req, res) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/user/:userId', async (req: Request, res: Response) => {
+router.get('/user/:userId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const userId = req.params.userId as string;
 
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
@@ -172,7 +179,9 @@ router.get('/user/:userId', async (req: Request, res: Response) => {
 
     const audit = await degreeAuditController.getAuditForUser(userId);
     return res.status(HTTP.OK).json(audit);
-
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

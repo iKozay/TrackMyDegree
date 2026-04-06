@@ -1,5 +1,5 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { degreeController } from '@controllers/degreeController';
 
 import { cacheGET } from '@middleware/cacheGet';
@@ -63,7 +63,8 @@ const DEGREE_CACHE_TTL = 1800; // 30 minutes
 router.get(
   '/:id',
   cacheGET(DEGREE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const { id } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
 
@@ -77,6 +78,9 @@ router.get(
         academicYear,
       );
       res.status(HTTP.OK).json(degree);
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
@@ -111,10 +115,14 @@ router.get(
 router.get(
   '/',
   cacheGET(DEGREE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const academicYear = req.query.academicYear as string | undefined;
       const degrees = await degreeController.readAllDegrees(academicYear);
       res.status(HTTP.OK).json(degrees);
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
@@ -157,7 +165,8 @@ router.get(
 router.get(
   '/:id/credits',
   cacheGET(DEGREE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const { id } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
 
@@ -173,6 +182,9 @@ router.get(
       res.status(HTTP.OK).json({
         totalCredits: credits,
       });
+    } catch (error) {
+      next(error);
+    }
   },
 );
 
@@ -218,7 +230,8 @@ router.get(
 router.get(
   '/:id/coursepools',
   cacheGET(DEGREE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const { id } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
       const cleanId = (id as string)?.trim();
@@ -231,6 +244,9 @@ router.get(
         academicYear,
       );
       res.status(HTTP.OK).json(coursePools);
+    } catch (error) {
+      next(error);
+    }
   },
 );
 

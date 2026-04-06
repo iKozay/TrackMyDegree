@@ -40,11 +40,11 @@ export class AuthController extends BaseMongoController<any> {
     super(User, 'Auth');
   }
 
-  async getUserById(userId: string): Promise<UserInfo | undefined> {
+  async getUserById(userId: string): Promise<UserInfo> {
       const user = await User.findById(userId).lean().exec();
       
       if (!user) {
-        return undefined; 
+        throw new NotFoundError('User no longer exists');
       }
 
       return {
@@ -63,7 +63,7 @@ export class AuthController extends BaseMongoController<any> {
   async authenticate(
     email: string,
     password: string,
-  ): Promise<UserInfo | undefined> {
+  ): Promise<UserInfo> {
       const user = await User.findOne({ email: { $eq: email } })
         .select('+password')
         .lean()
@@ -73,16 +73,16 @@ export class AuthController extends BaseMongoController<any> {
       const hash = user && user.password ? user.password : DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
-      if (user && passwordMatch && user._id) {
-        return {
+      if (!user || !passwordMatch || !user._id) {
+        throw new UnauthorizedError('Incorrect email or password');
+      }
+
+      return {
           _id: user._id.toString(),
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
         };
-      }
-
-      return undefined;
   }
 
   /**

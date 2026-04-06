@@ -1,4 +1,5 @@
 // controllers/uploadController.test.js
+import { BadRequestError } from '@utils/errors';
 
 // ---- Mock the queue ----
 const mockQueueAdd = jest.fn();
@@ -24,20 +25,21 @@ describe('uploadController', () => {
     jest.clearAllMocks();
   });
 
-  test('returns 400 if jobId is missing', async () => {
+  test('throws 400 if jobId is missing', async () => {
     const req = {
-      // no jobId
       file: undefined,
       body: {},
     };
     const res = createMockResponse();
 
-    await uploadController(req, res, jest.fn());
+    await expect(uploadController(req, res, jest.fn()))
+      .rejects
+      .toThrow(BadRequestError);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Job ID missing. Did assignJobId run?',
-    });
+    await expect(uploadController(req, res, jest.fn()))
+      .rejects
+      .toThrow('Job ID is missing from the request');
+
     expect(mockQueueAdd).not.toHaveBeenCalled();
   });
 
@@ -107,7 +109,7 @@ describe('uploadController', () => {
     });
   });
 
-  test('returns 400 if neither file nor non-empty body is provided', async () => {
+  test('throws 400 if neither file nor non-empty body is provided', async () => {
     const req = {
       jobId: 'job-empty-789',
       file: undefined,
@@ -115,16 +117,18 @@ describe('uploadController', () => {
     };
     const res = createMockResponse();
 
-    await uploadController(req, res, jest.fn());
+    await expect(uploadController(req, res, jest.fn()))
+      .rejects
+      .toThrow(BadRequestError);
 
-    expect(res.status).toHaveBeenCalledWith(400);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'No file or body provided in the request',
-    });
+    await expect(uploadController(req, res, jest.fn()))
+      .rejects
+      .toThrow('No file or body data provided for upload');
+
     expect(mockQueueAdd).not.toHaveBeenCalled();
   });
 
-  test('returns 500 if queue.add throws', async () => {
+  test('throws 500 if queue.add throws', async () => {
     const req = {
       jobId: 'job-error-999',
       file: { path: '/tmp/file-error.pdf' },
@@ -134,12 +138,10 @@ describe('uploadController', () => {
 
     mockQueueAdd.mockRejectedValueOnce(new Error('queue failure'));
 
-    await uploadController(req, res, jest.fn());
+    await expect(uploadController(req, res, jest.fn()))
+      .rejects
+      .toThrow('queue failure');
 
     expect(mockQueueAdd).toHaveBeenCalledTimes(1);
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Error creating job',
-    });
   });
 });

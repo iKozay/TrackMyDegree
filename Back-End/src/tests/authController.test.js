@@ -1,629 +1,222 @@
-/**
- * Integration-style Jest tests for AuthController.
- * Uses MongoMemoryServer for isolated DB
- * Mocks Redis + Nodemailer to avoid external dependencies
- */
-
-// Mock Sentry
-jest.mock('@sentry/node', () => ({
-    captureException: jest.fn(),
-}));
+// __tests__/authController.test.js
 
 // Mock Nodemailer (in __mocks__ folder)
-jest.mock('nodemailer');
 
 // Mock shared Redis client
-const mockRedisGet = jest.fn();
-const mockRedisSet = jest.fn();
-const mockRedisDel = jest.fn();
+
+
+const bcrypt = require('bcryptjs');
+const { authController, AuthController, UserType } = require('../controllers/authController');
+const { User } = require('@models');
+const { AlreadyExistsError, NotFoundError, UnauthorizedError } = require('@utils/errors');
+const { mailServicePromise } = require('@services/mailService');
+const redisClient = require('@lib/redisClient').default;
+
 
 jest.mock('@lib/redisClient', () => ({
     __esModule: true,
     default: {
-        get: mockRedisGet,
-        set: mockRedisSet,
-        del: mockRedisDel,
+        get: jest.fn(),
+        set: jest.fn(),
+        del: jest.fn(),
     },
 }));
+jest.mock('@models');
+jest.mock('bcryptjs');
+jest.mock('nodemailer');
+jest.mock('@models');
 
-const mongoose = require('mongoose');
-const { MongoMemoryServer } = require('mongodb-memory-server');
-const { AuthController, UserType } = require('../controllers/authController');
-// Handle ES6 module export properly
-const UserModule = require('../models/user');
-const User = UserModule.User || UserModule.default || UserModule;
-const bcrypt = require('bcryptjs');
-const Sentry = require('@sentry/node');
+jest.mock('@services/mailService', () => ({
+  mailServicePromise: {
+    then: (cb) => cb({ sendPasswordReset: jest.fn().mockResolvedValue(true) }),
+  },
+}));
+
 
 describe('AuthController', () => {
-  let mongoServer, mongoUri, authController, testUser;
+  let mockUser;
 
-  beforeAll(async () => {
-    // Start in-memory MongoDB instance for testing
-    mongoServer = await MongoMemoryServer.create();
-    mongoUri = mongoServer.getUri();
-    await mongoose.connect(mongoUri);
-    authController = new AuthController();
-    jest.spyOn(console, 'error').mockImplementation(() => {});
-  });
+  beforeEach(() => {
+    jest.clearAllMocks();
 
-  afterAll(async () => {
-    // Clean up connections and stop MongoDB instance
-    await mongoose.disconnect();
-    await mongoServer.stop();
-    console.error.mockRestore();
-  });
+    mockUser = {
+      _id: 'user123',
+      fullname: 'Test User',
+      email: 'test@example.com',
+      type: UserType.STUDENT,
+      password: 'hashedpassword',
+      save: jest.fn().mockResolvedValue(true),
+    };
 
-  beforeEach(async () => {
-    await User.deleteMany({});
+    // Default bcrypt behavior
+    bcrypt.compare.mockResolvedValue(true);
+    bcrypt.hash.mockResolvedValue('hashedpassword');
   });
 
   describe('getUserById', () => {
-    let testUser;
+    it('returns user info when user exists', async () => {
+      User.findById.mockReturnValue({ lean: () => ({ exec: () => Promise.resolve(mockUser) }) });
 
-    beforeEach(async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
-      testUser = await User.create({
-        email: 'test@example.com',
-        password: hashedPassword,
+      const result = await authController.getUserById('user123');
+      expect(result).toEqual({
+        _id: 'user123',
         fullname: 'Test User',
-        type: 'student',
+        email: 'test@example.com',
+        type: UserType.STUDENT,
       });
     });
 
-    afterEach(async () => {
-      jest.clearAllMocks();
-    });
+    it('throws NotFoundError if user does not exist', async () => {
+      User.findById.mockReturnValue({ lean: () => ({ exec: () => Promise.resolve(null) }) });
 
-    it('should return a user object when user exists', async () => {
-      const result = await authController.getUserById(testUser._id.toString());
-
-      expect(result).toBeDefined();
-      expect(result.email).toBe('test@example.com');
-      expect(result.fullname).toBe('Test User');
-      expect(result.type).toBe('student');
-      expect(result._id).toBeDefined();
-      // password is not included in UserInfo interface
-    });
-
-    it('should return undefined if user does not exist', async () => {
-      const fakeId = '507f1f77bcf86cd799439011';
-      const result = await authController.getUserById(fakeId);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined and capture exception if DB error occurs', async () => {
-      const mockError = new Error('DB error');
-      jest.spyOn(User, 'findById').mockImplementationOnce(() => {
-        throw mockError;
-      });
-
-      const result = await authController.getUserById('any-id');
-
-      expect(result).toBeUndefined();
-      expect(Sentry.captureException).toHaveBeenCalledWith(
-        mockError,
-        expect.any(Object),
-      );
-      expect(console.error).toHaveBeenCalledWith(
-        '[AuthController] getUserById error',
-      );
+      await expect(authController.getUserById('wrong')).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('authenticate', () => {
-    beforeEach(async () => {
-      const hashedPassword = await bcrypt.hash('TestPass123!', 10);
-      testUser = await User.create({
-        email: 'test@example.com',
-        password: hashedPassword,
-        fullname: 'Test User',
-        type: 'student',
-      });
-    });
-
-    it('should authenticate user with correct credentials', async () => {
-      const result = await authController.authenticate(
-        'test@example.com',
-        'TestPass123!',
-      );
-
-      expect(result).toMatchObject({
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-      });
-      expect(result._id).toBeDefined();
-      // password is not included in UserInfo interface
-    });
-
-    it('should return undefined for incorrect password', async () => {
-      const result = await authController.authenticate(
-        'test@example.com',
-        'WrongPassword123!',
-      );
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should return undefined for non-existent user', async () => {
-      const result = await authController.authenticate(
-        'nonexistent@example.com',
-        'TestPass123!',
-      );
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock User.findOne to throw an error
-      const originalFindOne = User.findOne;
-      User.findOne = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
+    it('returns user info if credentials are correct', async () => {
+      User.findOne.mockReturnValue({
+        select: () => ({ lean: () => ({ exec: () => Promise.resolve(mockUser) }) }),
       });
 
-      const result = await authController.authenticate(
-        'test@example.com',
-        'TestPass123!',
-      );
-
-      expect(result).toBeUndefined();
-
-      // Restore original method
-      User.findOne = originalFindOne;
+      const result = await authController.authenticate('test@example.com', 'password');
+      expect(result.email).toBe('test@example.com');
     });
 
-    it('should prevent timing attacks with dummy hash', async () => {
-      const startTime = Date.now();
-      await authController.authenticate(
-        'nonexistent@example.com',
-        'TestPass123!',
-      );
-      const endTime = Date.now();
-
-      // Should take similar time as valid authentication due to dummy hash comparison
-      expect(endTime - startTime).toBeLessThan(1000); // Should be fast
-    });
-
-    it('should return undefined when user has no _id', async () => {
-      // Mock User.findOne to return user without _id
-      const originalFindOne = User.findOne;
-      User.findOne = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          lean: jest.fn().mockReturnValue({
-            exec: jest.fn().mockResolvedValue({
-              email: 'test@example.com',
-              password: await require('bcryptjs').hash('TestPass123!', 10),
-              fullname: 'Test User',
-              type: 'student',
-              // _id is missing
-            }),
-          }),
-        }),
+    it('throws UnauthorizedError if user not found', async () => {
+      User.findOne.mockReturnValue({
+        select: () => ({ lean: () => ({ exec: () => Promise.resolve(null) }) }),
       });
 
-      const result = await authController.authenticate(
-        'test@example.com',
-        'TestPass123!',
-      );
+      await expect(authController.authenticate('wrong@example.com', 'pass')).rejects.toThrow(UnauthorizedError);
+    });
 
-      expect(result).toBeUndefined();
+    it('throws UnauthorizedError if password mismatch', async () => {
+      bcrypt.compare.mockResolvedValue(false);
+      User.findOne.mockReturnValue({
+        select: () => ({ lean: () => ({ exec: () => Promise.resolve(mockUser) }) }),
+      });
 
-      // Restore original method
-      User.findOne = originalFindOne;
+      await expect(authController.authenticate('test@example.com', 'wrongpass')).rejects.toThrow(UnauthorizedError);
     });
   });
 
   describe('registerUser', () => {
-    it('should register new user with strong password', async () => {
-      const userInfo = {
-        email: 'newuser@example.com',
-        fullname: 'New User',
-        type: UserType.STUDENT,
-        _id: '', // Will be generated by the method
-      };
-      const password = 'StrongPass123!';
+    it('registers a new user successfully', async () => {
+      User.exists.mockReturnValue({ exec: () => Promise.resolve(false) });
+      User.create.mockResolvedValue(mockUser);
 
-      const result = await authController.registerUser(userInfo, password);
-
-      expect(result).toHaveProperty('_id');
-      expect(result._id).toBeDefined();
-
-      // Verify user was created
-      const createdUser = await User.findOne({ email: 'newuser@example.com' });
-      expect(createdUser).toBeDefined();
-      expect(createdUser.fullname).toBe('New User');
-      expect(createdUser.type).toBe('student');
-    });
-
-    it('should return undefined for existing email', async () => {
-      await User.create({
-        email: 'existing@example.com',
-        password: 'hashedpassword',
-        fullname: 'Existing User',
-        type: 'student',
-      });
-
-      const userInfo = {
-        email: 'existing@example.com',
-        password: 'StrongPass123!',
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock User.exists to throw an error
-      const originalExists = User.exists;
-      User.exists = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
-
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'StrongPass123!',
-        fullname: 'New User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-
-      expect(result).toBeUndefined();
-
-      // Restore original method
-      User.exists = originalExists;
-    });
-
-    it('should return undefined when user creation fails', async () => {
-      // Mock User.create to return user without _id
-      const originalCreate = User.create;
-      User.create = jest.fn().mockResolvedValue({
-        _id: null,
-        email: 'test@example.com',
+      const result = await authController.registerUser({
+        _id: 'user123',
         fullname: 'Test User',
-        type: 'student',
-      });
-
-      const userInfo = {
-        email: 'newuser@example.com',
-        password: 'StrongPass123!',
-        fullname: 'New User',
+        email: 'test@example.com',
         type: UserType.STUDENT,
-      };
+      }, 'password');
 
-      const result = await authController.registerUser(userInfo);
+      expect(result.email).toBe('test@example.com');
+    });
 
-      expect(result).toBeUndefined();
+    it('throws AlreadyExistsError if email already exists', async () => {
+      User.exists.mockReturnValue({ exec: () => Promise.resolve(true) });
 
-      // Restore original method
-      User.create = originalCreate;
+      await expect(authController.registerUser({
+        _id: 'user123',
+        fullname: 'Test User',
+        email: 'test@example.com',
+        type: UserType.STUDENT,
+      }, 'password')).rejects.toThrow(AlreadyExistsError);
     });
   });
 
   describe('forgotPassword', () => {
-    beforeEach(async () => {
-      testUser = await User.create({
-        email: 'test@example.com',
-        password: 'hashedpassword',
-        fullname: 'Test User',
-        type: 'student',
-      });
-      process.env.FRONTEND_URL = 'https://frontend.com';
+    it('returns generic message if user does not exist', async () => {
+      User.findOne.mockReturnValue({ exec: () => Promise.resolve(null) });
+
+      const result = await authController.forgotPassword('unknown@example.com');
+      expect(result.message).toBe('If the email exists, a reset link has been sent.');
     });
 
-    it('should generate link for existing user', async () => {
-      await User.create({
-        email: 'reset@example.com',
-        password: '123',
-        fullname: 'Reset User',
-        type: UserType.STUDENT,
-      });
-
-      const res = await authController.forgotPassword('reset@example.com');
-      expect(res.message).toContain('If the email exists, a reset link has been sent.')
-      expect(mockRedisSet).toHaveBeenCalled();
-    });
-
-    it('should handle non-existent user', async () => {
-      const res = await authController.forgotPassword('noone@example.com');
-      expect(res.message).toContain('reset link');
-    });
-
-    it('should handle missing FRONTEND_URL', async () => {
-      delete process.env.FRONTEND_URL;
-      await expect(
-        authController.forgotPassword('reset@example.com'),
-      ).resolves.toHaveProperty('message');
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock User.findOne to throw an error
-      const originalFindOne = User.findOne;
-      User.findOne = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
+    it('sends reset email and stores token in Redis', async () => {
+      process.env.FRONTEND_URL = 'http://frontend.com';
+      User.findOne.mockReturnValue({ exec: () => Promise.resolve(mockUser) });
+      redisClient.set.mockResolvedValue(true);
 
       const result = await authController.forgotPassword('test@example.com');
-
-      expect(result.message).toBe('An error occurred. Please try again later.');
-      expect(result.otp).toBeUndefined();
-
-      // Restore original method
-      User.findOne = originalFindOne;
+      expect(result.message).toBe('If the email exists, a reset link has been sent.');
+      expect(redisClient.set).toHaveBeenCalled();
     });
+    it('throws error if FRONTEND_URL and CLIENT are not defined', async () => {
+    // Remove env variables
+    delete process.env.FRONTEND_URL;
+    delete process.env.CLIENT;
+
+    User.findOne.mockReturnValue({ exec: () => Promise.resolve(mockUser) });
+
+    await expect(authController.forgotPassword('test@example.com'))
+      .rejects
+      .toThrow('FRONTEND_URL or CLIENT environment variable is not defined');
+  });
   });
 
   describe('resetPassword', () => {
-    it('should reset valid token', async () => {
-      await User.create({
-        email: 'reset@example.com',
-        password: 'oldPass',
-        fullname: 'Reset User',
-        type: UserType.STUDENT,
-      });
+    it('resets password successfully', async () => {
+      redisClient.get.mockResolvedValue('test@example.com');
+      User.findOne.mockReturnValue({ exec: () => Promise.resolve(mockUser) });
+      redisClient.del.mockResolvedValue(true);
 
-      mockRedisGet.mockResolvedValueOnce('reset@example.com');
-
-      const res = await authController.resetPassword(
-        'validtoken',
-        'NewPass123!',
-      );
-      expect(res).toBe(true);
-      expect(mockRedisDel).toHaveBeenCalledWith('reset:validtoken');
-      // verify token is deleted and cannot be reused
-      mockRedisGet.mockResolvedValueOnce(null);
-      const res2 = await authController.resetPassword(
-          'validtoken',
-          'AnotherPass123!',
-      );
-      expect(res2).toBe(false);
+      await expect(authController.resetPassword('token123', 'newpass')).resolves.toBeUndefined();
+      expect(mockUser.password).toBe('hashedpassword');
+      expect(mockUser.save).toHaveBeenCalled();
+      expect(redisClient.del).toHaveBeenCalledWith('reset:token123');
     });
 
-    it('should fail invalid token', async () => {
-      mockRedisGet.mockResolvedValueOnce(null);
-      const res = await authController.resetPassword('badtoken', 'NewPass123!');
-      expect(res).toBe(false);
+    it('throws UnauthorizedError if token invalid', async () => {
+      redisClient.get.mockResolvedValue(null);
+      await expect(authController.resetPassword('badtoken', 'newpass')).rejects.toThrow(UnauthorizedError);
+    });
+
+    it('throws NotFoundError if user no longer exists', async () => {
+      redisClient.get.mockResolvedValue('test@example.com');
+      User.findOne.mockReturnValue({ exec: () => Promise.resolve(null) });
+
+      await expect(authController.resetPassword('token123', 'newpass')).rejects.toThrow(NotFoundError);
     });
   });
 
   describe('changePassword', () => {
-    let testUser;
+    it('changes password successfully', async () => {
+      User.findById.mockReturnValue({ select: () => ({ exec: () => Promise.resolve(mockUser) }) });
 
-    beforeEach(async () => {
-      const hashedPassword = await bcrypt.hash('OldPass123!', 10);
-      testUser = await User.create({
-        email: 'test@example.com',
-        password: hashedPassword,
-        fullname: 'Test User',
-        type: 'student',
-      });
+      await expect(authController.changePassword('user123', 'oldpass', 'newpass')).resolves.toBeUndefined();
+      expect(mockUser.password).toBe('hashedpassword');
+      expect(mockUser.save).toHaveBeenCalled();
     });
 
-    it('should change password with correct old password (frontend-hashed)', async () => {
-      // Note: The implementation expects plain text for both old and new passwords
-      // The method will hash the new password internally
-      const result = await authController.changePassword(
-        testUser._id.toString(),
-        'OldPass123!', // Plain text old password for verification
-        'NewPass123!', // Plain text new password - will be hashed by the method
-      );
-
-      expect(result).toBe(true);
-
-      // Verify password was changed
-      const updatedUser = await User.findById(testUser._id).select('+password');
-      const passwordMatch = await bcrypt.compare(
-        'NewPass123!',
-        updatedUser.password,
-      );
-      expect(passwordMatch).toBe(true);
+    it('throws NotFoundError if user not found', async () => {
+      User.findById.mockReturnValue({ select: () => ({ exec: () => Promise.resolve(null) }) });
+      await expect(authController.changePassword('user123', 'old', 'new')).rejects.toThrow(NotFoundError);
     });
 
-    it('should return false for incorrect old password', async () => {
-      const result = await authController.changePassword(
-        testUser._id.toString(),
-        'WrongPass123!',
-        'NewPass123!',
-      );
+    it('throws UnauthorizedError if old password does not match', async () => {
+      bcrypt.compare.mockResolvedValue(false);
+      User.findById.mockReturnValue({ select: () => ({ exec: () => Promise.resolve(mockUser) }) });
 
-      expect(result).toBe(false);
-    });
-
-    it('should return false for non-existent user', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const result = await authController.changePassword(
-        fakeId,
-        'OldPass123!',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
-    });
-
-    it('should handle database errors gracefully', async () => {
-      // Mock User.findById to throw an error
-      const originalFindById = User.findById;
-      User.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
-
-      const result = await authController.changePassword(
-        testUser._id.toString(),
-        'OldPass123!',
-        'NewPass123!',
-      );
-
-      expect(result).toBe(false);
-
-      // Restore original method
-      User.findById = originalFindById;
+      await expect(authController.changePassword('user123', 'wrong', 'new')).rejects.toThrow(UnauthorizedError);
     });
   });
 
   describe('isAdmin', () => {
-    let adminUser, studentUser, advisorUser;
-
-    beforeEach(async () => {
-      adminUser = await User.create({
-        email: 'admin@example.com',
-        password: 'hashedpassword',
-        fullname: 'Admin User',
-        type: UserType.ADMIN,
-      });
-
-      studentUser = await User.create({
-        email: 'student@example.com',
-        password: 'hashedpassword',
-        fullname: 'Student User',
-        type: UserType.STUDENT,
-      });
-
-      advisorUser = await User.create({
-        email: 'advisor@example.com',
-        password: 'hashedpassword',
-        fullname: 'Advisor User',
-        type: UserType.ADVISOR,
-      });
-    });
-
-    it('should return true when user is an admin', async () => {
-      const result = await authController.isAdmin(adminUser._id.toString());
-
+    it('returns true for admin user', async () => {
+      const adminUser = { ...mockUser, type: UserType.ADMIN };
+      User.findById.mockReturnValue({ exec: () => Promise.resolve(adminUser) });
+      const result = await authController.isAdmin('user123');
       expect(result).toBe(true);
     });
 
-    it('should return false when user is a student', async () => {
-      const result = await authController.isAdmin(studentUser._id.toString());
-
+    it('returns false for non-admin user', async () => {
+      User.findById.mockReturnValue({ exec: () => Promise.resolve(mockUser) });
+      const result = await authController.isAdmin('user123');
       expect(result).toBe(false);
-    });
-
-    it('should return false when user is an advisor', async () => {
-      const result = await authController.isAdmin(advisorUser._id.toString());
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when user does not exist', async () => {
-      const fakeId = new mongoose.Types.ObjectId().toString();
-      const result = await authController.isAdmin(fakeId);
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false when findById returns null', async () => {
-      // Mock User.findById to return null
-      const originalFindById = User.findById;
-      User.findById = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(null),
-      });
-
-      const result = await authController.isAdmin('someUserId');
-
-      expect(result).toBe(false);
-
-      // Restore original method
-      User.findById = originalFindById;
-    });
-
-    it('should return false and handle database errors gracefully', async () => {
-      // Mock User.findById to throw an error
-      const originalFindById = User.findById;
-      User.findById = jest.fn().mockImplementation(() => {
-        throw new Error('Database connection failed');
-      });
-
-      const result = await authController.isAdmin(adminUser._id.toString());
-
-      expect(result).toBe(false);
-
-      // Restore original method
-      User.findById = originalFindById;
-    });
-
-    it('should return false when findById throws an error during exec', async () => {
-      // Mock User.findById to throw error in exec
-      const originalFindById = User.findById;
-      User.findById = jest.fn().mockReturnValue({
-        exec: jest.fn().mockRejectedValue(new Error('Exec failed')),
-      });
-
-      const result = await authController.isAdmin(adminUser._id.toString());
-
-      expect(result).toBe(false);
-
-      // Restore original method
-      User.findById = originalFindById;
-    });
-  });
-
-  describe('Additional Edge Cases for Coverage', () => {
-    it('should handle registerUser when User.create throws error', async () => {
-      const originalCreate = User.create;
-      User.create = jest.fn().mockRejectedValue(new Error('Create failed'));
-
-      const userInfo = {
-        email: 'test@example.com',
-        password: 'StrongPass123!',
-        fullname: 'Test User',
-        type: UserType.STUDENT,
-      };
-
-      const result = await authController.registerUser(userInfo);
-      expect(result).toBeUndefined();
-
-      User.create = originalCreate;
-    });
-
-    it('should handle resetPassword when user.save() throws error', async () => {
-      const originalFindOne = User.findOne;
-      const mockUser = {
-        email: 'test@example.com',
-        otp: '1234',
-        otpExpire: new Date(Date.now() + 10 * 60 * 1000),
-        password: 'oldpass',
-        save: jest.fn().mockRejectedValue(new Error('Save failed')),
-      };
-      User.findOne = jest.fn().mockReturnValue({
-        exec: jest.fn().mockResolvedValue(mockUser),
-      });
-
-      const result = await authController.resetPassword(
-        'test@example.com',
-        '1234',
-        'NewPass123!',
-      );
-      expect(result).toBe(false);
-
-      User.findOne = originalFindOne;
-    });
-
-    it('should handle changePassword when user.save() throws error', async () => {
-      const hashedPassword = await require('bcryptjs').hash('OldPass123!', 10);
-      const originalFindById = User.findById;
-      const mockUser = {
-        password: hashedPassword,
-        save: jest.fn().mockRejectedValue(new Error('Save failed')),
-      };
-      User.findById = jest.fn().mockReturnValue({
-        select: jest.fn().mockReturnValue({
-          exec: jest.fn().mockResolvedValue(mockUser),
-        }),
-      });
-
-      const result = await authController.changePassword(
-        'test123',
-        'OldPass123!',
-        'NewPass123!',
-      );
-      expect(result).toBe(false);
-
-      User.findById = originalFindById;
     });
   });
 });

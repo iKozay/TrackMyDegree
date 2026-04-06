@@ -109,7 +109,7 @@ export const buildTimeline = async (
   else degreeId = programInfo.degree;
 
   const result = await getDegreeData(degreeId);
-  if (!result) throw new NotFoundError('Degree not found');
+  if (!result) throw new NotFoundError('Error fetching degree data from database');
 
   const { degreeData: degree, coursePools, courses } = result;
 

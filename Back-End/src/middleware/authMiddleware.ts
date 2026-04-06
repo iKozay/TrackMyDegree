@@ -1,28 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
-import HTTP from '@utils/httpCodes';
 import { jwtService } from '@services/jwtService';
 import { authController } from '@controllers/authController';
+import { ForbiddenError, UnauthorizedError } from '@utils/errors';
 
 export async function authMiddleware(
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const token = req.cookies?.access_token;
+  try {
+    const token = req.cookies?.access_token;
+    if (!token) throw new UnauthorizedError('Missing access token');
 
-  if (!token)
-    return res
-      .status(HTTP.UNAUTHORIZED)
-      .json({ error: 'Missing access token' });
+    const payload = jwtService.verifyAccessToken(token);
+    if (!payload) throw new UnauthorizedError('Invalid or expired token');
 
-  const payload = jwtService.verifyAccessToken(token);
-  if (!payload)
-    return res
-      .status(HTTP.UNAUTHORIZED)
-      .json({ error: 'Invalid or expired token' });
-
-  (req as any).user = payload;
-  next();
+    (req as any).user = payload;
+    next();
+  } catch (err) {
+    next(err); // Pass to global error handler
+  }
 }
 
 export async function adminCheckMiddleware(
@@ -31,13 +28,15 @@ export async function adminCheckMiddleware(
   next: NextFunction,
 ) {
   await authMiddleware(req, res, async () => {
-    const user = (req as any).user;
+    try {
+      const user = (req as any).user;
       const isAdmin = await authController.isAdmin(user.userId);
 
-      if (!isAdmin) {
-        return res.status(HTTP.FORBIDDEN).json({ error: 'Admins only' });
-      }
+      if (!isAdmin) throw new ForbiddenError('Admins only');
 
       next();
+    } catch (error) {
+      next(error);
+    }
   });
 }

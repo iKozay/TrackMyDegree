@@ -7,11 +7,13 @@ const { User } = require('../models/user');
 const { Course } = require('../models/course');
 const { Degree } = require('../models/degree');
 const { Timeline } = require('../models/timeline');
-
+const { errorHandler } = require('../middleware/errorHandler');
+const { UnauthorizedError, AlreadyExistsError, NotFoundError } = require('@utils/errors');
 // Create test app
 const app = express();
 app.use(express.json());
 app.use('/users', userRoutes);
+app.use(errorHandler);
 let testUser;
 
 describe('User Routes', () => {
@@ -87,7 +89,7 @@ describe('User Routes', () => {
         .send(userData)
         .expect(400);
 
-      expect(response.body.error).toBe(
+      expect(response.body.message).toBe(
         'Email, fullname, and type are required',
       );
     });
@@ -111,7 +113,7 @@ describe('User Routes', () => {
         .send(userData)
         .expect(409);
 
-      expect(response.body.error).toContain('already exists');
+      expect(response.body.message).toContain('already exists');
     });
 
     it('should handle server errors', async () => {
@@ -133,7 +135,7 @@ describe('User Routes', () => {
         .send(userData)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/userController').userController.createUser =
@@ -170,7 +172,7 @@ describe('User Routes', () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       const response = await request(app).get(`/users/${fakeId}`).expect(404);
 
-      expect(response.body.error).toBe('User with this id does not exist.');
+      expect(response.body.message).toBe('User not found');
     });
 
     it('should handle server errors', async () => {
@@ -185,7 +187,7 @@ describe('User Routes', () => {
         .get(`/users/${testUser._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/userController').userController.getUserById =
@@ -232,7 +234,7 @@ describe('User Routes', () => {
 
       const response = await request(app).get('/users').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/userController').userController.getAllUsers =
@@ -275,7 +277,7 @@ describe('User Routes', () => {
         .send(updates)
         .expect(404);
 
-      expect(response.body.error).toBe('User with this id does not exist.');
+      expect(response.body.message).toBe('User not found');
     });
 
     it('should handle server errors', async () => {
@@ -292,7 +294,7 @@ describe('User Routes', () => {
         .send(updates)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/userController').userController.updateUser =
@@ -329,7 +331,7 @@ describe('User Routes', () => {
         .delete(`/users/${fakeId}`)
         .expect(404);
 
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.message).toContain('User not found');
     });
 
     it('should handle server errors', async () => {
@@ -343,7 +345,7 @@ describe('User Routes', () => {
         .delete(`/users/${testUser._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       require('../controllers/userController').userController.deleteUser =
         originalDeleteUser;
@@ -357,7 +359,7 @@ describe('User Routes', () => {
         .delete(`/users/${fakeId}`)
         .expect(404);
 
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.message).toContain('User not found');
     });
 
     it('should handle server errors', async () => {
@@ -371,7 +373,7 @@ describe('User Routes', () => {
         .delete(`/users/${testUser._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/userController').userController.deleteUser =
@@ -431,7 +433,7 @@ describe('User Routes', () => {
           .get(`/users/${fakeId}/data`)
           .expect(404);
 
-        expect(response.body.error).toContain('does not exist');
+        expect(response.body.message).toContain('User not found');
       });
 
       it('should handle server errors', async () => {
@@ -445,7 +447,7 @@ describe('User Routes', () => {
           .get(`/users/${testUser._id}/data`)
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         // Restore original method
         require('../controllers/userController').userController.getUserData =
@@ -483,7 +485,7 @@ describe('User Routes', () => {
       .send({})
       .expect(400);
 
-    expect(res.body.error).toBe(
+    expect(res.body.message).toBe(
       'Provide at least one field to update: fullname or newPassword'
     );
   });
@@ -494,7 +496,7 @@ describe('User Routes', () => {
       .send({ fullname: '   ' })
       .expect(400);
 
-    expect(res.body.error).toBe('fullname cannot be empty');
+    expect(res.body.message).toBe('Fullname cannot be empty');
   });
 
   it('should require currentPassword when updating password', async () => {
@@ -503,7 +505,7 @@ describe('User Routes', () => {
       .send({ newPassword: 'newpass123' })
       .expect(400);
 
-    expect(res.body.error).toBe(
+    expect(res.body.message).toBe(
       'currentPassword is required to set a new password'
     );
   });
@@ -517,31 +519,33 @@ describe('User Routes', () => {
       })
       .expect(400);
 
-    expect(res.body.error).toBe(
+    expect(res.body.message).toBe(
       'newPassword must be at least 6 characters'
     );
   });
 
   it('should return 401 if current password is incorrect', async () => {
-    const original = require('../controllers/authController')
-      .authController.changePassword;
+  // Spy on the changePassword method
+  const changePasswordSpy = jest
+    .spyOn(require('../controllers/authController').authController, 'changePassword')
+     .mockImplementation(() => {
+      throw new UnauthorizedError('Current password is incorrect');
+    });
 
-    require('../controllers/authController').authController.changePassword =
-      jest.fn().mockResolvedValue(false);
 
-    const res = await request(app)
-      .patch(`/users/${testUser._id}`)
-      .send({
-        currentPassword: 'wrongpass',
-        newPassword: 'newpassword',
-      })
-      .expect(401);
+  const res = await request(app)
+    .patch(`/users/${testUser._id}`)
+    .send({
+      currentPassword: 'wrongpass',
+      newPassword: 'newpassword',
+    })
+    .expect(401);
 
-    expect(res.body.error).toBe('Current password is incorrect');
+  expect(res.body.message).toBe('Current password is incorrect');
 
-    require('../controllers/authController').authController.changePassword =
-      original;
-  });
+  // Restore original implementation
+  changePasswordSpy.mockRestore();
+});
 
   it('should update password successfully', async () => {
     const original = require('../controllers/authController')
@@ -570,7 +574,7 @@ describe('User Routes', () => {
       .send({ fullname: 'Test' })
       .expect(400);
 
-    expect(res.body.error).toBe('Invalid user id format');
+    expect(res.body.message).toBe('Invalid id format');
   });
 
   it('should handle server errors', async () => {
@@ -585,7 +589,7 @@ describe('User Routes', () => {
       .send({ fullname: 'Test' })
       .expect(500);
 
-    expect(res.body.error).toBe('Internal server error');
+    expect(res.body.message).toBe('Internal server error');
 
     require('../controllers/userController').userController.updateUser =
       original;
@@ -611,7 +615,7 @@ describe('User Routes', () => {
         const originalCreateUser = require('../controllers/userController')
           .userController.createUser;
         require('../controllers/userController').userController.createUser =
-          jest.fn().mockRejectedValue(new Error('User already exists'));
+          jest.fn().mockRejectedValue(new AlreadyExistsError('User already exists'));
 
         const response = await request(app)
           .post('/users')
@@ -622,7 +626,7 @@ describe('User Routes', () => {
           })
           .expect(409);
 
-        expect(response.body.error).toBe('User already exists');
+        expect(response.body.message).toBe('User already exists');
 
         require('../controllers/userController').userController.createUser =
           originalCreateUser;
@@ -643,7 +647,7 @@ describe('User Routes', () => {
           })
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.createUser =
           originalCreateUser;
@@ -655,13 +659,13 @@ describe('User Routes', () => {
         const originalGetUserById = require('../controllers/userController')
           .userController.getUserById;
         require('../controllers/userController').userController.getUserById =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
+          jest.fn().mockRejectedValue(new NotFoundError('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}`)
           .expect(404);
 
-        expect(response.body.error).toBe('User does not exist');
+        expect(response.body.message).toBe('User does not exist');
 
         require('../controllers/userController').userController.getUserById =
           originalGetUserById;
@@ -677,7 +681,7 @@ describe('User Routes', () => {
           .get(`/users/${testUser._id}`)
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.getUserById =
           originalGetUserById;
@@ -693,7 +697,7 @@ describe('User Routes', () => {
 
         const response = await request(app).get('/users').expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.getAllUsers =
           originalGetAllUsers;
@@ -705,14 +709,14 @@ describe('User Routes', () => {
         const originalUpdateUser = require('../controllers/userController')
           .userController.updateUser;
         require('../controllers/userController').userController.updateUser =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
+          jest.fn().mockRejectedValue(new NotFoundError('User does not exist'));
 
         const response = await request(app)
           .put(`/users/${testUser._id}`)
           .send({ fullname: 'Updated' })
           .expect(404);
 
-        expect(response.body.error).toBe('User does not exist');
+        expect(response.body.message).toBe('User does not exist');
 
         require('../controllers/userController').userController.updateUser =
           originalUpdateUser;
@@ -724,7 +728,7 @@ describe('User Routes', () => {
           .send({ fullname: 'New Name' });
 
         expect(res.status).toBe(400);
-        expect(res.body.error).toBe('Invalid user id format');
+        expect(res.body.message).toBe('Invalid id format');
       });
 
 
@@ -739,7 +743,7 @@ describe('User Routes', () => {
           .send({ fullname: 'Updated' })
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.updateUser =
           originalUpdateUser;
@@ -751,13 +755,13 @@ describe('User Routes', () => {
         const originalDeleteUser = require('../controllers/userController')
           .userController.deleteUser;
         require('../controllers/userController').userController.deleteUser =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
+          jest.fn().mockRejectedValue(new NotFoundError('User does not exist'));
 
         const response = await request(app)
           .delete(`/users/${testUser._id}`)
           .expect(404);
 
-        expect(response.body.error).toBe('User does not exist');
+        expect(response.body.message).toBe('User does not exist');
 
         require('../controllers/userController').userController.deleteUser =
           originalDeleteUser;
@@ -766,7 +770,7 @@ describe('User Routes', () => {
           const res = await request(app).delete('/users/not-an-id');
 
           expect(res.status).toBe(400);
-          expect(res.body.error).toBe('Invalid user id format');
+          expect(res.body.message).toBe('Invalid id format');
         });
 
       it('should handle general errors (not "does not exist")', async () => {
@@ -779,7 +783,7 @@ describe('User Routes', () => {
           .delete(`/users/${testUser._id}`)
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.deleteUser =
           originalDeleteUser;
@@ -792,21 +796,19 @@ describe('User Routes', () => {
         const res = await request(app).get('/users/invalid-id');
 
         expect(res.status).toBe(400);
-        expect(res.body).toEqual({
-          error: 'Invalid user id format',
-        });
+        expect(res.body.message).toEqual('Invalid id format');
       });
       it('should handle "does not exist" error specifically', async () => {
         const originalGetUserData = require('../controllers/userController')
           .userController.getUserData;
         require('../controllers/userController').userController.getUserData =
-          jest.fn().mockRejectedValue(new Error('User does not exist'));
+          jest.fn().mockRejectedValue(new NotFoundError('User does not exist'));
 
         const response = await request(app)
           .get(`/users/${testUser._id}/data`)
           .expect(404);
 
-        expect(response.body.error).toBe('User does not exist');
+        expect(response.body.message).toBe('User does not exist');
 
         require('../controllers/userController').userController.getUserData =
           originalGetUserData;
@@ -822,7 +824,7 @@ describe('User Routes', () => {
           .get(`/users/${testUser._id}/data`)
           .expect(500);
 
-        expect(response.body.error).toBe('Internal server error');
+        expect(response.body.message).toBe('Internal server error');
 
         require('../controllers/userController').userController.getUserData =
           originalGetUserData;

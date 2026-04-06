@@ -1,4 +1,3 @@
-
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
 import path from 'node:path';
@@ -13,7 +12,7 @@ import {
     creditFormDownloadLimiter,
     creditFormUploadLimiter,
 } from '@middleware/rateLimiter';
-import { BadRequestError, NotFoundError} from '@utils/errors';
+import { BadRequestError} from '@utils/errors';
 
 const router = express.Router();
 
@@ -98,9 +97,13 @@ const handleUpload = (req: Request, res: Response, next: NextFunction) => {
  *                       pdf:
  *                         type: string
  */
-router.get('/', async (_req: Request, res: Response) => {
-    const forms = await creditFormController.getAllForms();
-    res.status(HTTP.OK).json({ forms });
+router.get('/', async (_req: Request, res: Response, next: NextFunction) => {
+    try {
+        const forms = await creditFormController.getAllForms();
+        res.status(HTTP.OK).json({ forms });
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
@@ -127,17 +130,19 @@ router.get('/', async (_req: Request, res: Response) => {
  *         description: File not found
  */
 // IMPORTANT: This route must be defined BEFORE /:id to prevent 'file' being treated as an id
-router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Response) => {
-    const { filename } = req.params;
-    // Strip directory components before resolving (defense-in-depth against path traversal, CWE-22)
-    const safeFilename = path.basename(filename as string);
-    const filePath = creditFormController.resolveFilePath(safeFilename);
+router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { filename } = req.params;
+        // Strip directory components before resolving (defense-in-depth against path traversal, CWE-22)
+        const safeFilename = path.basename(filename as string);
+        const filePath = creditFormController.resolveFilePath(safeFilename);
 
-    // Sanitize the filename for the Content-Disposition header to prevent header injection
-    const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `inline; filename="${headerSafeFilename}"`);
-    res.sendFile(filePath);
+        // Sanitize the filename for the Content-Disposition header to prevent header injection
+        const headerSafeFilename = safeFilename.replaceAll(/["\\\r\n]/g, '');
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="${headerSafeFilename}"`);
+        res.sendFile(filePath);
+    } catch (error) { next(error);}
 });
 
 /**
@@ -158,11 +163,15 @@ router.get('/file/:filename', creditFormDownloadLimiter, (req: Request, res: Res
  *       404:
  *         description: Form not found
  */
-router.get('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const form = await creditFormController.getFormById(id as string);
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const { id } = req.params;
+        const form = await creditFormController.getFormById(id as string);
 
-    res.status(HTTP.OK).json(form);
+        res.status(HTTP.OK).json(form);
+    } catch (error) {
+        next(error);
+    }
 });
 
 /**
@@ -212,7 +221,8 @@ router.post(
     authMiddleware,
     adminCheckMiddleware,
     handleUpload,
-    async (req: Request, res: Response) => {
+    async (req: Request, res: Response, next: NextFunction) => {
+    try {
         const { programId, title, subtitle } = req.body;
         const file = req.file;
 
@@ -246,6 +256,9 @@ router.post(
             : 'Credit form created successfully';
 
         res.status(HTTP.CREATED).json({ message, form: result.form });
+    } catch (error) {
+        next(error); 
+    }
     },
 );
 
@@ -292,23 +305,27 @@ router.put(
     authMiddleware,
     adminCheckMiddleware,
     handleUpload,
-    async (req: Request, res: Response) => {
-        const { id } = req.params;
-        const { title, subtitle } = req.body;
-        const file = req.file;
-        const userId = (req as any).user?.userId ?? null;
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params;
+            const { title, subtitle } = req.body;
+            const file = req.file;
+            const userId = (req as any).user?.userId ?? null;
 
-        const form = await creditFormController.updateForm(id as string, {
-            title,
-            subtitle,
-            filename: file?.filename,
-            uploadedBy: userId,
-        });
+            const form = await creditFormController.updateForm(id as string, {
+                title,
+                subtitle,
+                filename: file?.filename,
+                uploadedBy: userId,
+            });
 
-        res.status(HTTP.OK).json({
-            message: 'Credit form updated successfully',
-            form,
-        });
+            res.status(HTTP.OK).json({
+                message: 'Credit form updated successfully',
+                form,
+            });
+        } catch (error) {        
+            next(error);
+        }
     },
 );
 
@@ -341,10 +358,14 @@ router.delete(
     creditFormDeleteLimiter,
     authMiddleware,
     adminCheckMiddleware,
-    async (req: Request, res: Response) => {
-        const { id } = req.params;
-        await creditFormController.deleteForm(id as string);
-        res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
+    async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const { id } = req.params;
+            await creditFormController.deleteForm(id as string);
+            res.status(HTTP.OK).json({ message: 'Credit form deleted successfully' });
+        } catch (error) {
+            next(error);
+        }
     },
 );
 

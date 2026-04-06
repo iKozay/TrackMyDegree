@@ -1,9 +1,9 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
 import mongoose from 'mongoose';
-import { BadRequestError, UnauthorizedError } from '@utils/errors';
+import { BadRequestError, INVALID_ID_FORMAT } from '@utils/errors';
 
 const router = express.Router();
 
@@ -11,9 +11,7 @@ const router = express.Router();
 // USER ROUTES (CRUD)
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
-const INVALID_ID_FORMAT = 'Invalid user id format';
-const DOES_NOT_EXIST = 'does not exist';
+
 
 /**
  * @openapi
@@ -61,7 +59,8 @@ const DOES_NOT_EXIST = 'does not exist';
  *       500:
  *         description: Internal server error
  */
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const userData = req.body;
 
     if (!userData.email || !userData.fullname || !userData.type) {
@@ -70,6 +69,9 @@ router.post('/', async (req: Request, res: Response) => {
 
     const user = await userController.createUser(userData);
     res.status(HTTP.CREATED).json(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -105,7 +107,8 @@ router.post('/', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', async (req: Request, res: Response) => {
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
@@ -114,6 +117,9 @@ router.get('/:id', async (req: Request, res: Response) => {
 
     const user = await userController.getUserById(id as string);
     res.status(HTTP.OK).json(user);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -142,9 +148,13 @@ router.get('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const users = await userController.getAllUsers();
     res.status(HTTP.OK).json(users);
+  } catch (error) {
+      next(error);
+  }
 });
 
 /**
@@ -209,7 +219,8 @@ async function handlePasswordUpdate(
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
+router.patch('/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
     const { fullname, currentPassword, newPassword } = req.body;
 
@@ -235,9 +246,13 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response) => {
     }
 
     res.status(HTTP.OK).json({ message: 'User updated successfully' });
+  } catch (error) {
+    next(error);
+  }
 });
 
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
     const updates = req.body;
 
@@ -247,6 +262,9 @@ router.put('/:id', async (req: Request, res: Response) => {
 
     const user = await userController.updateUser(id as string, updates);
     res.status(HTTP.OK).json(user);
+  } catch (error) {     
+    next(error);
+  }
 });
 
 /**
@@ -279,7 +297,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
@@ -288,6 +307,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const message = await userController.deleteUser(id as string);
     res.status(HTTP.OK).json(message);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -320,7 +342,8 @@ router.delete('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/:id/data', async (req: Request, res: Response) => {
+router.get('/:id/data', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(id as string)) {
@@ -329,6 +352,9 @@ router.get('/:id/data', async (req: Request, res: Response) => {
 
     const userData = await userController.getUserData(id as string);
     res.status(HTTP.OK).json(userData);
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

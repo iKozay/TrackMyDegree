@@ -1,5 +1,5 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { adminController } from '@controllers/adminController';
 import { runCatalog } from '@services/catalogService';
 import {
@@ -10,6 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
+import { BadRequestError, CatalogError } from '@utils/errors';
 const router = express.Router();
 
 // ==========================
@@ -25,8 +26,6 @@ router.use(adminCheckMiddleware);
 
 const COLLECTION_NAME_REQUIRED = 'Collection name is required';
 const ACADEMIC_YEAR_REQUIRED = 'Academic year is required';
-const INTERNAL_SERVER_ERROR = 'Internal server error';  
-
 /**
  * @openapi
  * tags:
@@ -61,12 +60,16 @@ const INTERNAL_SERVER_ERROR = 'Internal server error';
  *       500:
  *         description: Server error.
  */
-router.get('/collections', async (req: Request, res: Response) => {
+router.get('/collections', async (req: Request, res: Response, next: NextFunction) => {
+  try{
     const collections = await adminController.getCollections();
     res.status(HTTP.OK).json({
       success: true,
       data: collections,
     });
+  }catch (error) {
+    next(error);  
+  }
 });
 
 /**
@@ -128,16 +131,13 @@ router.get('/collections', async (req: Request, res: Response) => {
  */
 router.get(
   '/collections/:collectionName/documents',
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try{
       const { collectionName } = req.params;
       const { keyword, page, limit } = req.query;
 
       if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message: COLLECTION_NAME_REQUIRED,
-        });
-        return;
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED);
       }
 
       const documents = await adminController.getCollectionDocuments(
@@ -153,6 +153,9 @@ router.get(
         success: true,
         data: documents,
       });
+      }catch (error) {
+    next(error);  
+  }
   },
 );
 
@@ -188,18 +191,15 @@ router.get(
  *         description: Collection name is missing.
  *       500:
  *         description: Server error.
- */
+ */ 
 router.delete(
   '/collections/:collectionName/clear',
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const { collectionName } = req.params;
 
       if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message: COLLECTION_NAME_REQUIRED,
-        });
-        return;
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED);
       }
 
       const count = await adminController.clearCollection(
@@ -209,6 +209,9 @@ router.delete(
         success: true,
         message: `${count} documents cleared successfully`,
       });
+    } catch (error) {
+        next(error);  
+  }
   },
 );
 
@@ -232,12 +235,16 @@ router.delete(
  *       500:
  *         description: Server error.
  */
-router.get('/connection-status', (req: Request, res: Response) => {
+router.get('/connection-status', (req: Request, res: Response, next: NextFunction) => {
+  try{
     const status = adminController.getConnectionStatus();
     res.status(HTTP.OK).json({
       message: 'Connection status retrieved successfully',
       ...status,
     });
+  }catch (error) {
+    next(error);  
+  }
 });
 
 /**
@@ -287,7 +294,8 @@ router.get('/connection-status', (req: Request, res: Response) => {
  *       500:
  *         description: Catalog update failed.
  */
-router.post('/catalogs-update', async (req: Request, res: Response) => {
+router.post('/catalogs-update', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const {
       academicYear,
       degree,
@@ -299,11 +307,7 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
     } = req.body || {};
 
     if (!academicYear || typeof academicYear !== 'string') {
-      res.status(HTTP.BAD_REQUEST).json({
-        success: false,
-        message: ACADEMIC_YEAR_REQUIRED,
-      });
-      return;
+      throw new BadRequestError(ACADEMIC_YEAR_REQUIRED);
     }
 
     const result = await runCatalog({
@@ -324,29 +328,45 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
+  }catch (error) {
+    if (error instanceof CatalogError){
+      return res.status(HTTP.SERVER_ERR).json({
+        success: false,
+        error: error.message,
+        inspectionFiles: error.inspectionFiles,
+      });
+    }
+    next(error);
+  }
 });
 
-router.get('/seed-data', async (req: Request, res: Response) => {
+router.get('/seed-data', async (req: Request, res: Response, next: NextFunction) => {
+   try{
+
     const result = await seedAllDegreeData();
     res.status(HTTP.OK).json({
       message: result,
     });
+   } catch (error) {
+    next(error);
+  }
 });
 
-router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
+router.get('/seed-data/:degreeName', async (req: Request, res: Response, next: NextFunction) => {
+  try{
     const { degreeName } = req.params;
 
     if (!degreeName) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree name is required',
-      });
-      return;
+      throw new BadRequestError('Degree name is required');
     }
 
     const result = await seedDegreeData(degreeName as string);
     res.status(HTTP.OK).json({
       message: result,
     });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

@@ -101,7 +101,7 @@ export class CourseController extends BaseMongoController<any> {
       const resolved = await resolveEntityVersion({
         entityType: 'Course',
         entityId: code,
-        baseEntity: result.data,
+        baseEntity: result,
         academicYear,
       });
 

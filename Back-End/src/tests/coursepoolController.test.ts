@@ -1,17 +1,14 @@
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
 
 jest.mock('@services/catalogVersionService', () => ({
   resolveEntityVersion: jest.fn(),
   resolveEntityVersions: jest.fn(),
 }));
 
-import * as Sentry from '@sentry/node';
 import { resolveEntityVersion, resolveEntityVersions } from '@services/catalogVersionService';
 import { CoursePoolController } from '../controllers/coursepoolController';
+import { NotFoundError } from '@utils/errors';
 
-describe('CoursePoolController', () => {
+describe('CoursePoolController - versioning', () => {
   let controller: CoursePoolController;
   const poolId = 'POOL1';
   const updatedPoolName = 'Updated Pool';
@@ -22,18 +19,16 @@ describe('CoursePoolController', () => {
   });
 
   it('resolves and normalizes all course pools', async () => {
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: true,
-      data: [
-        {
-          _id: poolId,
-          name: 'Pool 1',
-          creditsRequired: 3,
-          courses: ['COMP 248'],
-          baseAcademicYear: '2025-2026',
-        },
-      ],
-    });
+    jest.spyOn(controller, 'findAll').mockResolvedValue([
+      {
+        _id: poolId,
+        name: 'Pool 1',
+        creditsRequired: 3,
+        courses: ['COMP 248'],
+        baseAcademicYear: '2025-2026',
+      },
+    ]);
+
     (resolveEntityVersions as jest.Mock).mockResolvedValue([
       {
         _id: poolId,
@@ -45,7 +40,9 @@ describe('CoursePoolController', () => {
       },
     ]);
 
-    await expect(controller.getAllCoursePools('2026-2027')).resolves.toEqual([
+    const result = await controller.getAllCoursePools('2026-2027');
+
+    expect(result).toEqual([
       {
         _id: poolId,
         name: 'Pool 1',
@@ -55,20 +52,19 @@ describe('CoursePoolController', () => {
         baseAcademicYear: '2026-2027',
       },
     ]);
+    expect(resolveEntityVersions).toHaveBeenCalled();
   });
 
   it('normalizes missing course arrays on successful responses', async () => {
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: true,
-      data: [
-        {
-          _id: poolId,
-          name: 'Pool 1',
-          creditsRequired: 3,
-          baseAcademicYear: '2025-2026',
-        },
-      ],
-    });
+    jest.spyOn(controller, 'findAll').mockResolvedValue([
+      {
+        _id: poolId,
+        name: 'Pool 1',
+        creditsRequired: 3,
+        baseAcademicYear: '2025-2026',
+      },
+    ]);
+
     (resolveEntityVersions as jest.Mock).mockResolvedValue([
       {
         _id: poolId,
@@ -80,7 +76,8 @@ describe('CoursePoolController', () => {
       },
     ]);
 
-    await expect(controller.getAllCoursePools('2026-2027')).resolves.toEqual([
+    const result = await controller.getAllCoursePools('2026-2027');
+    expect(result).toEqual([
       {
         _id: poolId,
         name: 'Pool 1',
@@ -90,55 +87,17 @@ describe('CoursePoolController', () => {
         baseAcademicYear: '2026-2027',
       },
     ]);
-
-    controller.findById = jest.fn().mockResolvedValue({
-      success: true,
-      data: {
-        _id: poolId,
-        name: 'Pool 1',
-        creditsRequired: 3,
-        baseAcademicYear: '2025-2026',
-      },
-    });
-    (resolveEntityVersion as jest.Mock).mockResolvedValue({
-      entity: {
-        _id: poolId,
-        name: updatedPoolName,
-        creditsRequired: 6,
-        courses: [],
-        rules: [],
-        baseAcademicYear: '2026-2027',
-      },
-    });
-
-    await expect(controller.getCoursePool(poolId, '2026-2027')).resolves.toEqual({
-      _id: poolId,
-      name: updatedPoolName,
-      creditsRequired: 6,
-      courses: [],
-      rules: [],
-      baseAcademicYear: '2026-2027',
-    });
-  });
-
-  it('captures and swallows getAllCoursePools errors', async () => {
-    controller.findAll = jest.fn().mockRejectedValue(new Error('boom'));
-
-    await expect(controller.getAllCoursePools()).resolves.toEqual([]);
-    expect(Sentry.captureException).toHaveBeenCalled();
   });
 
   it('resolves a single course pool for an academic year', async () => {
-    controller.findById = jest.fn().mockResolvedValue({
-      success: true,
-      data: {
-        _id: poolId,
-        name: 'Pool 1',
-        creditsRequired: 3,
-        courses: ['COMP 248'],
-        baseAcademicYear: '2025-2026',
-      },
-    });
+    jest.spyOn(controller, 'findById').mockResolvedValue({
+      _id: poolId,
+      name: 'Pool 1',
+      creditsRequired: 3,
+      courses: ['COMP 248'],
+      baseAcademicYear: '2025-2026',
+    } as any);
+
     (resolveEntityVersion as jest.Mock).mockResolvedValue({
       entity: {
         _id: poolId,
@@ -150,7 +109,9 @@ describe('CoursePoolController', () => {
       },
     });
 
-    await expect(controller.getCoursePool(poolId, '2026-2027')).resolves.toEqual({
+    const result = await controller.getCoursePool(poolId, '2026-2027');
+
+    expect(result).toEqual({
       _id: poolId,
       name: updatedPoolName,
       creditsRequired: 6,
@@ -158,88 +119,58 @@ describe('CoursePoolController', () => {
       rules: [],
       baseAcademicYear: '2026-2027',
     });
+
+    expect(resolveEntityVersion).toHaveBeenCalledWith({
+      entityType: 'CoursePool',
+      entityId: poolId,
+      baseEntity: {
+        _id: poolId,
+        name: 'Pool 1',
+        creditsRequired: 3,
+        courses: ['COMP 248'],
+        rules: [],
+        baseAcademicYear: '2025-2026',
+      },
+      academicYear: '2026-2027',
+    });
   });
 
-  it('captures and swallows getCoursePool errors', async () => {
-    controller.findById = jest.fn().mockResolvedValue({
-      success: false,
-      error: 'not found',
+  it('throws NotFoundError when pool is missing', async () => {
+    jest.spyOn(controller, 'findById').mockImplementation(() => {
+      throw new NotFoundError('CoursePool not found');
     });
 
-    await expect(controller.getCoursePool(poolId)).resolves.toBeUndefined();
-    expect(Sentry.captureException).toHaveBeenCalled();
+    await expect(controller.getCoursePool(poolId)).rejects.toThrow(NotFoundError);
   });
 
-  it('uses the default not-found message when a pool lookup fails without an error', async () => {
-    controller.findById = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-
-    await expect(controller.getCoursePool(poolId)).resolves.toBeUndefined();
-    expect(Sentry.captureException).toHaveBeenCalled();
-  });
-
-  it('returns fallback values for write failures after handleError', async () => {
-    const handleErrorSpy = jest
-      .spyOn(controller as any, 'handleError')
-      .mockImplementation(() => undefined as never);
-
-    controller.bulkWrite = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(
-      controller.bulkCreateCoursePools([{ _id: poolId } as any]),
-    ).resolves.toBe(false);
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to create course pools' }),
-      'bulkCreateCoursePool',
-    );
-
-    controller.findById = jest.fn().mockResolvedValue({
-      success: true,
-      data: { _id: poolId },
-    });
-    controller.updateById = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(
-      controller.updateCoursePool(poolId, { name: 'Updated' }),
-    ).resolves.toBeNull();
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to update course pool' }),
-      'updateCoursePool',
-    );
-
-    controller.deleteById = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(controller.deleteCoursePool(poolId)).resolves.toBe(false);
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to delete course pool' }),
-      'deleteCoursePool',
-    );
-
-    controller.findById = jest.fn().mockResolvedValue({
-      success: true,
-      data: { _id: poolId, name: 'Pool 1', creditsRequired: 3 },
-    });
-    controller.updateById = jest.fn().mockResolvedValue({
-      success: true,
-      data: { _id: poolId, name: 'Pool 1', creditsRequired: 3 },
-    });
-
-    await expect(
-      controller.updateCoursePool(poolId, { name: 'Updated' }),
-    ).resolves.toEqual({
+  it('handles missing course/rule arrays in single course pool', async () => {
+    jest.spyOn(controller, 'findById').mockResolvedValue({
       _id: poolId,
       name: 'Pool 1',
       creditsRequired: 3,
+      baseAcademicYear: '2025-2026',
+    } as any);
+
+    (resolveEntityVersion as jest.Mock).mockResolvedValue({
+      entity: {
+        _id: poolId,
+        name: updatedPoolName,
+        creditsRequired: 6,
+        courses: undefined,
+        rules: undefined,
+        baseAcademicYear: '2026-2027',
+      },
+    });
+
+    const result = await controller.getCoursePool(poolId, '2026-2027');
+
+    expect(result).toEqual({
+      _id: poolId,
+      name: updatedPoolName,
+      creditsRequired: 6,
       courses: [],
       rules: [],
+      baseAcademicYear: '2026-2027',
     });
   });
 });

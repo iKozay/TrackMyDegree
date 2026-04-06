@@ -1,15 +1,16 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import {getCourseSchedule} from '@utils/pythonUtilsApi';
 import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
-router.get('/schedule', async (req: Request, res: Response) => {
-  const { subject, catalog } = req.query as {
-    subject: string;
-    catalog: string;
-  };
+router.get('/schedule', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { subject, catalog } = req.query as {
+      subject: string;
+      catalog: string;
+    };
 
     // Validate input
     if (
@@ -25,6 +26,9 @@ router.get('/schedule', async (req: Request, res: Response) => {
     const response = await getCourseSchedule(subject, catalog);
 
     res.status(HTTP.OK).json(response);
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

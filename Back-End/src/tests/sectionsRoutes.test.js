@@ -14,11 +14,12 @@ jest.mock('@utils/pythonUtilsApi', () => ({
 }));
 
 const sectionsRoutes = require('../routes/sectionsRoutes').default;
-
+const { errorHandler } = require('../middleware/errorHandler');
 // Create test app
 const app = express();
 app.use(express.json());
 app.use('/section', sectionsRoutes);
+app.use(errorHandler);
 
 const BAD_REQUEST_ERROR = 'Invalid input. Provide subject and course codes.';
 const HTTP = {
@@ -93,10 +94,11 @@ describe('Sections Routes', () => {
       const response = await request(app)
         .get('/section/schedule')
         .query({ catalog: '490' });
-
+      console.log(response.body);
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -107,8 +109,9 @@ describe('Sections Routes', () => {
         .query({ subject: 'COMP' });
 
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -118,8 +121,9 @@ describe('Sections Routes', () => {
         .get('/section/schedule')
         .query({ subject: { subject: 'SOEN' }, catalog: '490' });
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -130,8 +134,9 @@ describe('Sections Routes', () => {
         .query({ subject: 'COMP', catalog: { code: '490' } });
 
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -142,8 +147,9 @@ describe('Sections Routes', () => {
         .query({ subject: '', catalog: '490' });
 
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -154,8 +160,9 @@ describe('Sections Routes', () => {
         .query({ subject: 'COMP', catalog: '' });
 
       expect(response.status).toBe(HTTP.BAD_REQUEST);
-      expect(response.body).toEqual({
-        error: BAD_REQUEST_ERROR,
+      expect(response.body).toMatchObject({
+        error: 'BadRequestError',
+        message: BAD_REQUEST_ERROR,
       });
       expect(mockGetCourseSchedule).not.toHaveBeenCalled();
     });
@@ -171,12 +178,13 @@ describe('Sections Routes', () => {
         .query({ subject: 'COMP', catalog: '490' });
 
       expect(response.status).toBe(HTTP.SERVER_ERR);
-      expect(response.body).toEqual({
-        error: 'Error fetching course schedule',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
+        message: 'Internal server error',
       });
       expect(mockGetCourseSchedule).toHaveBeenCalledWith('COMP', '490');
       expect(consoleSpy).toHaveBeenCalledWith(
-        'Error fetching course schedule',
+        '[GET] /section/schedule?subject=COMP&catalog=490 →',
         mockError,
       );
       expect(Sentry.captureException).toHaveBeenCalledWith(mockError);

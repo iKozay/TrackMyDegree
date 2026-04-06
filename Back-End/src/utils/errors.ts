@@ -7,6 +7,7 @@ export const DEGREE_WITH_ID_DOES_NOT_EXIST = 'Degree with this id does not exist
 export const DATABASE_CONNECTION_NOT_AVAILABLE = 'Database connection not available';
 export const QUERY_FAILED = 'Query failed';
 export const DELETE_FAILED = 'Delete failed';
+export const INVALID_ID_FORMAT = 'Invalid id format';
 
 // Error classes
 

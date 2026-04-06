@@ -5,6 +5,7 @@ import coopvalidationRouter from '../routes/coopvalidationRoutes';
 import { getJobResult } from '../lib/cache';
 import { validateCoopTimeline } from '../services/coop/coopvalidationService';
 import { buildFilledCoopSequenceForm } from '../services/coop/coopFormService';
+import { errorHandler } from '@middleware/errorHandler';
 
 jest.mock('../lib/cache', () => ({
   getJobResult: jest.fn(),
@@ -22,6 +23,7 @@ describe('coopvalidationRoutes', () => {
   const app = express();
   app.use(express.json());
   app.use('/coop', coopvalidationRouter);
+  app.use(errorHandler); // Use the error handling middleware
 
   beforeEach(() => {
     jest.clearAllMocks();
@@ -60,7 +62,7 @@ describe('coopvalidationRoutes', () => {
     const response = await request(app).get('/coop/validate/job-404');
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({ error: 'Timeline not found in cache' });
+    expect(response.body).toMatchObject({ error: "NotFoundError", message: 'Timeline not found in cache' });
   });
 
   it('GET /coop/form/:jobId returns a PDF attachment and notes header', async () => {
@@ -96,7 +98,7 @@ describe('coopvalidationRoutes', () => {
     const response = await request(app).get('/coop/form/job-404');
 
     expect(response.status).toBe(404);
-    expect(response.body).toEqual({ error: 'Timeline not found in cache' });
+    expect(response.body).toMatchObject({ error: "NotFoundError", message:  'Timeline not found in cache' });
   });
 
   it('GET /coop/form/:jobId returns 500 when PDF generation fails', async () => {
@@ -114,6 +116,6 @@ describe('coopvalidationRoutes', () => {
     const response = await request(app).get('/coop/form/job-500');
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: 'Failed to generate co-op form PDF' });
+    expect(response.body).toEqual({ error: 'InternalServerError' });
   });
 });

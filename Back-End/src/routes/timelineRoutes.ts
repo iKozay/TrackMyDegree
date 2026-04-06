@@ -6,17 +6,13 @@ import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
 import { getJobResult } from '../lib/cache';
 import { TimelineResult } from '@trackmydegree/shared';
-import { BadRequestError, NotFoundError } from '@utils/errors';
+import { BadRequestError, NotFoundError, INVALID_ID_FORMAT } from '@utils/errors';
 
 const router = express.Router();
 
 // ==========================
 // TIMELINE ROUTES (CRUD)
 // ==========================
-
-const INTERNAL_SERVER_ERROR = 'Internal server error';
-const INVALID_ID_FORMAT = 'Invalid user id format';
-const DOES_NOT_EXIST = 'does not exist';
 
 /**
  * @openapi

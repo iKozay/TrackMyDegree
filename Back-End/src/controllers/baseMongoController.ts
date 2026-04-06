@@ -267,7 +267,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       if (!document) {
         throw new NotFoundError(`${this.modelName} not found`);
       }
-      return `$${this.modelName} with id ${id} has been successfully deleted.`;
+      return `${this.modelName} with id ${id} has been successfully deleted.`;
   }
 
   /**

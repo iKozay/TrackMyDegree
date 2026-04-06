@@ -1,12 +1,10 @@
 import { BaseMongoController } from './baseMongoController';
 import { CoursePool } from '@models';
-import * as Sentry from '@sentry/node';
 import { CoursePoolData } from '@trackmydegree/shared';
 import {
   resolveEntityVersion,
   resolveEntityVersions,
 } from '@services/catalogVersionService';
-import { NotFoundError } from '@utils/errors';
 
 export class CoursePoolController extends BaseMongoController<any> {
   constructor() {
@@ -81,12 +79,12 @@ export class CoursePoolController extends BaseMongoController<any> {
         entityType: 'CoursePool',
         entityId: pool_id,
         baseEntity: {
-          _id: result.data._id,
-          name: result.data.name,
-          creditsRequired: result.data.creditsRequired,
-          courses: result.data.courses || [],
-          rules: result.data.rules || [],
-          baseAcademicYear: result.data.baseAcademicYear,
+          _id: result._id,
+          name: result.name,
+          creditsRequired: result.creditsRequired,
+          courses: result.courses || [],
+          rules: result.rules || [],
+          baseAcademicYear: result.baseAcademicYear,
         },
         academicYear,
       });

@@ -87,7 +87,7 @@ export class UserController extends BaseMongoController<any> {
   async getAllUsers(): Promise<UserData[]> {
       const result = await this.findAll(
         {},
-        { select: 'email fullname degree type' },
+        { select: 'email fullname type' },
       );
 
       return (result || []).map((user) => ({
@@ -115,10 +115,10 @@ export class UserController extends BaseMongoController<any> {
       const result = await this.updateById(_id, safeUpdates);
 
       return {
-        _id: result.data._id,
-        email: result.data.email,
-        password: result.data.password,
-        fullname: result.data.fullname,
+        _id: result._id,
+        email: result.email,
+        fullname: result.fullname,
+        type: result.type
       };
   }
 
@@ -142,7 +142,7 @@ export class UserController extends BaseMongoController<any> {
         .exec(),
     ]);
 
-    const user = userResult.data;
+    const user = userResult;
 
     return {
       user: {

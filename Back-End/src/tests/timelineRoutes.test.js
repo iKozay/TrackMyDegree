@@ -5,14 +5,14 @@ const express = require('express');
 const timelineRoutes = require('../routes/timelineRoutes').default;
 const { Timeline } = require('../models/timeline');
 const {timelineController} = require('../controllers/timelineController');
+const { errorHandler } = require('../middleware/errorHandler');
 
-// Increase timeout for mongodb-memory-server binary download/startup
-jest.setTimeout(60000);
 
 jest.mock('../lib/cache', () => ({
   getJobResult: jest.fn(),
 }));
 const { getJobResult } = require('../lib/cache');
+const { error } = require('console');
 
 
 jest.mock('../middleware/assignJobId', () => ({
@@ -26,6 +26,7 @@ jest.mock('../middleware/assignJobId', () => ({
 const app = express();
 app.use(express.json());
 app.use('/timeline', timelineRoutes);
+app.use(errorHandler);
 
 jest.mock('../workers/queue', () => {
   return {

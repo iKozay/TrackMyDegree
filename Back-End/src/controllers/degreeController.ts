@@ -62,12 +62,12 @@ export class DegreeController extends BaseMongoController<any> {
       const result = await this.updateById(_id, updateData);
 
       return {
-        _id: result.data._id,
-        name: result.data.name,
-        totalCredits: result.data.totalCredits,
-        degreeType: result.data.degreeType,
-        coursePools: result.data.coursePools || [],
-        ecpDegreeId: result.data.ecpDegreeId,
+        _id: result._id,
+        name: result.name,
+        totalCredits: result.totalCredits,
+        degreeType: result.degreeType,
+        coursePools: result.coursePools || [],
+        ecpDegreeId: result.ecpDegreeId,
       };
   }
 
@@ -82,13 +82,13 @@ export class DegreeController extends BaseMongoController<any> {
         entityType: 'Degree',
         entityId: _id,
         baseEntity: {
-          _id: result.data._id,
-          name: result.data.name,
-          totalCredits: result.data.totalCredits,
-          degreeType: result.data.degreeType,
-          coursePools: result.data.coursePools || [],
-          ecpDegreeId: result.data.ecpDegreeId,
-          baseAcademicYear: result.data.baseAcademicYear,
+          _id: result._id,
+          name: result.name,
+          totalCredits: result.totalCredits,
+          degreeType: result.degreeType,
+          coursePools: result.coursePools || [],
+          ecpDegreeId: result.ecpDegreeId,
+          baseAcademicYear: result.baseAcademicYear,
         },
         academicYear,
       });
