@@ -203,7 +203,7 @@ describe("TimelineDndProvider", () => {
         active: {
           data: {
             current: {
-              type: "semester-card",
+              type: "semester",
               semesterId: "FALL/WINTER 2025-26",
             },
           },
@@ -236,7 +236,7 @@ describe("TimelineDndProvider", () => {
         active: {
           data: {
             current: {
-              type: "semester-card",
+              type: "semester",
               semesterId: "FALL/WINTER 2025-26",
             },
           },
@@ -275,7 +275,7 @@ describe("TimelineDndProvider", () => {
 
     act(() => {
       getOnDragStart()!({
-        active: { data: { current: { type: "semester-card", semesterId: "FALL/WINTER 2025-26" } } },
+        active: { data: { current: { type: "semester", semesterId: "FALL/WINTER 2025-26" } } },
       });
     });
 
@@ -283,7 +283,7 @@ describe("TimelineDndProvider", () => {
 
     act(() => {
       getOnDragEnd()!({
-        active: { data: { current: { type: "semester-card", semesterId: "FALL/WINTER 2025-26" } } },
+        active: { data: { current: { type: "semester", semesterId: "FALL/WINTER 2025-26" } } },
         over: null,
       });
     });
@@ -307,7 +307,7 @@ describe("TimelineDndProvider", () => {
 
     act(() => {
       getOnDragEnd()!({
-        active: { data: { current: { type: "semester-card", semesterId: "FALL/WINTER 2025-26" } } },
+        active: { data: { current: { type: "semester", semesterId: "FALL/WINTER 2025-26" } } },
         over: null,
       });
     });

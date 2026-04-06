@@ -15,7 +15,7 @@ import type {
   SemesterList,
   CourseMap,
 } from "../types/timeline.types";
-import type { DragCourseData, DragSemesterData, DroppableSemesterData, DroppableSemesterSlotData } from "../types/dnd.types";
+import type { DragCourseData,  DndSemesterData, DroppableSemesterSlotData } from "../types/dnd.types";
 import { TimelineDndContext } from "../contexts/timelineDndContext";
 import { canDropCourse, wouldCreateDuplicateSemesterKey } from "../utils/timelineUtils";
 import { toast } from "react-toastify";
@@ -54,15 +54,15 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
   );
 
   const handleDragStart = (event: DragStartEvent) => {
-    const data = event.active.data.current as DragCourseData | DragSemesterData | undefined;
+    const data = event.active.data.current as DragCourseData | DndSemesterData | undefined;
     if (data?.type === "course") {
       setActiveCourseId(data.courseId);
-    } else if (data?.type === "semester-card") {
+    } else if (data?.type === "semester") {
       setActiveSemesterId(data.semesterId);
     }
   };
 
-  const handleSemesterReorder = (activeData: DragSemesterData, overData: DroppableSemesterSlotData) => {
+  const handleSemesterReorder = (activeData: DndSemesterData, overData: DroppableSemesterSlotData) => {
     const fromIndex = semesters.findIndex((s) => s.term === activeData.semesterId);
     if (fromIndex === -1) return;
     const rawToIndex = overData.targetIndex;
@@ -75,7 +75,7 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
     onMoveSemester(fromIndex, toIndex);
   };
 
-  const handleCourseDrop = (activeData: DragCourseData, overData: DroppableSemesterData) => {
+  const handleCourseDrop = (activeData: DragCourseData, overData: DndSemesterData) => {
     const { courseId, source: fromSource, semesterId: fromSemesterId } = activeData;
     const toSemesterId = overData.semesterId;
     if (!toSemesterId) return;
@@ -99,10 +99,10 @@ const TimelineDndProvider: React.FC<TimelineDndProviderProps> = ({
 
     if (!over) return;
 
-    const activeData = active.data.current as DragCourseData | DragSemesterData | undefined;
-    const overData = over.data.current as DroppableSemesterData | DroppableSemesterSlotData | undefined;
+    const activeData = active.data.current as DragCourseData | DndSemesterData | undefined;
+    const overData = over.data.current as DndSemesterData | DroppableSemesterSlotData | undefined;
 
-    if (activeData?.type === "semester-card" && overData?.type === "semester-slot") {
+    if (activeData?.type === "semester" && overData?.type === "semester-slot") {
       handleSemesterReorder(activeData, overData);
     } else if (activeData?.type === "course" && overData?.type === "semester") {
       handleCourseDrop(activeData, overData);

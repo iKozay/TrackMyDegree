@@ -8,7 +8,7 @@ import type {
   SemesterId,
   SemesterCourse,
 } from "../types/timeline.types";
-import type { DragSemesterData, DroppableSemesterData } from "../types/dnd.types";
+import type { DndSemesterData } from "../types/dnd.types";
 
 interface DroppableSemesterProps {
   semesterId: SemesterId;
@@ -31,17 +31,17 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
 
   const { isOver, setNodeRef: setDropRef } = useDroppable({
     id: semesterId,
-    data: { type: "semester", semesterId } as DroppableSemesterData,
+    data: { type: "semester", semesterId } as DndSemesterData,
   });
-
+  // Fall/Winter semesters are draggable for reordering
   const {
     attributes,
     listeners,
     setNodeRef: setDragRef,
     isDragging,
   } = useDraggable({
-    id: `semester-card:${semesterId}`,
-    data: { type: "semester-card", semesterId } as DragSemesterData,
+    id: `semester:${semesterId}`,
+    data: { type: "semester", semesterId } as DndSemesterData,
     disabled: !isFallWinter,
   });
 
