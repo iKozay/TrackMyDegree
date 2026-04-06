@@ -311,38 +311,90 @@ export function changeCourseStatus(
     },
   };
 }
+
+type PoolUpdateMode = "add" | "remove";
+
+/**
+ * Utility to add/remove a course from pool matching the given name, and update creditsRequired accordingly.
+ * Returns the updated pools array and a boolean indicating whether any changes were made (e.g. if the course was already in all matching pools when adding, or not present in any when removing, it returns false).
+ * @param pools
+ * @param poolName
+ * @param courseId
+ * @param creditsDelta
+ * @param mode
+ */
+function updateCoursesInPool(
+    pools: TimelineState["pools"],
+    poolName: string,
+    courseId: CourseCode,
+    creditsDelta: number,
+    mode: PoolUpdateMode,
+): { pools: TimelineState["pools"]; changed: boolean } {
+    let changed = false;
+
+    const updated = pools.map((pool) => {
+        if (!pool.name.toLowerCase().includes(poolName.toLowerCase())) return pool;
+
+        const hasCourse = pool.courses.includes(courseId);
+
+        if (mode === "add") {
+            if (hasCourse) return pool;
+            changed = true;
+            return {
+                ...pool,
+                courses: [...pool.courses, courseId],
+                creditsRequired: pool.creditsRequired + creditsDelta,
+            };
+        }
+
+        // mode === "remove"
+        if (!hasCourse) return pool;
+        changed = true;
+        return {
+            ...pool,
+            courses: pool.courses.filter((c) => c !== courseId),
+            creditsRequired: Math.max(0, pool.creditsRequired - creditsDelta),
+        };
+    });
+
+    return { pools: updated, changed };
+}
+
+/**
+ * Resolves and validates the common context needed by addCourse and removeCourse.
+ * Returns null when the operation should be a no-op (unknown type or missing course).
+ */
+function resolvePoolContext(
+    state: TimelineState,
+    payload: { courseId: CourseCode; type: string },
+): { courseId: CourseCode; poolName: string; course: Course } | null {
+    const { courseId, type } = payload;
+    const poolName = getPoolName(type);
+    if (!poolName) return null;
+    const course = state.courses[courseId];
+    if (!course) return null;
+    return { courseId, poolName, course };
+}
+
 export function addCourse(
     state: TimelineState,
     payload: { courseId: CourseCode; type: string },
 ): TimelineState {
-    const { courseId, type } = payload;
-
-    const poolName = getPoolName(type);
-    if (!poolName) return state;
-
-    const course = state.courses[courseId];
-    if (!course) return state;
+    const poolContext = resolvePoolContext(state, payload);
+    if (!poolContext) return state;
+    const { courseId, poolName, course } = poolContext;
+    const { type } = payload;
 
     // -----------------------------
     // Update pools
     // -----------------------------
-    let poolsChanged = false;
-
-    const updatedPools = state.pools.map((pool) => {
-        if (!pool.name.toLowerCase().includes(poolName.toLowerCase())) return pool;
-
-        if (pool.courses.includes(courseId)) {
-            return pool;
-        }
-
-        poolsChanged = true;
-        const credits = course.credits || 0;
-        return {
-            ...pool,
-            courses: [...pool.courses, courseId],
-            creditsRequired: pool.creditsRequired + credits,
-        };
-    });
+    const { pools: updatedPools, changed: poolsChanged } = updateCoursesInPool(
+        state.pools,
+        poolName,
+        courseId,
+        course.credits || 0,
+        "add",
+    );
 
     if (!poolsChanged) return state;
 
@@ -387,28 +439,17 @@ export function removeCourse(
     state: TimelineState,
     payload: { courseId: CourseCode; type: string },
 ): TimelineState {
-    const { courseId, type } = payload;
-
-    const poolName = getPoolName(type);
-    if (!poolName) return state;
-
-    const course = state.courses[courseId];
-    if (!course) return state;
-
-    let poolsChanged = false;
-
-    const updatedPools = state.pools.map((pool) => {
-        if (!pool.name.toLowerCase().includes(poolName.toLowerCase())) return pool;
-        if (!pool.courses.includes(courseId)) return pool;
-
-        poolsChanged = true;
-        const credits = course.credits || 0;
-        return {
-            ...pool,
-            courses: pool.courses.filter((c) => c !== courseId),
-            creditsRequired: Math.max(0, pool.creditsRequired - credits),
-        };
-    });
+    const poolContext = resolvePoolContext(state, payload);
+    if (!poolContext) return state;
+    const { courseId, poolName, course } = poolContext;
+    // Update pools: remove course and subtract credits
+    const { pools: updatedPools, changed: poolsChanged } = updateCoursesInPool(
+        state.pools,
+        poolName,
+        courseId,
+        course.credits || 0,
+        "remove",
+    );
 
     if (!poolsChanged) return state;
 
