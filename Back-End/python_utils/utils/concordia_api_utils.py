@@ -8,10 +8,14 @@ from dotenv import load_dotenv
 env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../../secrets/.env"))
 load_dotenv(env_file)
 
-redis_client = redis.Redis.from_url(
-    os.getenv("REDIS_URL"),
-    decode_responses=True,
-)
+_redis_client = None
+
+def get_redis_client():
+    global _redis_client
+    if _redis_client is None:
+        url = os.getenv("REDIS_URL")
+        _redis_client = redis.Redis.from_url(url)
+    return _redis_client
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.web_utils import download_file
@@ -61,7 +65,7 @@ class ConcordiaAPIUtils:
                 for course_code, group in df.groupby("course_code"):
                     raw_sections = group.drop(columns=["course_code"]).fillna("").to_dict(orient="records")
                     formatted_sections = self.format_course_schedule_response(raw_sections)  
-                    redis_client.set(course_code, json.dumps(formatted_sections))
+                    get_redis_client().set(course_code, json.dumps(formatted_sections))
                 
 
         self.logger.info("All datasets downloaded and cached successfully.")
