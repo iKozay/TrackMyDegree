@@ -3,7 +3,7 @@ import sys
 import re
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from utils.bs4_utils import extract_coursepool_rules, get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
+from utils.bs4_utils import _get_all_links_from_element, extract_coursepool_rules, get_soup, get_all_links_from_div, extract_coursepool_and_required_credits, extract_coursepool_courses
 from utils.parsing_utils import COURSE_REGEX, extract_name_and_credits
 from models import AnchorLink, CoursePool, DegreeType, RuleType
 from scraper.abstract_degree_scraper import AbstractDegreeScraper
@@ -124,6 +124,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
                         break
 
     def _get_general_education_pool(self, credits_required: float = 3.0) -> CoursePool:
+        # From https://www.concordia.ca/academics/undergraduate/calendar/current/section-71-gina-cody-school-of-engineering-and-computer-science/section-71-110-complementary-studies-for-engineering-and-computer-science-students.html#12333
         allowed_course_subjects = ["ANTH", "FPST", "HIST", "PHIL", "RELI", "SOCI", "THEO", "WSDB", "ARTE", "ARTH", "JHIS", "MHIS"]
         other_allowed_courses = ["COMS 360", "EDUC 230", "ENCS 483", "ENGL 224", "ENGL 233", "GEOG 220", "INST 250", "LING 222", "LING 300", "URBS 230"]
         excluded_courses = ["ANTH 315", "PHIL 214", "PHIL 316", "PHIL 317", "SOCI 212", "SOCI 213", "SOCI 310"]
@@ -142,6 +143,34 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
             creditsRequired=credits_required,
             courses=general_education_courses
         )
+
+    def _get_general_elective_exclusion_list(self) -> list[str]:
+        # Find table row containing "The following courses may not be taken to fulfill the General Electives requirement"
+        # and extract all courses in the same td
+        soup = get_soup(self.requirements_url)
+        exclusion_list = []
+        exclusion_header = soup.find(string=re.compile(r"The following courses may not be taken to fulfill the General Electives requirement"))
+        if exclusion_header:
+            exclusion_td = exclusion_header.find_parent("td")
+            if exclusion_td:
+                course_links = _get_all_links_from_element(self.requirements_url, [exclusion_td], include_regex=COURSE_REGEX)
+                for link in course_links:
+                    exclusion_list.append(link.text.strip())
+        return exclusion_list
+
+    def _handle_general_elective_exclusion_list(self, pool: CoursePool) -> None:
+        general_electives_exclusion_list = self._get_general_elective_exclusion_list()
+
+        gen_education_electives_pool = self._get_general_education_pool()
+
+        allowed_courses = set()
+        allowed_courses.update(gen_education_electives_pool.courses)
+        # Remove excluded courses
+        for course in general_electives_exclusion_list:
+            if course in allowed_courses:
+                allowed_courses.remove(course)
+        
+        pool.courses = list(allowed_courses)
 
     def _handle_special_cases(self):
         # To be implemented by child classes (Other than Engineering Degrees) for degree-specific special case handling
@@ -214,3 +243,10 @@ class AeroDegreeScraper(GinaCodyDegreeScraper):
         for pool in pools_to_remove:
             coursepools.remove(pool)
         return pool_credits
+
+
+class CyberScDegreeScraper(GinaCodyDegreeScraper):
+    def _handle_special_cases(self):
+        for pool in self.program_requirements.coursePools:
+            if "General Electives: BSc Cybersecurity" in pool.name:
+                self._handle_general_elective_exclusion_list(pool)

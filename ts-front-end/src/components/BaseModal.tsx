@@ -1,5 +1,5 @@
 // BaseModal.tsx
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import "../styles/components/BaseModal.css";
 
 type BaseModalProps = {
@@ -13,23 +13,54 @@ export const BaseModal: React.FC<BaseModalProps> = ({
   onClose,
   children,
 }) => {
-  if (!open) return null;
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
   const handleOnClose = () => {
     onClose(false, "");
   };
 
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    if (open) {
+      dialog.showModal?.();
+    } else {
+      dialog.close?.();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const handleCancel = (e: Event) => {
+      e.preventDefault();
+      handleOnClose();
+    };
+
+    const handleBackdropClick = (e: MouseEvent) => {
+      if (e.target === dialog) {
+        handleOnClose();
+      }
+    };
+
+    dialog.addEventListener("cancel", handleCancel);
+    dialog.addEventListener("click", handleBackdropClick);
+    return () => {
+      dialog.removeEventListener("cancel", handleCancel);
+      dialog.removeEventListener("click", handleBackdropClick);
+    };
+  }, [handleOnClose]);
+
   return (
-    <div className="modal-backdrop " role="presentation">
-      <div
-        className="modal-content"
-        onClick={(e) => e.stopPropagation()} // don't close when clicking inside
-        role="menuitem">
-        <button className="modal-close" onClick={handleOnClose}>
+    <dialog ref={dialogRef} className="modal-backdrop">
+      <div className="modal-content">
+        <button className="modal-close" onClick={handleOnClose} aria-label="Close modal">
           ×
         </button>
         {children}
       </div>
-    </div>
+    </dialog>
   );
 };

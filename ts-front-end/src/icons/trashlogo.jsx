@@ -1,5 +1,6 @@
 // src/icons/Trash.jsx
 import React from 'react';
+import PropTypes from 'prop-types';
 
 export default function Trash({ size = 24, className }) {
   return (
@@ -23,3 +24,8 @@ export default function Trash({ size = 24, className }) {
     </svg>
   );
 }
+
+Trash.propTypes = {
+  size: PropTypes.number,
+  className: PropTypes.string,
+};

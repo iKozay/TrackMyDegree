@@ -19,5 +19,11 @@
     "dev:backend": "npm --prefix Back-End/src run dev:api",
     "dev:worker": "npm --prefix Back-End/src run dev:worker",
     "dev:frontend": "npm --prefix ts-front-end run dev"
+  },
+  "dependencies": {
+    "lodash": "^4.18.1",
+    "minimatch": "^10.2.5",
+    "node-cron": "^4.2.1",
+    "vite": "^8.0.5"
   }
 }

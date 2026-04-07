@@ -86,10 +86,13 @@ const mockTimelineState = {
     moveFromPoolToSemester: vi.fn(),
     moveBetweenSemesters: vi.fn(),
     addCourse: vi.fn(),
+    removeCourse: vi.fn(),
     removeFromSemester: vi.fn(),
     changeCourseStatus: vi.fn(),
     selectCourse: vi.fn(),
     addSemester: vi.fn(),
+    addFallWinterSemester: vi.fn(),
+    moveSemester: vi.fn(),
     openModal: vi.fn(),
     undo: vi.fn(),
     redo: vi.fn(),
@@ -456,5 +459,27 @@ describe("TimeLinePage", () => {
     expect(toast.error).toHaveBeenCalledWith(
       "Failed to save timeline. Please try again.",
     );
+  });
+
+  it("calls onAddFallWinterSemester from SemesterPlanner prop", () => {
+    mockUseTimelineState.mockReturnValue(mockTimelineState);
+    renderPage();
+
+    const { onAddFallWinterSemester } = (vi.mocked(SemesterPlanner) as any).mock.calls[0][0];
+    onAddFallWinterSemester();
+    expect(mockTimelineState.actions.addFallWinterSemester).toHaveBeenCalled();
+  });
+
+  it("navigates to degree-audit when modal type is degree-audit", () => {
+    mockUseTimelineState.mockReturnValue(mockTimelineState);
+    renderPage();
+
+    const { onOpenModal } = (vi.mocked(TimelineHeader) as any).mock.calls[0][0];
+    onOpenModal(true, "degree-audit");
+
+    expect(mockNavigate).toHaveBeenCalledWith(
+      "/degree-audit/test-job-id?fromPage=timelinePage"
+    );
+    expect(mockTimelineState.actions.openModal).not.toHaveBeenCalled();
   });
 });

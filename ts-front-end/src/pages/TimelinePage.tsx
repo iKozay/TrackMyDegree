@@ -42,7 +42,7 @@ const TimeLinePage: React.FC = () => {
 
   // Find the exemption pool, with fallback to empty pool
   const exemptionCoursePool = state.pools.find((pool) =>
-    pool._id.toLowerCase().includes("exemption"),
+    pool._id.toLowerCase().includes("exemptions"),
   ) || {
     _id: "exemption",
     name: "Exemption",
@@ -52,7 +52,7 @@ const TimeLinePage: React.FC = () => {
   };
 
   const deficiencyCoursePool = state.pools.find((pool) =>
-    pool._id.toLowerCase().includes("deficiency"),
+    pool._id.toLowerCase().includes("deficiencies"),
   ) || {
     _id: "deficiency",
     name: "Deficiency",
@@ -80,7 +80,8 @@ const TimeLinePage: React.FC = () => {
       courses={state.courses}
       semesters={state.semesters}
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
-      onMoveBetweenSemesters={actions.moveBetweenSemesters}>
+      onMoveBetweenSemesters={actions.moveBetweenSemesters}
+      onMoveSemester={actions.moveSemester}>
       <div className="app">
         {state.modal.open && (
           <MainModal
@@ -99,6 +100,7 @@ const TimeLinePage: React.FC = () => {
               }
             }}
             onAdd={actions.addCourse}
+            onRemove={actions.removeCourse}
             onClose={handleOpenModal}
           />
         )}
@@ -134,6 +136,9 @@ const TimeLinePage: React.FC = () => {
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
+              onAddFallWinterSemester={actions.addFallWinterSemester}
+              onRemoveSemester={actions.removeSemester}
+              onInsertSemesterAt={actions.insertSemesterAt}
               timelineName={state.timelineName}
             />
           </section>

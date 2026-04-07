@@ -5,8 +5,14 @@ import MetricsTab from "../components/admin/MetricsTab";
 import DegreeManagementTab from "../components/admin/DegreeManagementTab";
 import UserManagementTab from "../components/admin/UserManagementTab";
 import SeedingTab from "../components/admin/SeedingTab";
+import BackupManagementTab from "../components/admin/BackupManagementTab";
 
-type AdminTab = "metrics" | "degrees" | "users" | "seeding";
+type AdminTab =
+  | "metrics"
+  | "degrees"
+  | "users"
+  | "seeding"
+  | "backups";
 
 const AdminPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
@@ -47,6 +53,9 @@ const AdminPage: React.FC = () => {
         </Tab>
         <Tab eventKey="seeding" title="Seed Database">
           <SeedingTab />
+        </Tab>
+        <Tab eventKey="backups" title="Backups">
+          <BackupManagementTab />
         </Tab>
       </Tabs>
     </Container>

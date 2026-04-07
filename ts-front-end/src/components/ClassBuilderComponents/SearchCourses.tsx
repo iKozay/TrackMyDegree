@@ -149,9 +149,10 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
             <h2 className="search-courses-card__title">Search &amp; Add Courses</h2>
 
             <div className="search-courses-card__group">
-                <label className="search-courses-card__label">Select Semester</label>
+                <label className="search-courses-card__label" htmlFor="semester-select">Select Semester</label>
                 <div className="search-courses-card__select-wrapper">
                     <select
+                        id="semester-select"
                         className="search-courses-card__select"
                         value={semester}
                         onChange={handleSemesterChange}
@@ -169,7 +170,7 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
             </div>
 
             <div className="search-courses-card__group">
-                <label className="search-courses-card__label">Search for Courses</label>
+                <label className="search-courses-card__label" htmlFor="course-search-input">Search for Courses</label>
                 <div className="search-courses-card__search-wrapper">
                     <div className="search-courses-card__input-wrapper">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -179,6 +180,7 @@ const SearchCourses: React.FC<SearchCoursesProps> = ({ addedCourses, setAddedCou
                             <circle cx="11" cy="11" r="8"></circle>
                         </svg>
                         <input
+                            id="course-search-input"
                             className="search-courses-card__input"
                             placeholder="Search by course code or name..."
                             value={courseId}

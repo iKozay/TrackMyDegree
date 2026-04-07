@@ -35,7 +35,7 @@ const UserTimelinesSection: React.FC = () => {
     const fetchTimelines = async () => {
       try {
         const data = await api.get<{ timelines: Timeline[] }>(`/users/${user?.id}/data`);
-        setTimelines(data.timelines);
+        setTimelines(data.timelines ?? []);
       } catch (err) {
         console.error(err);
         setError("Cannot get timelines.");
@@ -45,7 +45,7 @@ const UserTimelinesSection: React.FC = () => {
     };
 
     fetchTimelines();
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.id]);
 
   const handleTimelineClick = async (obj: Timeline) => {
     try {
@@ -99,16 +99,16 @@ const UserTimelinesSection: React.FC = () => {
                 <div className="timeline-list">
                 {timelines.map((t) => (
                     <div key={t._id} className="timeline-card">
-                    <div
+                    <button
                         className="timeline-info"
                         onClick={() => handleTimelineClick(t)}
-                        role="button"
+                        type="button"
                         tabIndex={0}
                         onKeyDown={(e) => { if(e.key === "Enter" || e.key === " ") handleTimelineClick(t); }}
                     >
                         <h4>{t.name}</h4>
                         {t.last_modified && <p className="timeline-date">Modified {moment(t.last_modified).fromNow()}</p>}
-                    </div>
+                    </button>
                     <div className="timeline-actions">
                         <button
                         onClick={(e) => { e.stopPropagation(); handleDeleteClick(t); }}
