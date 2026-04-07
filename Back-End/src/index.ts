@@ -32,7 +32,7 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
-import { csrfMiddleware } from "@middleware/csurfMiddleware";
+import { csrfMiddleware } from "@middleware/csrfMiddleware";
 import { getSentryProfilingIntegrations } from '@utils/misc';
 import helmet from 'helmet';
 
