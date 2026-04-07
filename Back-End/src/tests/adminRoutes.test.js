@@ -438,8 +438,8 @@ describe('Admin Routes', () => {
         .get('/admin/fetch-backups')
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.listBackups = originalListBackups;
@@ -481,8 +481,8 @@ describe('Admin Routes', () => {
         .post('/admin/create-backup')
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.createBackup = originalCreateBackup;
@@ -564,8 +564,8 @@ describe('Admin Routes', () => {
         })
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.restoreBackup = originalRestoreBackup;
@@ -647,8 +647,8 @@ describe('Admin Routes', () => {
         })
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.deleteBackup = originalDeleteBackup;

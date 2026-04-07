@@ -27,15 +27,17 @@ export async function userCheckMiddleware(
   res: Response,
   next: NextFunction,
 ) {
-  const { userId } = req.params;
-  const jwtUserId = (req as any).user?.userId;
+  try {
+    const { userId } = req.params;
+    const jwtUserId = (req as any).user?.userId;
 
-  if (jwtUserId !== userId) {
-    return res.status(HTTP.FORBIDDEN).json({
-      error: 'Forbidden',
-    });
+    if (jwtUserId !== userId) {
+      throw new ForbiddenError('User is not authorized to access this resource');
+    }
+    next();
+  } catch (err) {
+    next(err); // Let centralized error handler respond
   }
-  next();
 }
 
 export async function adminCheckMiddleware(

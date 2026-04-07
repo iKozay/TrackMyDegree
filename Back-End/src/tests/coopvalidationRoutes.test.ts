@@ -116,6 +116,6 @@ describe('coopvalidationRoutes', () => {
     const response = await request(app).get('/coop/form/job-500');
 
     expect(response.status).toBe(500);
-    expect(response.body).toEqual({ error: 'InternalServerError' });
+    expect(response.body).toMatchObject({ error: 'InternalServerError' });
   });
 });
