@@ -1,5 +1,6 @@
 import csurf from "csurf";
 import { Request, Response, NextFunction } from "express";
+import * as Sentry from '@sentry/node';
 
 const csrfProtection = csurf({
   cookie: {
@@ -24,8 +25,8 @@ export const csrfMiddleware = (
         if (token) {
           res.setHeader("X-CSRF-Token", token);
         }
-      } catch {
-        // ignore
+      } catch(error) {
+        Sentry.captureException(error);
       }
 
       next();
