@@ -153,7 +153,7 @@ class GinaCodyDegreeScraper(AbstractDegreeScraper):
         if exclusion_header:
             exclusion_td = exclusion_header.find_parent("td")
             if exclusion_td:
-                course_links = _get_all_links_from_element(self.requirements_url, exclusion_td, include_regex=COURSE_REGEX)
+                course_links = _get_all_links_from_element(self.requirements_url, [exclusion_td], include_regex=COURSE_REGEX)
                 for link in course_links:
                     exclusion_list.append(link.text.strip())
         return exclusion_list
