@@ -42,7 +42,7 @@ class TestCompDegreeScraper:
         scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [cs_electives_pool, general_electives_pool, math_electives_pool])
         
         with patch.object(scraper, '_handle_computer_science_electives') as mock_handle_cs, \
-             patch.object(scraper, '_handle_computer_general_electives') as mock_handle_gen:
+             patch.object(scraper, '_handle_general_elective_exclusion_list') as mock_handle_gen:
             
             scraper._handle_special_cases()
             
@@ -75,38 +75,6 @@ class TestCompDegreeScraper:
         assert "COMP 249" not in cs_electives_pool.courses
         # Should not have duplicates
         assert cs_electives_pool.courses.count("COMP 352") == 1
-
-    @patch('scraper.comp_sci_degree_scraper.get_course_scraper_instance')
-    def test_handle_computer_general_electives(self, mock_get_course_scraper):
-        """Test handling computer general electives pool"""
-        mock_course_scraper = MagicMock()
-        mock_get_course_scraper.return_value = mock_course_scraper
-        general_electives_pool = CoursePool(
-            _id="gen_electives", 
-            name="General Electives: BCompSc", 
-            creditsRequired=18, 
-            courses=[]
-        )
-        
-        # Setup scraper with all required pools
-        scraper = CompDegreeScraper("BCompSc in Computer Science", "COMP", ECPDegreeIDs.COMP_ECP_ID, "http://test.com")
-        scraper._set_program_requirements("Test", 120.0, DegreeType.STANDALONE, [general_electives_pool])
-        
-        # Mock the _get_general_education_pool method
-        mock_gen_ed_pool = CoursePool(
-            _id="gen_ed", 
-            name="General Education", 
-            creditsRequired=6, 
-            courses=["ANTH 101", "PHIL 212", "MAST 221"]  # MAST 221 should be excluded
-        )
-        with patch.object(scraper, '_get_general_education_pool', return_value=mock_gen_ed_pool):
-            scraper._handle_computer_general_electives(general_electives_pool)
-        
-        # Should include courses from General Education (excluding exclusion list)
-        assert "ANTH 101" in general_electives_pool.courses
-        assert "PHIL 212" in general_electives_pool.courses
-        # Should exclude courses from exclusion list
-        assert "MAST 221" not in general_electives_pool.courses
 
     @patch('scraper.comp_sci_degree_scraper.CompDegreeScraper._get_general_education_pool')
     def test_handle_computer_general_electives_exclusions(self, mock_get_gen_ed):

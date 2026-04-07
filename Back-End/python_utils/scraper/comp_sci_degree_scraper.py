@@ -39,7 +39,7 @@ class CompDegreeScraper(GinaCodyDegreeScraper):
             if "Computer Science Electives" in pool.name:
                 self._handle_computer_science_electives(pool)
             elif "General Electives: BCompSc" in pool.name:
-                self._handle_computer_general_electives(pool)
+                self._handle_general_elective_exclusion_list(pool)
 
     def _handle_computer_science_electives(self, computer_science_electives_pool: CoursePool):
         # Computer Science Electives must be chosen from the following:
