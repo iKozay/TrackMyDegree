@@ -70,7 +70,7 @@ export class AuthController extends BaseMongoController<any> {
         .exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
-      const hash = user && user.password ? user.password : DUMMY_HASH;
+      const hash = user?.password ?? DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
       if (!user || !passwordMatch || !user._id) {
@@ -178,7 +178,7 @@ export class AuthController extends BaseMongoController<any> {
     newPassword: string,
   ): Promise<void> {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user || !user.password) throw new NotFoundError('User not found');
+      if (!user?.password) throw new NotFoundError('User not found');
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) throw new UnauthorizedError('Current password is incorrect');

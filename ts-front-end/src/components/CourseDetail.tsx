@@ -54,10 +54,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return <CheckCircle className="status-icon completed" size={16} />;
       case "planned":
         return <Calendar className="status-icon planned" size={16} />;
-      case "incomplete":
-        return (
-          <LucideAlarmMinus className="status-icon incomplete" size={16} />
-        );
       default:
         return (
           <LucideAlarmMinus className="status-icon incomplete" size={16} />
@@ -71,8 +67,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return "Completed";
       case "planned":
         return "Planned";
-      case "incomplete":
-        return "Incomplete";
       default:
         return "Incomplete";
     }

@@ -244,7 +244,7 @@ describe('Course Routes', () => {
         },
       ]);
     });
-    
+
     it('should get all course codes', async () => {
       const response = await request(app)
         .get('/courses/all-codes')
@@ -253,7 +253,7 @@ describe('Course Routes', () => {
       expect(courseCodes).toContain('COMP101');
       expect(courseCodes).toContain('COMP102');
     });
-    
+
     it('should handle server errors', async () => {
       const spy = jest
         .spyOn(courseController, 'getAllCourseCodes')
@@ -264,7 +264,7 @@ describe('Course Routes', () => {
       expect(response.body.error).toBe('InternalServerError');
       spy.mockRestore();
     });
-    
+
     it('should handle errors during fetch', async () => {
       const spy = jest
         .spyOn(courseController, 'getAllCourseCodes')
@@ -518,9 +518,9 @@ describe('Course Routes', () => {
     });
 
     it('should return 400 if code is empty or whitespace', async () => {
-     const response = await request(app).get('/courses/%20');
-     expect(response.status).toBe(400);
-   });
+      const response = await request(app).get('/courses/%20');
+      expect(response.status).toBe(400);
+    });
 
     it('should handle server errors', async () => {
       const spy = jest

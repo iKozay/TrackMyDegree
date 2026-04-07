@@ -1,10 +1,10 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { timelineController } from '@controllers/timelineController';
 import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
-import { getJobResult } from '../lib/cache';
+import { getJobResult, cacheJobResult } from '../lib/cache';
 import { TimelineResult } from '@trackmydegree/shared';
 import { BadRequestError, NotFoundError, INVALID_ID_FORMAT } from '@utils/errors';
 
@@ -60,7 +60,8 @@ const router = express.Router();
  *         description: Internal server error
  */
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request, res: Response, next: NextFunction) => {
+  try {
   const { userId, timelineName, jobId } = req.body;
 
   if (!userId || !timelineName || !jobId) {
@@ -76,6 +77,9 @@ router.post('/', async (req: Request, res: Response) => {
   const cachedTimeline = cached.payload.data;
   const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
   res.status(HTTP.CREATED).json(timeline);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -112,7 +116,8 @@ router.post('/', async (req: Request, res: Response) => {
  *         description: Internal server error
  */
 // routes/timeline.ts
-router.get('/:id', assignJobId, async (req: Request, res: Response) => {
+router.get('/:id', assignJobId, async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
     const { jobId } = req as RequestWithJobId;
 
@@ -124,16 +129,26 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
       throw new Error("Job ID wasn't assigned to the request by middleware");
     }
 
-      await queue.add('processData', {
-        jobId,
-        kind: 'timelineData',
-        timelineId: id as string,
-      });
+    await cacheJobResult(jobId, {
+      payload: {
+        status: 'processing',
+        data: null,
+      },
+    });
+
+    await queue.add('processData', {
+      jobId,
+      kind: 'timelineData',
+      timelineId: id as string,
+    });
 
     res.status(HTTP.ACCEPTED).json({
       jobId,
       status: 'processing',
     });
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -176,7 +191,8 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', async (req: Request, res: Response) => {
+router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
     const updates = req.body;
 
@@ -184,8 +200,14 @@ router.put('/:id', async (req: Request, res: Response) => {
       throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
-    const timeline = await timelineController.updateTimeline(id as string, updates);
+    const timeline = await timelineController.updateTimeline(
+      id as string,
+      updates,
+    );
     res.status(HTTP.OK).json(timeline);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -215,7 +237,8 @@ router.put('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', async (req: Request, res: Response) => {
+router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { id } = req.params;
 
    if (!mongoose.Types.ObjectId.isValid(id as string)) {
@@ -224,6 +247,9 @@ router.delete('/:id', async (req: Request, res: Response) => {
 
     const result = await timelineController.deleteTimeline(id as string);
     res.status(HTTP.OK).json(result);
+  } catch (error) {
+    next(error);
+  }
 });
 
 /**
@@ -255,17 +281,23 @@ router.delete('/:id', async (req: Request, res: Response) => {
  *       500:
  *         description: Internal server error
  */
-router.delete('/user/:userId', async (req: Request, res: Response) => {
+router.delete('/user/:userId', async (req: Request, res: Response, next: NextFunction) => {
+  try {
     const { userId } = req.params;
 
     if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
-    const count = await timelineController.deleteAllUserTimelines(userId as string);
+    const count = await timelineController.deleteAllUserTimelines(
+      userId as string,
+    );
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
     });
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default router;

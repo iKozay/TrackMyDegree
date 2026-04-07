@@ -196,7 +196,7 @@ describe('UserTimelinesSection', () => {
       .mockResolvedValueOnce({ jobId: 'job-enter' });
     renderComponent();
     await screen.findByText('Timeline Alpha');
-    fireEvent.keyDown(screen.getByText('Timeline Alpha').closest('[role="button"]')!, { key: 'Enter' });
+    fireEvent.keyDown(screen.getByText('Timeline Alpha').closest('button')!, { key: 'Enter' });
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith('/timeline/job-enter');
     });

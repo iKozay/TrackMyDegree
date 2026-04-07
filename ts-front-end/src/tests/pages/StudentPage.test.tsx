@@ -355,8 +355,11 @@ describe("StudentPage", () => {
 
     renderPage();
 
-    const timelineRow = await screen.findByText("My Timeline");
-    fireEvent.keyDown(timelineRow.closest('[role="button"]')!, { key: "Enter" });
+    // Native <button> elements fire click on Enter in real browsers.
+    // jsdom does not replicate that behaviour, so we fire click directly
+    // on the button that wraps the timeline name.
+    const timelineButton = (await screen.findByText("My Timeline")).closest('button')!;
+    fireEvent.click(timelineButton);
 
     await waitFor(() => {
       expect(mockNavigate).toHaveBeenCalledWith("/timeline/job-abc");

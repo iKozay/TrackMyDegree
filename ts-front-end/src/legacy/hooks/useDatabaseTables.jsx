@@ -36,7 +36,7 @@ const useDatabaseTables = () => {
         console.log('Failed to fetch tables');
       }
     } catch (err) {
-      if (err.message && err.message.includes('403')) {
+      if (err.message?.includes('403')) {
         navigate('/403'); // Forbidden
       } else {
         console.error('Error fetching table list:', err);

@@ -80,6 +80,7 @@ const CourseDetailsCard = ({ course, showCard = true }) => {
 // Add PropTypes for ESLint + SonarQube
 CourseDetailsCard.propTypes = {
   course: PropTypes.shape({
+    _id: PropTypes.string,
     title: PropTypes.string,
     credits: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     description: PropTypes.string,

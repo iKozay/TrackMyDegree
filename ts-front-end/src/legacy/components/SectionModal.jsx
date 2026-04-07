@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
+import PropTypes from 'prop-types';
 import { api } from '../../api/http-api-client';
 
 const CourseSectionButton = ({ code, title, hidden }) => {
@@ -48,7 +49,7 @@ const CourseSectionButton = ({ code, title, hidden }) => {
         };
 
         const yearDigits = termCode.substring(1, 3);
-        const academicYearStart = 2000 + parseInt(yearDigits);
+        const academicYearStart = 2000 + Number.parseInt(yearDigits, 10);
         const seasonCode = termCode[3];
         const season = seasonCodes[seasonCode] || 'Unknown';
 
@@ -269,6 +270,12 @@ const CourseSectionButton = ({ code, title, hidden }) => {
             `}</style>
         </div>
     );
+};
+
+CourseSectionButton.propTypes = {
+    code: PropTypes.string.isRequired,
+    title: PropTypes.string.isRequired,
+    hidden: PropTypes.bool.isRequired,
 };
 
 export default CourseSectionButton;

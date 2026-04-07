@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 import { BaseMongoController } from './baseMongoController';
-import { DatabaseConnectionError } from '@utils/errors';
+import { DATABASE_CONNECTION_NOT_AVAILABLE, DatabaseConnectionError } from '@utils/errors';
+import * as BackupService from '@services/backup';
 
 export class AdminController extends BaseMongoController<any> {
   constructor() {
@@ -109,6 +110,36 @@ export class AdminController extends BaseMongoController<any> {
       name: mongoose.connection.name,
     };
   }
+
+  // Return all the available backups from the backup directory
+  async listBackups(): Promise<string[]> {
+      return await BackupService.listBackups();
+  }
+
+  // Create a backup in the backup directory
+  async createBackup(): Promise<string> {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+      }
+      const backupFileName = await BackupService.createBackup(); 
+      return backupFileName;
+  }
+
+  // Delete the backup file from the backup directory
+  async deleteBackup(backupFileName: string): Promise<void> {
+      await BackupService.deleteBackup(backupFileName);
+  }
+
+  // Restore the backup file from the backup directory
+  async restoreBackup(backupFileName: string): Promise<void> {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+      }
+      await BackupService.restoreBackup(backupFileName);
+  }
+
 }
 
 export const adminController = new AdminController();

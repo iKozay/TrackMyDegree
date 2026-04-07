@@ -4,10 +4,11 @@ process.env.SESSION_ALGO = 'aes-256-gcm';
 import express, { Request, Response } from 'express';
 import supertest from 'supertest';
 import cookieParser from 'cookie-parser';
-import { authMiddleware, adminCheckMiddleware } from '../../middleware/authMiddleware';
+import { authMiddleware, userCheckMiddleware, adminCheckMiddleware } from '../../middleware/authMiddleware';
 import { errorHandler } from '../../middleware/errorHandler';
 import { jwtService } from '../../services/jwtService';
 import { authController } from '../../controllers/authController';
+import { ForbiddenError } from '../../utils/errors';
 
 // Mock dependencies
 jest.mock('../../services/jwtService', () => ({
@@ -40,7 +41,7 @@ app.use(errorHandler);
 
 const request = supertest(app);
 
-describe('authMiddleware & adminCheckMiddleware', () => {
+describe('authMiddleware, userCheckMiddleware & adminCheckMiddleware', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -81,7 +82,45 @@ describe('authMiddleware & adminCheckMiddleware', () => {
     });
   });
 
-  // --- Admin middleware tests ---
+  describe('userCheckMiddleware', () => {
+  let req;
+  let res;
+  let next;
+
+  beforeEach(() => {
+    req = {
+      params: {},
+      user: {},
+    };
+
+    res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+
+    next = jest.fn();
+  });
+
+  test('should call next with ForbiddenError when userId does not match', async () => {
+    req.params = { userId: 'user-params' };
+    req.user = { userId: 'user-jwt' };
+
+    await userCheckMiddleware(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(expect.any(ForbiddenError));
+  });
+
+  test('should call next when JWT user id matches params userId', async () => {
+    req.params = { userId: 'user-123' };
+    req.user = { userId: 'user-123' };
+
+    await userCheckMiddleware(req, res, next);
+
+    expect(next).toHaveBeenCalledWith(); // or just expect(next).toHaveBeenCalled()
+    expect(res.status).not.toHaveBeenCalled();
+  });
+});
+
   describe('adminCheckMiddleware', () => {
     test('should return 403 when user is not admin', async () => {
       const mockPayload = { userId: 'user123' };

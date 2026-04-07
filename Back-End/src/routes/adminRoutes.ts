@@ -11,6 +11,8 @@ import {
   seedDegreeData,
 } from '@controllers/seedingController';
 import { BadRequestError, CatalogError } from '@utils/errors';
+import path from 'node:path';
+import { adminRateLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
 
 // ==========================
@@ -19,6 +21,7 @@ const router = express.Router();
 
 router.use(authMiddleware);
 router.use(adminCheckMiddleware);
+router.use(adminRateLimiter);
 
 // ==========================
 // ADMIN ROUTES
@@ -340,6 +343,7 @@ router.post('/catalogs-update', async (req: Request, res: Response, next: NextFu
   }
 });
 
+// GET /admin/seed-data - Seed all degree data
 router.get('/seed-data', async (req: Request, res: Response, next: NextFunction) => {
    try{
 
@@ -352,6 +356,7 @@ router.get('/seed-data', async (req: Request, res: Response, next: NextFunction)
   }
 });
 
+// GET /admin/seed-data/:degreeName - Seed degree data for the degree specifie
 router.get('/seed-data/:degreeName', async (req: Request, res: Response, next: NextFunction) => {
   try{
     const { degreeName } = req.params;
@@ -368,5 +373,80 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response, next: N
     next(error);
   }
 });
+
+// GET /admin/fetch-backups - Fetch all the backups from backup directory
+router.get('/fetch-backups', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const backups = await adminController.listBackups(); 
+
+    res.status(HTTP.OK).json({
+      success: true,
+      data: backups,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /admin/create-backup - Create a new backup in the backup directory
+router.post('/create-backup', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const backupFileName = await adminController.createBackup(); 
+
+    res.status(HTTP.OK).json({
+      success: true,
+      data: backupFileName,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /admin/restore-backup - Restore a backup from backup directory
+router.post('/restore-backup', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { backupName } = req.body;
+
+    if (!backupName) {
+      return res.status(HTTP.BAD_REQUEST).json({
+        success: false,
+        message: "backupName is required",
+      });
+    }
+
+    const safeBackupname = path.basename(backupName);
+    await adminController.restoreBackup(safeBackupname);
+
+    return res.status(HTTP.OK).json({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// POST /admin/delete-backup - Delete the backup from backup directory
+router.post('/delete-backup', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { backupName } = req.body;
+
+    if (!backupName) {
+      return res.status(HTTP.BAD_REQUEST).json({
+        success: false,
+        message: "backupName is required",
+      });
+    }
+
+    const safeBackupname = path.basename(backupName);
+    await adminController.deleteBackup(safeBackupname);
+
+    return res.status(HTTP.OK).json({
+      success: true,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 export default router;

@@ -4,6 +4,10 @@ const { AdminController } = require('../controllers/adminController');
 const { User } = require('../models/user');
 const { Course } = require('../models/course');
 const { DatabaseConnectionError } = require('@utils/errors');
+const BackupService = require('../services/backup/backupService');
+
+jest.mock('../services/backup/backupService');
+
 
 describe('AdminController', () => {
   let mongoServer, mongoUri, adminController;
@@ -23,6 +27,7 @@ describe('AdminController', () => {
   beforeEach(async () => {
     await User.deleteMany({});
     await Course.deleteMany({});
+    jest.clearAllMocks();
   });
 
   describe('Constructor', () => {
@@ -144,12 +149,230 @@ describe('AdminController', () => {
     });
   });
 
-  describe('getConnectionStatus', () => {
-    it('should return correct connection status', () => {
-      const status = adminController.getConnectionStatus();
-      expect(status).toHaveProperty('connected', true);
-      expect(status).toHaveProperty('readyState', 1);
-      expect(status).toHaveProperty('name', mongoose.connection.name);
+  describe('listBackups', () => {
+    it('should return all available backups', async () => {
+      BackupService.listBackups.mockResolvedValue([
+        'backup1.json',
+        'backup2.json',
+      ]);
+
+      const result = await adminController.listBackups();
+
+      expect(result).toEqual(['backup1.json', 'backup2.json']);
+      expect(BackupService.listBackups).toHaveBeenCalledTimes(1);
+    });
+
+    it('should rethrow database connection error', async () => {
+      BackupService.listBackups.mockRejectedValue(
+        new Error('Database connection not available'),
+      );
+
+      await expect(adminController.listBackups()).rejects.toThrow(
+        'Database connection not available',
+      );
+    });
+
+    it('should throw generic list backup error', async () => {
+      BackupService.listBackups.mockRejectedValue(
+        new Error('Random failure'),
+      );
+
+      await expect(adminController.listBackups()).rejects.toThrow(
+        'Random failure',
+      );
+    });
+  });
+
+  describe('createBackup', () => {
+    it('should create a backup successfully', async () => {
+      BackupService.createBackup.mockResolvedValue('backup-new.json');
+
+      const result = await adminController.createBackup();
+
+      expect(result).toBe('backup-new.json');
+      expect(BackupService.createBackup).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw database connection error when db is null', async () => {
+      const originalDb = mongoose.connection.db;
+      mongoose.connection.db = null;
+
+      await expect(adminController.createBackup()).rejects.toThrow(
+        'Database connection not available',
+      );
+
+      mongoose.connection.db = originalDb;
+    });
+
+    it('should throw generic create backup error', async () => {
+      BackupService.createBackup.mockRejectedValue(
+        new Error('Backup failed'),
+      );
+
+      await expect(adminController.createBackup()).rejects.toThrow(
+        'Backup failed',
+      );
+    });
+  });
+
+  describe('deleteBackup', () => {
+    it('should delete backup successfully', async () => {
+      BackupService.deleteBackup.mockResolvedValue();
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).resolves.toBeUndefined();
+
+      expect(BackupService.deleteBackup).toHaveBeenCalledWith(
+        'backup1.json',
+      );
+    });
+
+    it('should rethrow database connection error', async () => {
+      BackupService.deleteBackup.mockRejectedValue(
+        new Error('Database connection not available'),
+      );
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).rejects.toThrow('Database connection not available');
+    });
+
+    it('should throw generic delete backup error', async () => {
+      BackupService.deleteBackup.mockRejectedValue(
+        new Error('Delete failed'),
+      );
+
+      await expect(
+        adminController.deleteBackup('backup1.json'),
+      ).rejects.toThrow('Delete failed');
+    });
+  });
+
+  describe('restoreBackup', () => {
+    it('should restore backup successfully', async () => {
+      BackupService.restoreBackup.mockResolvedValue();
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).resolves.toBeUndefined();
+
+      expect(BackupService.restoreBackup).toHaveBeenCalledWith(
+        'backup1.json',
+      );
+    });
+
+    it('should throw database connection error when db is null', async () => {
+      const originalDb = mongoose.connection.db;
+      mongoose.connection.db = null;
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).rejects.toThrow('Database connection not available');
+
+      mongoose.connection.db = originalDb;
+    });
+
+    it('should throw generic restore backup error', async () => {
+      BackupService.restoreBackup.mockRejectedValue(
+        new Error('Restore failed'),
+      );
+
+      await expect(
+        adminController.restoreBackup('backup1.json'),
+      ).rejects.toThrow('Restore failed');
+    });
+  });
+
+  describe('Additional Edge Cases for Coverage', () => {
+    beforeEach(async () => {
+      await User.deleteMany({}); // ensure isolation
+      await User.create([
+        {
+          email: 'test1@example.com',
+          fullname: 'Test User 1',
+          type: 'student',
+        },
+        {
+          email: 'test2@example.com',
+          fullname: 'Test User 2',
+          type: 'advisor',
+        },
+      ]);
+    });
+
+    it('should handle getCollectionDocuments with keyword when no string fields exist', async () => {
+      // Create a collection with only non-string fields
+      const db = mongoose.connection.db;
+      const testCollection = db.collection('numericonly');
+      await testCollection.insertOne({ value: 123, count: 456 });
+
+      const result = await adminController.getCollectionDocuments(
+        'numericonly',
+        {
+          keyword: 'test',
+        },
+      );
+
+      expect(Array.isArray(result)).toBe(true);
+
+      // Cleanup
+      await testCollection.drop();
+    });
+
+    it('should handle getCollectionDocuments with keyword when collection is empty', async () => {
+      const db = mongoose.connection.db;
+      db.collection('empty');
+
+      const result = await adminController.getCollectionDocuments('empty', {
+        keyword: 'test',
+      });
+
+      expect(result).toHaveLength(0);
+    });
+
+    it('should handle clearCollection when result has undefined deletedCount', async () => {
+      const originalDb = mongoose.connection.db;
+      const mockDb = {
+        collection: jest.fn().mockReturnValue({
+          deleteMany: jest.fn().mockResolvedValue({
+            // deletedCount is undefined
+          }),
+        }),
+      };
+      mongoose.connection.db = mockDb;
+
+      const result = await adminController.clearCollection('users');
+
+      expect(result).toBe(0);
+
+      mongoose.connection.db = originalDb;
+    });
+
+    describe('getConnectionStatus', () => {
+      it('should return connection status when connected', () => {
+        const result = adminController.getConnectionStatus();
+
+        expect(result).toHaveProperty('connected');
+        expect(result).toHaveProperty('readyState');
+        expect(result).toHaveProperty('name');
+        expect(result.connected).toBe(true);
+        expect(result.readyState).toBe(1);
+        expect(typeof result.name).toBe('string');
+      });
+
+      it('should return connection status when disconnected', async () => {
+        // Disconnect from database
+        await mongoose.disconnect();
+
+        const result = adminController.getConnectionStatus();
+
+        expect(result.connected).toBe(false);
+        expect(result.readyState).not.toBe(1);
+
+        // Reconnect for cleanup
+        await mongoose.connect(mongoUri);
+      });
     });
   });
 });

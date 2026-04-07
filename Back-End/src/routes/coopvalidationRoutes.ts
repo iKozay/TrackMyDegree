@@ -62,9 +62,15 @@ router.get('/form/:jobId', async (req: Request, res: Response, next: NextFunctio
       'Access-Control-Expose-Headers',
       'Content-Disposition, X-Coop-Form-Notes',
     );
-    res.setHeader('X-Coop-Form-Notes', encodeURIComponent(JSON.stringify(notes)));
+    res.setHeader(
+      'X-Coop-Form-Notes',
+      encodeURIComponent(JSON.stringify(notes)),
+    );
     res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="${safeFilename}"`,
+    );
 
     return res.status(200).send(Buffer.from(pdfBytes));
   } catch (error) {

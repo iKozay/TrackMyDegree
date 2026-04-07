@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { queue, CourseProcessorJobData } from '../workers/queue';
 import type { RequestWithJobId } from '../middleware/assignJobId';
 import { BadRequestError } from '@utils/errors';
+import { cacheJobResult } from '@lib/cache';
 
 export const uploadController: RequestHandler = async (
   req: Request,
@@ -16,6 +17,13 @@ export const uploadController: RequestHandler = async (
     if (!jobId) {
       throw new BadRequestError('Job ID is missing from the request');
     }
+
+    await cacheJobResult(jobId, {
+      payload: {
+        status: 'processing',
+        data: null,
+      },
+    });
 
     let jobData: CourseProcessorJobData;
 

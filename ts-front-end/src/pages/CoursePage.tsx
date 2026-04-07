@@ -386,6 +386,67 @@ const CoursePage: React.FC = () => {
     );
   }, [filteredCourseList]);
 
+  const noResultsText = searchTerm
+    ? `No courses match "${searchTerm}". Try a different search term.`
+    : "No courses available for this selection.";
+
+  const courseSuffix = totalCourses === 1 ? "" : "s";
+
+  const renderCourseList = () => {
+    if (loading) {
+      return (
+        <div className="loading-state">
+          <div className="loading-spinner" />
+          <p className="loading-text">Loading courses...</p>
+        </div>
+      );
+    }
+    if (selectedDegree === "Select Degree") {
+      return (
+        <div className="empty-courses-state">
+          <div className="empty-courses-icon">
+            <GraduationCapIcon />
+          </div>
+          <h3 className="empty-courses-title">Select a Degree</h3>
+          <p className="empty-courses-text">
+            Choose a degree program from the dropdown above to browse its courses, or select &quot;All Courses&quot; to see everything.
+          </p>
+        </div>
+      );
+    }
+    if (filteredCourseList.length === 0) {
+      return (
+        <div className="empty-courses-state">
+          <div className="empty-courses-icon">
+            <SearchIcon />
+          </div>
+          <h3 className="empty-courses-title">No Courses Found</h3>
+          <p className="empty-courses-text">{noResultsText}</p>
+        </div>
+      );
+    }
+    return (
+      <>
+        {searchTerm && (
+          <div className="results-count">
+            Found <strong>{totalCourses}</strong> course{courseSuffix} matching &quot;{searchTerm}&quot;
+          </div>
+        )}
+        <div className="course-pool-accordion">
+          {filteredCourseList.map((group: CourseGroup, idx: number) => (
+            <PoolAccordion
+              key={group.name || group.poolName || idx}
+              group={group}
+              selectedCourse={selectedCourse}
+              onCourseSelect={setSelectedCourse}
+              defaultExpanded={false}
+            />
+          ))}
+        </div>
+      </>
+    );
+  };
+
   return (
     <motion.div
       className="course-page"
@@ -419,25 +480,25 @@ const CoursePage: React.FC = () => {
 
           {showDropdown && (
             <div className="degree-dropdown">
-              <div
+              <button
                 className="degree-dropdown-item all-courses"
                 onClick={handleSelectAllCourses}
               >
                 All Courses
-              </div>
+              </button>
               {degrees.length === 0 ? (
                 <div className="degree-dropdown-item" style={{ opacity: 0.5 }}>
                   Loading degrees...
                 </div>
               ) : (
                 degrees.map((degree: Degree) => (
-                  <div
+                  <button
                     key={degree._id}
                     className="degree-dropdown-item"
                     onClick={() => handleSelectDegree(degree)}
                   >
                     {degree.name}
-                  </div>
+                  </button>
                 ))
               )}
             </div>
@@ -465,53 +526,7 @@ const CoursePage: React.FC = () => {
       <div className="course-main-content">
         {/* Course List */}
         <div className="course-list-section">
-          {loading ? (
-            <div className="loading-state">
-              <div className="loading-spinner" />
-              <p className="loading-text">Loading courses...</p>
-            </div>
-          ) : selectedDegree === "Select Degree" ? (
-            <div className="empty-courses-state">
-              <div className="empty-courses-icon">
-                <GraduationCapIcon />
-              </div>
-              <h3 className="empty-courses-title">Select a Degree</h3>
-              <p className="empty-courses-text">
-                Choose a degree program from the dropdown above to browse its courses, or select &quot;All Courses&quot; to see everything.
-              </p>
-            </div>
-          ) : filteredCourseList.length === 0 ? (
-            <div className="empty-courses-state">
-              <div className="empty-courses-icon">
-                <SearchIcon />
-              </div>
-              <h3 className="empty-courses-title">No Courses Found</h3>
-              <p className="empty-courses-text">
-                {searchTerm
-                  ? `No courses match "${searchTerm}". Try a different search term.`
-                  : "No courses available for this selection."}
-              </p>
-            </div>
-          ) : (
-            <>
-              {searchTerm && (
-                <div className="results-count">
-                  Found <strong>{totalCourses}</strong> course{totalCourses !== 1 ? "s" : ""} matching &quot;{searchTerm}&quot;
-                </div>
-              )}
-              <div className="course-pool-accordion">
-                {filteredCourseList.map((group: CourseGroup, idx: number) => (
-                  <PoolAccordion
-                    key={group.name || group.poolName || idx}
-                    group={group}
-                    selectedCourse={selectedCourse}
-                    onCourseSelect={setSelectedCourse}
-                    defaultExpanded={false}
-                  />
-                ))}
-              </div>
-            </>
-          )}
+          {renderCourseList()}
         </div>
 
         {/* Course Details Panel (Desktop) */}

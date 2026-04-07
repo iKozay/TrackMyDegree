@@ -1,29 +1,84 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AdminPage from '../../pages/AdminPage';
-import { useAuth } from '../../hooks/useAuth';
+import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import AdminPage from "../../pages/AdminPage";
+import { useAuth } from "../../hooks/useAuth";
 
-vi.mock('../../hooks/useAuth');
-vi.mock('../../legacy/pages/AdminPage.jsx', () => ({
-    default: () => <div data-testid="legacy-admin-page">Legacy Admin Page</div>
+vi.mock("../../hooks/useAuth");
+
+vi.mock("../../components/admin/BackupManagementTab", () => ({
+  default: () => <div data-testid="backup-management-tab">Backup Tab</div>,
 }));
 
-describe('AdminPage', () => {
-    beforeEach(() => {
-        vi.clearAllMocks();
-    });
+describe("AdminPage", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    it('should show login message when not authenticated', () => {
-        vi.mocked(useAuth).mockReturnValue({ isAuthenticated: false } as any);
+  it("should show login message when not authenticated", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: false,
+    } as any);
 
-        render(<AdminPage />);
-        expect(screen.getByText('Please log in to see your data.')).toBeTruthy();
-    });
+    render(<AdminPage />);
 
-    it('should render LegacyAdminPage when authenticated', () => {
-        vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
+    expect(
+      screen.getByText("Please log in to see your data.")
+    ).toBeTruthy();
+  });
 
-        render(<AdminPage />);
-        expect(screen.getByTestId('legacy-admin-page')).toBeTruthy();
-    });
+  it("should render admin dashboard when authenticated", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+    } as any);
+
+    render(<AdminPage />);
+
+    expect(screen.getByText("Admin Dashboard")).toBeTruthy();
+    expect(screen.getByText("Metrics Tab")).toBeTruthy();
+  });
+
+  it("should switch to degrees tab and cover degree branch", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+    } as any);
+
+    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+
+    render(<AdminPage />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Degrees & Courses" }));
+
+    expect(screen.getByText("DegreeManagementTab")).toBeTruthy();
+    expect(consoleSpy).toHaveBeenCalled();
+
+    consoleSpy.mockRestore();
+  });
+
+  it("should switch to backups tab and render BackupManagementTab", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+    } as any);
+
+    render(<AdminPage />);
+
+    fireEvent.click(screen.getByRole("tab", { name: "Backups" }));
+
+    expect(screen.getByTestId("backup-management-tab")).toBeTruthy();
+  });
+
+  it("should fallback to metrics tab when null key is selected", () => {
+    vi.mocked(useAuth).mockReturnValue({
+      isAuthenticated: true,
+    } as any);
+
+    render(<AdminPage />);
+
+    // Click another tab first
+    fireEvent.click(screen.getByRole("tab", { name: "Manage Users" }));
+    expect(screen.getByText("UserManagementTab")).toBeTruthy();
+
+    // Click Metrics again to ensure fallback/default path is covered
+    fireEvent.click(screen.getByRole("tab", { name: "Metrics & Stats" }));
+    expect(screen.getByText("Metrics Tab")).toBeTruthy();
+  });
 });

@@ -182,3 +182,108 @@
     margin-left: 0.75rem;
   }
 }
+
+/* ── Manage Modal Additions ─────────────────────────────────── */
+
+.manage-modal-section {
+  margin-bottom: 1.25rem;
+}
+
+.manage-modal-section-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 0.75rem 0;
+}
+
+.manage-modal-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #1d4ed8;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.manage-modal-empty {
+  padding: 0.75rem 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.manage-modal-current-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 0.25rem;
+}
+
+.manage-modal-current-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f1f5f9;
+  color: #1e293b;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.manage-modal-current-item:hover {
+  border-color: #fca5a5;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.manage-modal-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: #b91c1c;
+  color: #fff;
+  font-size: 1.4rem;
+  font-weight: bold;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.1s ease;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+.manage-modal-remove-btn:hover {
+  background: #991b1b;
+  transform: scale(1.05);
+}
+
+.manage-modal-remove-btn:active {
+  transform: scale(0.95);
+}
+
+.manage-modal-divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 1rem 0 1.25rem;
+}
+

@@ -2,8 +2,10 @@ import HTTP from '@utils/httpCodes';
 import express, { NextFunction, Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
+import { authMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
 import mongoose from 'mongoose';
 import { BadRequestError, INVALID_ID_FORMAT } from '@utils/errors';
+import { userRateLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -13,6 +15,9 @@ const router = express.Router();
 
 
 
+router.use(userRateLimiter);
+router.use(authMiddleware);
+
 /**
  * @openapi
  * tags:
@@ -21,71 +26,17 @@ const router = express.Router();
  */
 
 /**
- * POST /users - Create user
+ * GET /users/:userId - Get user by ID
  */
 /**
  * @openapi
- * /users:
- *   post:
- *     summary: Create user
- *     tags: [Users]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               email: { type: string, format: email }
- *               fullname: { type: string }
- *               type: { type: string }
- *             required: [email, fullname, type]
- *     responses:
- *       201:
- *         description: User created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message: { type: string }
- *                 user:
- *                   type: object
- *                   additionalProperties: true
- *       400:
- *         description: Missing required fields
- *       409:
- *         description: User already exists
- *       500:
- *         description: Internal server error
- */
-router.post('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const userData = req.body;
-
-    if (!userData.email || !userData.fullname || !userData.type) {
-      throw new BadRequestError('Email, fullname, and type are required');
-    }
-
-    const user = await userController.createUser(userData);
-    res.status(HTTP.CREATED).json(user);
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /users/:id - Get user by ID
- */
-/**
- * @openapi
- * /users/{id}:
+ * /users/{userId}:
  *   get:
  *     summary: Get user by ID
  *     tags: [Users]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
  *         schema: { type: string }
  *     responses:
@@ -107,15 +58,15 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
  *       500:
  *         description: Internal server error
  */
-router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:userId', userCheckMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
-    const user = await userController.getUserById(id as string);
+    const user = await userController.getUserById(userId as string);
     res.status(HTTP.OK).json(user);
   } catch (error) {
     next(error);
@@ -123,52 +74,17 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 });
 
 /**
- * GET /users - Get all users
+ * PUT /users/:userId - Update user
  */
 /**
  * @openapi
- * /users:
- *   get:
- *     summary: Get all users
- *     tags: [Users]
- *     responses:
- *       200:
- *         description: Users retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message: { type: string }
- *                 users:
- *                   type: array
- *                   items:
- *                     type: object
- *                     additionalProperties: true
- *       500:
- *         description: Internal server error
- */
-router.get('/', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const users = await userController.getAllUsers();
-    res.status(HTTP.OK).json(users);
-  } catch (error) {
-      next(error);
-  }
-});
-
-/**
- * PUT /users/:id - Update user
- */
-/**
- * @openapi
- * /users/{id}:
+ * /users/{userId}:
  *   put:
  *     summary: Update user
  *     tags: [Users]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
  *         schema: { type: string }
  *     requestBody:
@@ -199,11 +115,11 @@ router.get('/', async (req: Request, res: Response, next: NextFunction) => {
  */
 
 /**
- * PATCH /users/:id - Partial update fullname, password
+ * PATCH /users/:userId - Partial update fullname, password
  */
 
 async function handlePasswordUpdate(
-  id: string,
+  userId: string,
   currentPassword: string,
   newPassword: string
 ): Promise<void> {
@@ -214,18 +130,28 @@ async function handlePasswordUpdate(
     throw new BadRequestError('newPassword must be at least 6 characters');
   }
 
-  await authController.changePassword(id, currentPassword, newPassword);
+  await authController.changePassword(userId, currentPassword, newPassword);
 
 }
 
 // eslint-disable-next-line sonarjs/cognitive-complexity
-router.patch('/:id', async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
+router.patch('/:userId', userCheckMiddleware, async (req: Request<{ userId: string }>, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const { fullname, currentPassword, newPassword } = req.body;
 
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-     throw new BadRequestError(INVALID_ID_FORMAT);
+    if (fullname !== undefined && typeof fullname !== 'string') {
+      throw new BadRequestError('fullname must be a string');
+    }
+    if (currentPassword !== undefined && typeof currentPassword !== 'string') {
+      throw new BadRequestError('currentPassword must be a string');
+    }
+    if (newPassword !== undefined && typeof newPassword !== 'string') {
+      throw new BadRequestError('newPassword must be a string');
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
     if (!fullname && !newPassword) {
@@ -237,12 +163,12 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response, next: N
       if (!fullname.trim()) {
         throw new BadRequestError('Fullname cannot be empty');
       }
-      await userController.updateUser(id, { fullname: fullname.trim() });
+      await userController.updateUser(userId, { fullname: fullname.trim() });
     }
 
     // Password update
     if (newPassword) {
-      await handlePasswordUpdate(id, currentPassword, newPassword);
+      await handlePasswordUpdate(userId, currentPassword, newPassword);
     }
 
     res.status(HTTP.OK).json({ message: 'User updated successfully' });
@@ -251,80 +177,44 @@ router.patch('/:id', async (req: Request<{ id: string }>, res: Response, next: N
   }
 });
 
-router.put('/:id', async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:userId', userCheckMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
     const updates = req.body;
 
-     if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (
+      typeof updates !== 'object' ||
+      Array.isArray(updates) ||
+      updates === null
+    ) {
+      throw new BadRequestError('Invalid request body')
+    }
+
+     if (!mongoose.Types.ObjectId.isValid(userId as string)) {
         throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
-    const user = await userController.updateUser(id as string, updates);
+    const user = await userController.updateUser(userId as string, updates);
     res.status(HTTP.OK).json(user);
   } catch (error) {     
     next(error);
   }
 });
 
+
 /**
- * DELETE /users/:id - Delete user
+ * GET /users/:userId/data - Get comprehensive user data
  */
 /**
  * @openapi
- * /users/{id}:
- *   delete:
- *     summary: Delete user
- *     tags: [Users]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema: { type: string }
- *     responses:
- *       200:
- *         description: Deleted
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 message: { type: string }
- *       400:
- *         description: User ID is required
- *       404:
- *         description: User does not exist
- *       500:
- *         description: Internal server error
- */
-router.delete('/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { id } = req.params;
-
-    if (!mongoose.Types.ObjectId.isValid(id as string)) {
-      throw new BadRequestError(INVALID_ID_FORMAT);
-    }
-
-    const message = await userController.deleteUser(id as string);
-    res.status(HTTP.OK).json(message);
-  } catch (error) {
-    next(error);
-  }
-});
-
-/**
- * GET /users/:id/data - Get comprehensive user data
- */
-/**
- * @openapi
- * /users/{id}/data:
+ * /users/{userId}/data:
  *   get:
  *     summary: Get comprehensive user data
  *     description: Returns a compound payload for the user (e.g., profile, timelines, etc.).
  *     tags: [Users]
  *     parameters:
  *       - in: path
- *         name: id
+ *         name: userId
  *         required: true
  *         schema: { type: string }
  *     responses:
@@ -342,15 +232,15 @@ router.delete('/:id', async (req: Request, res: Response, next: NextFunction) =>
  *       500:
  *         description: Internal server error
  */
-router.get('/:id/data', async (req: Request, res: Response, next: NextFunction) => {
+router.get('/:userId/data', userCheckMiddleware, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { id } = req.params;
+    const { userId } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(userId as string)) {
       throw new BadRequestError(INVALID_ID_FORMAT);
     }
 
-    const userData = await userController.getUserData(id as string);
+    const userData = await userController.getUserData(userId as string);
     res.status(HTTP.OK).json(userData);
   } catch (error) {
     next(error);

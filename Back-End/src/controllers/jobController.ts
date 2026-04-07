@@ -5,14 +5,12 @@ import { BadRequestError, NotFoundError } from '@utils/errors';
 interface GetResultParams {
   jobId: string;
 }
-
 export interface CachedJobResult<T = unknown> {
   payload: {
     status: string;
     data: T;
   };
 }
-
 export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
     const { jobId } = req.params;
@@ -25,6 +23,14 @@ export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
 
     if (!cached) {
       throw new NotFoundError('Timeline not found');
+    }
+
+    if (cached.payload?.status === 'failed') {
+      return res.status(422).json({
+        jobId,
+        status: 'failed',
+        error: 'Job processing failed',
+      });
     }
 
     return res.json({
@@ -94,7 +100,7 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
     // IMPORTANT: generic is the DATA type, not CachedJobResult
     const cached = await getJobResult<CachedTimeline>(jobId);
 
-    if (!cached || !cached.payload?.data) {
+    if (!cached?.payload?.data) {
       throw new NotFoundError('Timeline not found');
     }
 
@@ -111,7 +117,7 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
 
     // handle timelineName update
     if (partialUpdate.timelineName !== undefined) {
-        timeline.timelineName = partialUpdate.timelineName;
+      timeline.timelineName = partialUpdate.timelineName;
     }
 
     await cacheJobResult(jobId, {

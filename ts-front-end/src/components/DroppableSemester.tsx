@@ -1,6 +1,6 @@
 import React from "react";
-import { useDroppable } from "@dnd-kit/core";
-import { Calendar, Clock } from "lucide-react";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
+import { Calendar, Clock, GripVertical, Trash2 } from "lucide-react";
 import { DraggableCourse } from "./DraggableCourse";
 import type {
   CourseMap,
@@ -8,7 +8,7 @@ import type {
   SemesterId,
   SemesterCourse,
 } from "../types/timeline.types";
-import type { DroppableSemesterData } from "../types/dnd.types";
+import type { DndSemesterData } from "../types/dnd.types";
 
 interface DroppableSemesterProps {
   semesterId: SemesterId;
@@ -16,6 +16,7 @@ interface DroppableSemesterProps {
   semesterCourses: SemesterCourse[];
   onCourseSelect: (courseId: CourseCode) => void;
   selectedCourse?: CourseCode | null;
+  onRemoveSemester?: (semesterId: SemesterId) => void;
 }
 
 export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
@@ -24,15 +25,39 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   semesterCourses,
   onCourseSelect,
   selectedCourse,
+  onRemoveSemester,
 }) => {
-  const { isOver, setNodeRef } = useDroppable({
+  const isFallWinter = semesterId.startsWith("FALL/WINTER");
+
+  const { isOver, setNodeRef: setDropRef } = useDroppable({
     id: semesterId,
-    data: { type: "semester", semesterId } as DroppableSemesterData,
+    data: { type: "semester", semesterId } as DndSemesterData,
+  });
+  // Fall/Winter semesters are draggable for reordering
+  const {
+    attributes,
+    listeners,
+    setNodeRef: setDragRef,
+    isDragging,
+  } = useDraggable({
+    id: `semester:${semesterId}`,
+    data: { type: "semester", semesterId } as DndSemesterData,
+    disabled: !isFallWinter,
   });
 
-  const [season, year] = semesterId.split(" ");
-  const seasonLabel =
-    season.charAt(0).toUpperCase() + season.slice(1).toLowerCase();
+  // Merge the two refs
+  const setRef = (node: HTMLDivElement | null) => {
+    setDropRef(node);
+    setDragRef(node);
+  };
+
+  const [season, yearPart] = semesterId.split(" ");
+
+  // Capitalise each word separated by "/" (handles "FALL", "WINTER", "SUMMER", "FALL/WINTER")
+  const seasonLabel = season
+    .split("/")
+    .map((s) => s.charAt(0).toUpperCase() + s.slice(1).toLowerCase())
+    .join("/");
 
   const totalCredits = semesterCourses.reduce((sum, c) => {
     const course = courses[c.code];
@@ -40,18 +65,41 @@ export const DroppableSemester: React.FC<DroppableSemesterProps> = ({
   }, 0);
 
   return (
-    <div ref={setNodeRef} className={`semester ${isOver ? "drag-over" : ""}`}>
+    <div
+      ref={setRef}
+      className={`semester ${isOver ? "drag-over" : ""} ${isDragging ? "semester--dragging" : ""}`}>
       <div className="semester-header">
+        {/* Only FALL/WINTER semesters are draggable for reordering */}
+        {isFallWinter && (
+          <button
+            type="button"
+            className="semester-drag-handle"
+            aria-label="Drag to reorder semester"
+            {...attributes}
+            {...listeners}>
+            <GripVertical size={16} />
+          </button>
+        )}
         <div className="semester-title">
           <Calendar size={16} />
           <span>
-            {seasonLabel} {year}
+            {seasonLabel} {yearPart}
           </span>
         </div>
         <div className="semester-credits">
           <Clock size={14} />
           {totalCredits} credits
         </div>
+        {semesterCourses.length === 0 && onRemoveSemester && (
+          <button
+            type="button"
+            className="semester-remove-btn"
+            aria-label={`Remove empty semester`}
+            title="Remove semester"
+            onClick={() => onRemoveSemester(semesterId)}>
+            <Trash2 size={14} />
+          </button>
+        )}
       </div>
 
       <div className="semester-courses">
