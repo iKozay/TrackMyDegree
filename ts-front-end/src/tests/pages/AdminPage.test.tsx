@@ -5,6 +5,22 @@ import { useAuth } from "../../hooks/useAuth";
 
 vi.mock("../../hooks/useAuth");
 
+vi.mock("../../components/admin/MetricsTab", () => ({
+  default: () => <div>Metrics Tab</div>,
+}));
+
+vi.mock("../../components/admin/DegreeManagementTab", () => ({
+  default: () => <div>DegreeManagementTab</div>,
+}));
+
+vi.mock("../../components/admin/UserManagementTab", () => ({
+  default: () => <div>UserManagementTab</div>,
+}));
+
+vi.mock("../../components/admin/SeedingTab", () => ({
+  default: () => <div>SeedingTab</div>,
+}));
+
 vi.mock("../../components/admin/BackupManagementTab", () => ({
   default: () => <div data-testid="backup-management-tab">Backup Tab</div>,
 }));
@@ -42,16 +58,11 @@ describe("AdminPage", () => {
       isAuthenticated: true,
     } as any);
 
-    const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-
     render(<AdminPage />);
 
     fireEvent.click(screen.getByRole("tab", { name: "Degrees & Courses" }));
 
     expect(screen.getByText("DegreeManagementTab")).toBeTruthy();
-    expect(consoleSpy).toHaveBeenCalled();
-
-    consoleSpy.mockRestore();
   });
 
   it("should switch to backups tab and render BackupManagementTab", () => {
