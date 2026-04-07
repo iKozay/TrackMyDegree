@@ -1,14 +1,11 @@
 // __tests__/degreeController.test.ts
-import mongoose from 'mongoose';
-import { MongoMemoryServer } from 'mongodb-memory-server';
-import { DegreeController } from '../controllers/degreeController';
-import { Degree } from '../models/degree';
-import { CoursePool } from '../models/coursepool';
-import { Course } from '../models/course';
-import {
-  resolveEntityVersion,
-  resolveEntityVersions,
-} from '@services/catalogVersionService';
+const mongoose = require('mongoose');
+const { MongoMemoryServer } = require('mongodb-memory-server');
+const { DegreeController } = require('../controllers/degreeController');
+const { Degree } = require('../models/degree');
+const { CoursePool } = require('../models/coursepool');
+const { Course } = require('../models/course');
+const { resolveEntityVersion, resolveEntityVersions } = require('@services/catalogVersionService');
 
 // Mock the entity version resolvers
 jest.mock('@services/catalogVersionService', () => ({

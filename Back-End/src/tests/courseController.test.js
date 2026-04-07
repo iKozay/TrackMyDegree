@@ -1,11 +1,7 @@
 // __tests__/courseController.test.ts
-
-import { CourseController } from '../controllers/courseController';
-import { Course } from '@models';
-import {
-  resolveEntityVersion,
-  resolveEntityVersions,
-} from '@services/catalogVersionService';
+const { CourseController } = require('../controllers/courseController');
+const { Course } = require('@models');
+const { resolveEntityVersion, resolveEntityVersions } = require('@services/catalogVersionService');
 
 jest.mock('@models', () => ({
   Course: {

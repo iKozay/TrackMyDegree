@@ -1,5 +1,5 @@
 // controllers/uploadController.test.js
-import { BadRequestError } from '@utils/errors';
+const { BadRequestError } = require('@utils/errors');
 
 // ---- Mock the queue ----
 const mockQueueAdd = jest.fn();

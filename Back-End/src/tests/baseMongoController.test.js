@@ -1,7 +1,7 @@
 // __tests__/baseMongoController.test.ts
-import { BaseMongoController, BaseDocument } from '../controllers/baseMongoController';
-import { NotFoundError } from '@utils/errors';
-import { ObjectId } from 'bson';
+const { BaseMongoController, BaseDocument } = require('../controllers/baseMongoController');
+const { NotFoundError } = require('@utils/errors');
+const { ObjectId } = require('bson');
 
 const mockData = {
   _id: new ObjectId(),

@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import * as creditFormController from '@controllers/creditFormController';
 import { CreditForm } from '@models/creditForm';
 import fs from 'node:fs';

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { TimelineController } = require('../controllers/timelineController');
 const { Timeline } = require('../models/timeline');
-import { NotFoundError } from '@utils/errors';
+const { NotFoundError } = require('@utils/errors');
 
 describe('TimelineController', () => {
   let mongoServer;

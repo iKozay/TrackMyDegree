@@ -1,7 +1,7 @@
-import { CoursePoolController } from '@controllers/coursepoolController';
-import { CoursePool } from '@models';
-import { NotFoundError } from '@utils/errors';
-import { resolveEntityVersion, resolveEntityVersions } from '@services/catalogVersionService';
+const { CoursePoolController } = require('@controllers/coursepoolController');
+const { CoursePool } = require('@models');
+const { NotFoundError } = require('@utils/errors');
+const { resolveEntityVersion, resolveEntityVersions } = require('@services/catalogVersionService');
 
 jest.mock('@models', () => ({
   CoursePool: {

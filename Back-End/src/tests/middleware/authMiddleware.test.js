@@ -1,14 +1,14 @@
 process.env.JWT_SECRET = 'test-secret-key';
 process.env.SESSION_ALGO = 'aes-256-gcm';
 
-import express, { Request, Response } from 'express';
-import supertest from 'supertest';
-import cookieParser from 'cookie-parser';
-import { authMiddleware, userCheckMiddleware, adminCheckMiddleware } from '../../middleware/authMiddleware';
-import { errorHandler } from '../../middleware/errorHandler';
-import { jwtService } from '../../services/jwtService';
-import { authController } from '../../controllers/authController';
-import { ForbiddenError } from '../../utils/errors';
+const express = require('express');
+const supertest = require('supertest');
+const cookieParser = require('cookie-parser');
+const { authMiddleware, userCheckMiddleware, adminCheckMiddleware } = require('../../middleware/authMiddleware');
+const { errorHandler } = require('../../middleware/errorHandler');
+const { jwtService } = require('../../services/jwtService');
+const { authController } = require('../../controllers/authController');
+const { ForbiddenError } = require('../../utils/errors');
 
 // Mock dependencies
 jest.mock('../../services/jwtService', () => ({

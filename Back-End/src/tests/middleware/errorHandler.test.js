@@ -1,8 +1,7 @@
-import * as Sentry from '@sentry/node';
-import { notFoundHandler, errorHandler } from '../../middleware/errorHandler';
-import { APIError, INTERNAL_SERVER_ERROR } from '../../utils/errors';
-import HTTP from '../../utils/httpCodes';
-import { NotFoundError } from '@utils/errors';
+const Sentry = require('@sentry/node');
+const { notFoundHandler, errorHandler } = require('../../middleware/errorHandler');
+const { APIError, INTERNAL_SERVER_ERROR, NotFoundError } = require('../../utils/errors');
+const HTTP = require('../../utils/httpCodes');
 
 // Mock dependencies
 jest.mock('http-errors');

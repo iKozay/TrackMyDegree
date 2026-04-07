@@ -1,3 +1,4 @@
+
 import { Types } from 'mongoose';
 import { CreditForm } from '@models';
 import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@trackmydegree/shared';
@@ -8,6 +9,8 @@ import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
 const UPLOAD_DIR = path.join(DATA_DIR, 'credit-forms');
 const API_FILE_PREFIX = '/api/credit-forms/file/';
+const FORM_NOT_FOUND = 'Form not found';
+const FILE_NOT_FOUND = 'File not found';
 
 // Ensure upload directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -43,7 +46,7 @@ export async function getFormById(programId: string): Promise<ICreditFormData | 
     const form = await CreditForm.findOne({ programId, isActive: true });
 
     if (!form) {
-        throw new NotFoundError('Form not found');
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     return {
@@ -152,7 +155,7 @@ export async function updateForm(
                 fs.unlinkSync(filePath);
             }
         }
-        throw new NotFoundError('Form not found');
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     if (input.title) form.title = input.title;
@@ -187,7 +190,7 @@ export async function updateForm(
 export async function deleteForm(programId: string): Promise<void> {
     const form = await CreditForm.findOne({ programId });
     if (!form) {
-        throw new NotFoundError('Form not found');
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     form.isActive = false;
@@ -205,11 +208,11 @@ export function resolveFilePath(filename: string): string {
     const filePath = path.resolve(UPLOAD_DIR, safeFilename);
     // Verify the resolved path is strictly within UPLOAD_DIR
     if (!filePath.startsWith(UPLOAD_DIR + path.sep)) { 
-        throw new NotFoundError('File not found');
+        throw new NotFoundError(FILE_NOT_FOUND);
     }
 
     if (!fs.existsSync(filePath)) {
-        throw new NotFoundError('File not found');
+        throw new NotFoundError(FILE_NOT_FOUND);
     }
 
     return filePath;

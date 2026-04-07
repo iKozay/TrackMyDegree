@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
 import creditFormRoutes from '../routes/creditFormRoutes';
