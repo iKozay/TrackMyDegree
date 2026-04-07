@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Tab, Table, Tabs } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { DegreeData, CoursePoolInfo, CreateDegreeInput, UpdateDegreeInput, CreateCoursePoolInput } from '@shared/degree';
-import type { CourseDocument } from '@shared/course';
+import type { ApiResponse } from '../../types/response.types';
+import type { DegreeData, CoursePoolData, CreateDegreeInput, UpdateDegreeInput, CreateCoursePoolInput, CourseData } from '@trackmydegree/shared';
 
 // ─── Degrees sub-tab ─────────────────────────────────────────────────────────
 
@@ -23,8 +23,8 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.get<DegreeData[]>('/degree');
-      setDegrees(data);
+      const result = await api.get<ApiResponse<DegreeData[]>>('/admin/collections/degrees/documents');
+      setDegrees(result.data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load degrees');
     } finally {
@@ -150,7 +150,7 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
 
 function useCourseSearch() {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<CourseDocument[]>([]);
+  const [results, setResults] = useState<CourseData[]>([]);
   const [searching, setSearching] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -160,9 +160,10 @@ function useCourseSearch() {
     debounceRef.current = setTimeout(async () => {
       setSearching(true);
       try {
-        const data = await api.get<CourseDocument[]>(`/courses?search=${encodeURIComponent(query)}&limit=10`);
-        const list = Array.isArray(data) ? data : [];
-        setResults(list.map((c) => ({ ...c, code: c.code ?? c._id })));
+        const result = await api.get<ApiResponse<CourseData[]>>(
+          `/admin/collections/courses/documents?keyword=${encodeURIComponent(query)}&limit=10`,
+        );
+        setResults(result.data ?? []);
       } catch {
         setResults([]);
       } finally {
@@ -184,12 +185,12 @@ interface CoursePoolsPanelProps {
 const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) => {
   const [degrees, setDegrees] = useState<DegreeData[]>([]);
   const [selectedDegreeId, setSelectedDegreeId] = useState<string>(initialDegreeId ?? '');
-  const [pools, setPools] = useState<CoursePoolInfo[]>([]);
+  const [pools, setPools] = useState<CoursePoolData[]>([]);
   const [loadingDegrees, setLoadingDegrees] = useState(true);
   const [loadingPools, setLoadingPools] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<CoursePoolInfo | null>(null);
+  const [editing, setEditing] = useState<CoursePoolData | null>(null);
   const [form, setForm] = useState<Omit<CreateCoursePoolInput, 'degreeId'>>({ name: '', creditsRequired: 0, courses: [] });
   const [saving, setSaving] = useState(false);
   const courseSearch = useCourseSearch();
@@ -198,9 +199,10 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
     const fetchDegrees = async () => {
       setLoadingDegrees(true);
       try {
-        const data = await api.get<DegreeData[]>('/degree');
-        setDegrees(data);
-        if (!initialDegreeId && data.length > 0) setSelectedDegreeId(data[0]._id);
+        const result = await api.get<ApiResponse<DegreeData[]>>('/admin/collections/degrees/documents');
+        const list = result.data ?? [];
+        setDegrees(list);
+        if (!initialDegreeId && list.length > 0) setSelectedDegreeId(list[0]._id);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load degrees');
       } finally {
@@ -220,8 +222,11 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
     setLoadingPools(true);
     setError(null);
     try {
-      const data = await api.get<CoursePoolInfo[]>(`/degree/${degreeId}/coursepools`);
-      setPools(data);
+      const result = await api.get<CoursePoolData[]>(
+        `/degree/${encodeURIComponent(degreeId)}/coursepools`,
+      );
+      const list = (result ?? []);
+      setPools(list);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pools');
     } finally {
@@ -232,17 +237,17 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
   useEffect(() => { if (selectedDegreeId) void loadPools(selectedDegreeId); }, [selectedDegreeId, loadPools]);
 
   const openCreate = () => { setEditing(null); setForm({ name: '', creditsRequired: 0, courses: [] }); courseSearch.setQuery(''); setShowModal(true); };
-  const openEdit = (pool: CoursePoolInfo) => { setEditing(pool); setForm({ name: pool.name, creditsRequired: pool.creditsRequired, courses: [...pool.courses] }); courseSearch.setQuery(''); setShowModal(true); };
+  const openEdit = (pool: CoursePoolData) => { setEditing(pool); setForm({ name: pool.name, creditsRequired: pool.creditsRequired, courses: [...pool.courses] }); courseSearch.setQuery(''); setShowModal(true); };
 
-  const addCourse = (code: string) => {
-    if (!form.courses.includes(code)) {
-      setForm((f) => ({ ...f, courses: [...f.courses, code] }));
+  const addCourse = (courseId: string) => {
+    if (!form.courses.includes(courseId)) {
+      setForm((f) => ({ ...f, courses: [...f.courses, courseId] }));
     }
     courseSearch.setQuery('');
   };
 
-  const removeCourse = (code: string) => {
-    setForm((f) => ({ ...f, courses: f.courses.filter((c) => c !== code) }));
+  const removeCourse = (courseId: string) => {
+    setForm((f) => ({ ...f, courses: f.courses.filter((c) => c !== courseId) }));
   };
 
   const handleSave = async () => {
@@ -312,10 +317,10 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
             <Form.Group className="mb-3">
               <Form.Label>Courses</Form.Label>
               <div className="mb-2 d-flex flex-wrap gap-1">
-                {form.courses.map((code) => (
-                  <Badge key={code} bg="secondary" className="d-flex align-items-center gap-1" style={{ fontSize: '0.85em' }}>
-                    {code}
-                    <span role="button" style={{ cursor: 'pointer' }} onClick={() => removeCourse(code)}>&times;</span>
+                {form.courses.map((courseId) => (
+                  <Badge key={courseId} bg="secondary" className="d-flex align-items-center gap-1" style={{ fontSize: '0.85em' }}>
+                    {courseId}
+                    <span role="button" style={{ cursor: 'pointer' }} onClick={() => removeCourse(courseId)}>&times;</span>
                   </Badge>
                 ))}
                 {form.courses.length === 0 && <span className="text-muted small">No courses added yet</span>}
@@ -329,17 +334,16 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
               {courseSearch.results.length > 0 && (
                 <div className="border rounded mt-1" style={{ maxHeight: 180, overflowY: 'auto' }}>
                   {courseSearch.results.map((c) => {
-                    const code = c.code ?? c._id;
                     return (
                       <div
-                        key={code}
+                        key={c._id}
                         className="px-3 py-2 d-flex justify-content-between align-items-center"
                         style={{ cursor: 'pointer', borderBottom: '1px solid #eee' }}
-                        onClick={() => addCourse(code)}
+                        onClick={() => addCourse(c._id)}
                       >
-                        <span><code>{code}</code> — {c.title}</span>
-                        <Badge bg={form.courses.includes(code) ? 'success' : 'outline-secondary'}>
-                          {form.courses.includes(code) ? 'Added' : '+ Add'}
+                        <span><code>{c._id}</code> — {c.title}</span>
+                        <Badge bg={form.courses.includes(c._id) ? 'success' : 'outline-secondary'}>
+                          {form.courses.includes(c._id) ? 'Added' : '+ Add'}
                         </Badge>
                       </div>
                     );
@@ -361,7 +365,7 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
 // ─── Courses sub-tab ─────────────────────────────────────────────────────────
 
 const CoursesPanel: React.FC = () => {
-  const [courses, setCourses] = useState<CourseDocument[]>([]);
+  const [courses, setCourses] = useState<CourseData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
@@ -372,11 +376,13 @@ const CoursesPanel: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams({ page: String(page), limit: String(limit), ...(search && { search }) });
-      const data = await api.get<CourseDocument[]>(`/courses?${params.toString()}`);
-      // Backend returns an array directly
-      const list = Array.isArray(data) ? data : [];
-      setCourses(list.map((c) => ({ ...c, code: c.code ?? c._id })));
+      const query = new URLSearchParams({
+        page: String(page),
+        limit: String(limit),
+        ...(search && { keyword: search }),
+      });
+      const result = await api.get<ApiResponse<CourseData[]>>(`/admin/collections/courses/documents?${query.toString()}`);
+      setCourses(result.data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load courses');
     } finally {
@@ -402,8 +408,8 @@ const CoursesPanel: React.FC = () => {
             <thead><tr><th>Code</th><th>Title</th><th className="text-center">Credits</th><th className="text-center">Offered In</th></tr></thead>
             <tbody>
               {courses.map((c) => (
-                <tr key={c.code ?? c._id}>
-                  <td><code>{c.code ?? c._id}</code></td>
+                <tr key={c._id}>
+                  <td><code>{c._id}</code></td>
                   <td>{c.title}</td>
                   <td className="text-center">{c.credits}</td>
                   <td className="text-center">{(c.offeredIn ?? []).join(', ') || '—'}</td>

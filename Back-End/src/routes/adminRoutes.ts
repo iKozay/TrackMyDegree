@@ -184,6 +184,46 @@ router.get(
   },
 );
 
+router.get(
+  '/collections/:collectionName/documents-count',
+  async (req: Request, res: Response) => {
+    try {
+      const { collectionName } = req.params;
+      const { field, value, keyword } = req.query;
+
+      if (!collectionName) {
+        res.status(HTTP.BAD_REQUEST).json({
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
+        });
+        return;
+      }
+
+      const count = await adminController.getCollectionDocumentsCount(
+        collectionName as string,
+        {
+          field: field as string,
+          value: value as string,
+          keyword: keyword as string,
+        }
+      );
+
+      res.status(HTTP.OK).json({
+        success: true,
+        data: { count },
+      });
+    } catch (error) {
+      console.error(
+        'Error in GET /admin/collections/:collectionName/documents',
+        error,
+      );
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
+    }
+  },
+);
+
 /**
  * DELETE /admin/collections/:collectionName/clear - Clear collection
  */

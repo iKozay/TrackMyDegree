@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Table } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { UserDocument, UserRole, CreateUserInput, UpdateUserInput } from '@shared/user';
+import type { ApiResponse } from '../../types/response.types';
+import type { UserDocument, UserRole, CreateUserInput, UpdateUserInput } from '@trackmydegree/shared';
 
 const ROLES: UserRole[] = ['student', 'admin'];
 
@@ -157,8 +158,8 @@ const UserManagementTab: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.get<UserDocument[]>('/users');
-      setUsers(data);
+      const result = await api.get<ApiResponse<UserDocument[]>>('/admin/collections/users/documents');
+      setUsers(result.data ?? []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load users');
     } finally {

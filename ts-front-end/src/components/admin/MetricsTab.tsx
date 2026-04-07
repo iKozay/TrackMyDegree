@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Spinner, Alert, Button, Card, Col, OverlayTrigger, Row, Tooltip } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { AdminStats, DbConnectionStatus } from '@shared/admin';
-import type { UserDocument } from '@shared/user';
+import type { ApiResponse } from '../../types/response.types';
+import type { AdminStats, DbConnectionStatus } from '@trackmydegree/shared';
 
 const MetricsTab: React.FC = () => {
   const [stats, setStats] = useState<AdminStats | null>(null);
@@ -15,34 +15,34 @@ const MetricsTab: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const [usersRes, degreesRes, coursesRes, timelinesRes, dbRes] = await Promise.allSettled([
-        api.get<UserDocument[]>('/users'),
-        api.get<{ total?: number }>('/admin/collections/degrees/documents?limit=1'),
-        api.get<{ total?: number }>('/admin/collections/courses/documents?limit=1'),
-        api.get<{ total?: number }>('/admin/collections/timelines/documents?limit=1'),
+      const [usersRes, studentsRes, adminsRes, degreesRes, coursesRes, timelinesRes, dbRes] = await Promise.allSettled([
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/users/documents-count'),
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/users/documents-count?field=type&value=student'),
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/users/documents-count?field=type&value=admin'),
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/degrees/documents-count'),
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/courses/documents-count'),
+        api.get<ApiResponse<{ count: number }>>('/admin/collections/timelines/documents-count'),
         api.get<DbConnectionStatus>('/admin/connection-status'),
       ]);
 
-      const users = usersRes.status === 'fulfilled' ? (usersRes.value as UserDocument[]) : [];
-      const degreesData = degreesRes.status === 'fulfilled' ? (degreesRes.value as { total?: number }) : null;
-      const coursesData = coursesRes.status === 'fulfilled' ? (coursesRes.value as { total?: number }) : null;
-      const timelinesData = timelinesRes.status === 'fulfilled' ? (timelinesRes.value as { total?: number }) : null;
+      const users = usersRes.status === 'fulfilled' ? (usersRes.value.data ?? { count: 0 }) : { count: 0 };
+      const students = studentsRes.status === 'fulfilled' ? (studentsRes.value.data ?? { count: 0 }) : { count: 0 };
+      const admins = adminsRes.status === 'fulfilled' ? (adminsRes.value.data ?? { count: 0 }) : { count: 0 };
+      const degrees = degreesRes.status === 'fulfilled' ? (degreesRes.value.data ?? { count: 0 }) : { count: 0 };
+      const courses = coursesRes.status === 'fulfilled' ? (coursesRes.value.data ?? { count: 0 }) : { count: 0 };
+      const timelines = timelinesRes.status === 'fulfilled' ? (timelinesRes.value.data ?? { count: 0 }) : { count: 0 };
 
       if (dbRes.status === 'fulfilled') {
         setDbStatus(dbRes.value as DbConnectionStatus);
       }
 
-      const byRole = { student: 0, admin: 0 };
-      (users as UserDocument[]).forEach((u) => {
-        if (u.type === 'student') byRole.student++;
-        else if (u.type === 'admin') byRole.admin++;
-      });
+      const byRole = { student: students.count, admin: admins.count };
 
       setStats({
-        totalUsers: users.length,
-        totalTimelines: timelinesData?.total ?? 0,
-        totalDegrees: degreesData?.total ?? 0,
-        totalCourses: coursesData?.total ?? 0,
+        totalUsers: users.count,
+        totalTimelines: timelines.count,
+        totalDegrees: degrees.count,
+        totalCourses: courses.count,
         usersByRole: byRole,
       });
       setLastRefreshed(new Date());

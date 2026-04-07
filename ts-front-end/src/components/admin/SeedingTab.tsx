@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Alert, Badge, Button, Card, Col, Form, Row, Spinner } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { DbConnectionStatus, SeedResult } from '@shared/admin';
-import type { DegreeData } from '@shared/degree';
+import type { ApiResponse } from '../../types/response.types';
+import type { DbConnectionStatus, SeedResult, DegreeData } from '@trackmydegree/shared';
 
 const SeedingTab: React.FC = () => {
   const [degrees, setDegrees] = useState<DegreeData[]>([]);
@@ -17,10 +17,10 @@ const SeedingTab: React.FC = () => {
     setLoading(true);
     try {
       const [degreesData, statusData] = await Promise.allSettled([
-        api.get<DegreeData[]>('/degree'),
+        api.get<ApiResponse<DegreeData[]>>('/admin/collections/degrees/documents'),
         api.get<DbConnectionStatus>('/admin/connection-status'),
       ]);
-      if (degreesData.status === 'fulfilled') setDegrees(degreesData.value as DegreeData[]);
+      if (degreesData.status === 'fulfilled') setDegrees(degreesData.value.data ?? []);
       if (statusData.status === 'fulfilled') setDbStatus(statusData.value as DbConnectionStatus);
     } finally {
       setLoading(false);
