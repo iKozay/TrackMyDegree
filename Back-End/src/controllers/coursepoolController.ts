@@ -21,8 +21,7 @@ export class CoursePoolController extends BaseMongoController<any> {
   async bulkCreateCoursePools(
     coursePoolData: CoursePoolData[],
   ): Promise<boolean> {
-      const result = await this.bulkWrite(coursePoolData);
-
+      await this.bulkWrite(coursePoolData);
       return true;
 
   }

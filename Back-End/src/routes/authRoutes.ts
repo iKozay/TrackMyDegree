@@ -62,12 +62,10 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies?.refresh_token;
-    if (!token)
-      throw new UnauthorizedError('Missing refresh token');
+    if (!token) throw new UnauthorizedError('Missing refresh token');
 
       const payload = jwtService.verifyRefreshToken(token);
-      if (!payload)
-        throw new UnauthorizedError('Invalid or expired refresh token');
+      if (!payload) throw new UnauthorizedError('Invalid or expired refresh token');
 
       // Validate user still exists
       const user = await authController.getUserById(payload.userId);

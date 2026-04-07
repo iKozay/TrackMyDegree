@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import createError from 'http-errors';
 import HTTP from '@utils/httpCodes';
 import * as Sentry from '@sentry/node';
 import { APIError, INTERNAL_SERVER_ERROR, NotFoundError } from '@utils/errors';

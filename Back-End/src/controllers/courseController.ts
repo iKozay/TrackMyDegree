@@ -19,7 +19,7 @@ export class CourseController extends BaseMongoController<any> {
    * Create multiple courses in bulk
    */
   async bulkCreateCourses(courseData: CourseData[]): Promise<boolean> {
-      const result = await this.bulkWrite(courseData);
+      await this.bulkWrite(courseData);
       return true;
   }
 
