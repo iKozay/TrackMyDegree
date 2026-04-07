@@ -89,11 +89,6 @@ Ensure you have the following installed on your machine:
 
 3. **Install dependencies**:
    ```bash
-   cd ts-front-end
-   npm i
-   cd ../Back-End/src
-   npm i
-   cd ..
    npm i
    ```
    

@@ -1,8 +1,16 @@
+import { setCsrfToken } from "./csrf";
+
 export const request = async <T = unknown>(
   url: string,
   options: RequestInit = {}
 ): Promise<T> => {
   const response = await fetch(url, options);
+
+  // Capture CSRF token from backend response
+  const csrfHeader = response.headers.get("X-CSRF-Token");
+  if (csrfHeader) {
+    setCsrfToken(csrfHeader);
+  }
 
   const contentType = response.headers.get("Content-Type") ?? "";
   let body: any = contentType.includes("application/json") ? await response.json() : await response.text();
