@@ -7,12 +7,34 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: MATH 204. The following course must be completed previously or concurrently: ENGR 242.",
-    "rules": {
-      "prereq": [["MATH 204"], ["ENGR 242"]],
-      "coreq": [["ENGR 242"]],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["MATH 204"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: MATH 204."
+      },
+      {
+        "type": "prerequisite_or_corequisite",
+        "params": {
+          "courseList": ["ENGR 242"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously or taken concurrently: ENGR 242."
+      }
+    ]
+  },
+    {
+    "_id": "BCEE 277",
+    "code": "BCEE 277",
+    "title": "Introduction to AI in Natural and Built Environment",
+    "credits": 2.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": "",
+    "rules": []
   },
   {
     "_id": "BCEE 342",
@@ -22,12 +44,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 244.",
-    "rules": {
-      "prereq": [["ENGR 244"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      }
+    ]
   },
   {
     "_id": "BCEE 343",
@@ -37,12 +63,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
-    "rules": {
-      "prereq": [["BCEE 342"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 342."
+      }
+    ]
   },
   {
     "_id": "BCEE 344",
@@ -52,12 +82,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
-    "rules": {
-      "prereq": [["BCEE 342"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 342."
+      }
+    ]
   },
   {
     "_id": "BCEE 345",
@@ -67,12 +101,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 342.",
-    "rules": {
-      "prereq": [["BCEE 342"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 342."
+      }
+    ]
   },
   {
     "_id": "BCEE 371",
@@ -82,12 +120,35 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 212 or CIVI 212.",
-    "rules": {
-      "prereq": [["BLDG 212", "CIVI 212"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 212", "CIVI 212"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 212, CIVI 212."
+      }
+    ]
+  },
+  {
+    "_id": "BCEE 377",
+    "code": "BCEE 377",
+    "title": "Applied AI for the Built Environment",
+    "credits": 2.5,
+    "description": "",
+    "offeredIn": [],
+    "prereqCoreqText": " The following course must be completed previously: BCEE 277.",
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 277"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 277."
+      }
+    ]
   },
   {
     "_id": "BCEE 432",
@@ -97,12 +158,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 244.",
-    "rules": {
-      "prereq": [["ENGR 244"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 244"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 244."
+      }
+    ]
   },
   {
     "_id": "BCEE 451",
@@ -112,12 +177,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BLDG 341 or CIVI 341.",
-    "rules": {
-      "prereq": [["BLDG 341", "CIVI 341"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 341", "CIVI 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 341, CIVI 341."
+      }
+    ]
   },
   {
     "_id": "BCEE 452",
@@ -127,12 +196,40 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 213, ENGR 233; BCEE 231, BCEE 343.",
-    "rules": {
-      "prereq": [["ENGR 213"], ["BCEE 231"], ["ENGR 233"], ["BCEE 343"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 213"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 213."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 233"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 233."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 231"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 231."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 343"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 343."
+      }
+    ]
   },
   {
     "_id": "BCEE 455",
@@ -142,12 +239,32 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: ENGR 243, ENGR 391; BCEE 342.",
-    "rules": {
-      "prereq": [["ENGR 243"], ["BCEE 342"], ["ENGR 391"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 243"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 243."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 391"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 391."
+      },
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 342"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 342."
+      }
+    ]
   },
   {
     "_id": "BCEE 464",
@@ -157,12 +274,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
-    "rules": {
-      "prereq": [["ENGR 301"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      }
+    ]
   },
   {
     "_id": "BCEE 465",
@@ -172,12 +293,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 478 or equivalent.",
-    "rules": {
-      "prereq": [["BCEE 478"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 478"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 478."
+      }
+    ]
   },
   {
     "_id": "BCEE 466",
@@ -187,12 +312,16 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 451.",
-    "rules": {
-      "prereq": [["BCEE 451"]],
-      "coreq": [],
-      "not_taken": [],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 451"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 451."
+      }
+    ]
   },
   {
     "_id": "BCEE 478",
@@ -202,12 +331,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following courses must be completed previously: BLDG 341 or CIVI 341.",
-    "rules": {
-      "prereq": [["BLDG 341", "CIVI 341"]],
-      "coreq": [],
-      "not_taken": ["BLDG 478"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BLDG 341", "CIVI 341"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BLDG 341, CIVI 341."
+      },
+        {
+          "type": "not_taken",
+          "params": {
+            "courseList": ["BLDG 478"],
+            "maxCourses": 0
+          },
+          "message": "Students cannot take this course if they have taken any of the following courses: BLDG 478."
+        }
+    ]
   },
   {
     "_id": "BCEE 491",
@@ -217,12 +358,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
-    "rules": {
-      "prereq": [["ENGR 301"]],
-      "coreq": [],
-      "not_taken": ["BLDG 491"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BLDG 491"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BLDG 491."
+      }
+    ]
   },
   {
     "_id": "BCEE 492",
@@ -232,12 +385,24 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: BCEE 451 or ENGR 451.",
-    "rules": {
-      "prereq": [["BCEE 451", "ENGR 451"]],
-      "coreq": [],
-      "not_taken": ["BLDG 492"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["BCEE 451", "ENGR 451"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: BCEE 451, ENGR 451."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BLDG 492"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BLDG 492."
+      }
+    ]
   },
   {
     "_id": "BCEE 493",
@@ -247,11 +412,23 @@
     "description": "",
     "offeredIn": [],
     "prereqCoreqText": "The following course must be completed previously: ENGR 301.",
-    "rules": {
-      "prereq": [["ENGR 301"]],
-      "coreq": [],
-      "not_taken": ["BLDG 493"],
-      "min_credits": 0.0
-    }
+    "rules": [
+      {
+        "type": "prerequisite",
+        "params": {
+          "courseList": ["ENGR 301"],
+          "minCourses": 1
+        },
+        "message": "At least 1 of the following courses must be completed previously: ENGR 301."
+      },
+      {
+        "type": "not_taken",
+        "params": {
+          "courseList": ["BLDG 493"],
+          "maxCourses": 0
+        },
+        "message": "Students cannot take this course if they have taken any of the following courses: BLDG 493."
+      }
+    ]
   }
 ]

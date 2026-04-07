@@ -10,9 +10,8 @@ import {
   CourseAuditStatus,
   RequirementStatus,
   GenerateAuditParams,
-} from '@shared/audit';
-import { TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus } from '@shared/timeline';
-import { CourseData, DegreeData, CoursePoolInfo } from '@shared/degree';
+  TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus,
+  CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
 import { isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
@@ -152,7 +151,7 @@ function generateNotices(
  * Processes a course pool into a requirement category
  */
 function processPoolToRequirement(
-  pool: CoursePoolInfo,
+  pool: CoursePoolData,
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -519,7 +518,7 @@ function buildCoursesDictionary(
  * Processes course pools into requirement categories
  */
 function processCoursePools(
-  coursePools: CoursePoolInfo[],
+  coursePools: CoursePoolData[],
   allCourses: Record<string, CourseData>,
   courseStatusMap: Record<
     string,
@@ -551,35 +550,39 @@ export async function generateDegreeAudit(
   const allCourses = buildCoursesDictionary(courseArr);
   const courseStatusMap = timeline.courseStatusMap ?? {};
 
-  return buildDegreeAudit(
+  return buildDegreeAudit({
     degreeData,
     coursePools,
     allCourses,
     courseStatusMap,
-    timeline.deficiencies,
-    timeline.exemptions,
-    timeline.semesters,
-    user
-  )
+    deficiencies: timeline.deficiencies,
+    exemptions: timeline.exemptions,
+    semesters: timeline.semesters,
+    user,
+  });
 }
 
-function buildDegreeAudit(
-  degreeData: DegreeData,
-  coursePools: CoursePoolInfo[],
-  allCourses: Record<string, CourseData>,
-  courseStatusMap: Record<string, {
-    status: CourseStatus;
-    semester: string | null;
-  }>,
-  deficiencies: string[],
-  exemptions: string[],
-  semesters: TimelineSemester[],
-  user?:{
-    _id: string;
-    fullname: string;
-    email: string;
-  },
-) {
+interface BuildAuditOptions {
+    degreeData: DegreeData;
+    coursePools: CoursePoolData[];
+    allCourses: Record<string, CourseData>;
+    courseStatusMap: Record<string, { status: CourseStatus; semester: string | null }>;
+    deficiencies: string[];
+    exemptions: string[];
+    semesters: TimelineSemester[];
+    user?: { _id: string; fullname: string; email: string };
+}
+
+function buildDegreeAudit({
+  degreeData,
+  coursePools,
+  allCourses,
+  courseStatusMap,
+  deficiencies,
+  exemptions,
+  semesters,
+  user,
+}: BuildAuditOptions) {
   const requirements = processCoursePools(
     coursePools,
     allCourses,
@@ -649,7 +652,8 @@ export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
       title: course.title,
       description: course.description,
       credits: course.credits,
-      offeredIn: course.offeredIN,
+      offeredIn: course.offeredIn,
+      rules: [],
     }];
     }),
   );
@@ -665,13 +669,13 @@ export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
   );
 
 
-return buildDegreeAudit(
-    timeline.degree,
-    filteredPools,
+  return buildDegreeAudit({
+    degreeData: timeline.degree,
+    coursePools: filteredPools,
     allCourses,
     courseStatusMap,
     deficiencies,
     exemptions,
-    timeline.semesters
-  )
+    semesters: timeline.semesters,
+  });
 }

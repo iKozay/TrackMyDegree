@@ -1,6 +1,5 @@
-import type { TimelineActionType } from "../types/timeline.types";
+import type { TimelineActionType, TimelineState } from "../types/timeline.types";
 import { TimelineActionConstants} from "../types/actions";
-import type { TimelineState } from "../types/timeline.types";
 import {
   initTimelineState,
   selectCourse,
@@ -12,7 +11,12 @@ import {
   openModal,
   changeCourseStatus,
   addCourse,
+  removeCourse,
   addSemester,
+  addFallWinterSemester,
+  removeSemester,
+  moveSemester,
+  insertSemesterAt,
   validateTimeline,
 } from "../handlers/timelineHandler";
 
@@ -24,7 +28,8 @@ export function timelineReducer(
 
   switch (action.type) {
     case TimelineActionConstants.Init:
-      return initTimelineState(state, action.payload);
+      nextState = initTimelineState(state, action.payload);
+      break;
 
     case TimelineActionConstants.SelectCourse:
       return selectCourse(state, action.payload);
@@ -65,8 +70,28 @@ export function timelineReducer(
       nextState = addCourse(state, action.payload);
       break;
 
+    case TimelineActionConstants.RemoveCourse:
+      nextState = removeCourse(state, action.payload);
+      break;
+
     case TimelineActionConstants.AddSemester:
       nextState = addSemester(state);
+      break;
+
+    case TimelineActionConstants.AddFallWinterSemester:
+      nextState = addFallWinterSemester(state);
+      break;
+
+    case TimelineActionConstants.RemoveSemester:
+      nextState = removeSemester(state, action.payload);
+      break;
+
+    case TimelineActionConstants.MoveSemester:
+      nextState = moveSemester(state, action.payload);
+      break;
+
+    case TimelineActionConstants.InsertSemesterAt:
+      nextState = insertSemesterAt(state, action.payload);
       break;
 
     default:

@@ -1,22 +1,24 @@
 // MainModal.tsx
 import React from "react";
 import { BaseModal } from "./BaseModal";
-import { AddModal } from "./AddModal";
+import { ManageModal } from "./ManageModal";
 import { InsightsModal } from "./InsightsModal";
 import { SaveTimelineModal } from "./SaveTimelineModal";
-import type { CourseCode, CourseMap, Pool } from "../types/timeline.types";
+import type { CourseCode, CourseMap } from "../types/timeline.types";
 import { CoopValidationModal } from "./CoopValidationModal";
+import { type CoursePoolData } from "@trackmydegree/shared";
 import { canAddCourse } from "../utils/timelineUtils";
 import { toast } from "react-toastify";
 
 type MainModalProps = {
   open: boolean;
   type: string;
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   timelineName: string;
   onSave: (timelineName: string) => void;
   onAdd: (courseId: CourseCode, type: string) => void;
+  onRemove: (courseId: CourseCode, type: string) => void;
   onClose: (open: boolean, type: string) => void;
 };
 
@@ -28,6 +30,7 @@ export const MainModal: React.FC<MainModalProps> = ({
   timelineName,
   onSave,
   onAdd,
+  onRemove,
   onClose,
 }) => {
   if (!open) return null;
@@ -51,6 +54,11 @@ export const MainModal: React.FC<MainModalProps> = ({
     toast.success(`${courseId} added to the pool!`);
   };
 
+  const handleRemove = (courseId: CourseCode, type: string) => {
+    onRemove(courseId, type);
+    toast.success(`${courseId} removed from the pool!`);
+  };
+
   const renderContent = () => {
     switch (type) {
       case "insights":
@@ -64,9 +72,25 @@ export const MainModal: React.FC<MainModalProps> = ({
           />
         );
       case "exemption":
-        return <AddModal type="exemption" onAdd={handleAdd} />;
+        return (
+          <ManageModal
+            type="exemption"
+            courses={courses}
+            pools={pools}
+            onAdd={handleAdd}
+            onRemove={handleRemove}
+          />
+        );
       case "deficiency":
-        return <AddModal type="deficiency" onAdd={handleAdd} />;
+        return (
+          <ManageModal
+            type="deficiency"
+            courses={courses}
+            pools={pools}
+            onAdd={handleAdd}
+            onRemove={handleRemove}
+          />
+        );
       case "save":
         return (
           <SaveTimelineModal

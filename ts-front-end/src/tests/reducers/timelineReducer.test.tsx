@@ -9,9 +9,8 @@ const mockCourses: CourseMap = {
     title: "Object-Oriented Programming I",
     credits: 3,
     description: "Introduction to programming",
-    offeredIN: ["FALL 2025", "WINTER 2026"],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: ["FALL 2025", "WINTER 2026"],
+    rules: [],
     status: {
       status: "incomplete",
       semester: null,
@@ -22,9 +21,8 @@ const mockCourses: CourseMap = {
     title: "Object-Oriented Programming II",
     credits: 3,
     description: "Advanced OOP concepts",
-    offeredIN: ["WINTER 2026", "SUMMER 2026"],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: ["WINTER 2026", "SUMMER 2026"],
+    rules: [],
     status: {
       status: "incomplete",
       semester: null,
@@ -56,6 +54,7 @@ const initialState: TimelineState = {
       name: "Engineering Core",
       creditsRequired: 30,
       courses: ["COMP 248", "COMP 249"],
+      rules: [],
     },
   ],
   courses: mockCourses,
@@ -277,5 +276,220 @@ describe("timelineReducer", () => {
       expect(result.semesters).toEqual(initialState.semesters);
       expect(result.selectedCourse).toBe(initialState.selectedCourse);
       expect(result.modal).toEqual(initialState.modal);
+  });
+
+  it("handles REMOVE_COURSE action for exemption pool", () => {
+    const stateWithExemption: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "exemptions",
+          name: "exemptions",
+          creditsRequired: 3,
+          courses: ["COMP 248"],
+          rules: [],
+        },
+      ],
+      courses: {
+        ...mockCourses,
+        "COMP 248": {
+          ...mockCourses["COMP 248"],
+          status: { status: "completed", semester: null },
+        },
+      },
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "exemption" },
+    };
+
+    const result = timelineReducer(stateWithExemption, action);
+
+    expect(result.pools[0].courses).not.toContain("COMP 248");
+    expect(result.pools[0].creditsRequired).toBe(0);
+    expect(result.courses["COMP 248"].status.status).toBe("incomplete");
+    expect(result.courses["COMP 248"].status.semester).toBeNull();
+  });
+
+  it("handles REMOVE_COURSE action for deficiency pool", () => {
+    const stateWithDeficiency: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "deficiencies",
+          name: "deficiencies",
+          creditsRequired: 3,
+          courses: ["COMP 249"],
+          rules: [],
+        },
+      ],
+      courses: {
+        ...mockCourses,
+        "COMP 249": {
+          ...mockCourses["COMP 249"],
+          status: { status: "incomplete", semester: null },
+        },
+      },
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 249", type: "deficiency" },
+    };
+
+    const result = timelineReducer(stateWithDeficiency, action);
+
+    expect(result.pools[0].courses).not.toContain("COMP 249");
+    expect(result.pools[0].creditsRequired).toBe(0);
+    expect(result.courses["COMP 249"].status.status).toBe("incomplete");
+  });
+
+  it("does not modify state when REMOVE_COURSE targets invalid type", () => {
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "invalid-type" },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.pools).toEqual(initialState.pools);
+    expect(result.courses).toEqual(initialState.courses);
+  });
+
+  it("does not modify state when REMOVE_COURSE targets course not in pool", () => {
+    const stateWithEmptyExemptions: TimelineState = {
+      ...initialState,
+      pools: [
+        {
+          _id: "exemptions",
+          name: "exemptions",
+          creditsRequired: 0,
+          courses: [],
+          rules: [],
+        },
+      ],
+    };
+
+    const action = {
+      type: TimelineActionConstants.RemoveCourse,
+      payload: { courseId: "COMP 248", type: "exemption" },
+    };
+
+    const result = timelineReducer(stateWithEmptyExemptions, action);
+
+    expect(result).toEqual(stateWithEmptyExemptions);
+  });
+
+  it("handles ADD_FALL_WINTER_SEMESTER action", () => {
+    const action = {
+      type: TimelineActionConstants.AddFallWinterSemester,
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(initialState.semesters.length + 1);
+
+    const newSemester = result.semesters[result.semesters.length - 1];
+    expect(newSemester.term).toMatch(/^FALL\/WINTER \d{4}-\d{2}$/);
+  });
+
+  it("does not add a duplicate FALL/WINTER semester", () => {
+    // Add it once
+    const action = { type: TimelineActionConstants.AddFallWinterSemester };
+    const afterFirst = timelineReducer(initialState, action);
+    // Try to add the same term again
+    const afterSecond = timelineReducer(afterFirst, action);
+
+    // Count FALL/WINTER semesters
+    const fwCount = afterSecond.semesters.filter((s) =>
+      s.term.startsWith("FALL/WINTER")
+    ).length;
+    expect(fwCount).toBe(1);
+    expect(afterSecond.semesters.length).toBe(afterFirst.semesters.length);
+  });
+
+  it("handles MOVE_SEMESTER action to reorder semesters", () => {
+    const stateWithFallWinter: TimelineState = {
+      ...initialState,
+      semesters: [
+        { term: "FALL 2025", courses: [] },
+        { term: "FALL/WINTER 2025-26", courses: [] },
+        { term: "WINTER 2026", courses: [] },
+      ],
+    };
+
+    const action = {
+      type: TimelineActionConstants.MoveSemester,
+      payload: { fromIndex: 1, toIndex: 2 },
+    };
+
+    const result = timelineReducer(stateWithFallWinter, action);
+
+    expect(result.semesters.length).toBe(3);
+    // FALL/WINTER should now be at index 2
+    expect(result.semesters[2].term).toMatch(/^FALL\/WINTER/);
+  });
+
+  it("does not change state for MOVE_SEMESTER when fromIndex equals toIndex", () => {
+    const action = {
+      type: TimelineActionConstants.MoveSemester,
+      payload: { fromIndex: 0, toIndex: 0 },
+    };
+
+    const result = timelineReducer(initialState, action);
+    // State returned unchanged (no history push)
+    expect(result.semesters).toEqual(initialState.semesters);
+  });
+
+  it("handles INSERT_SEMESTER_AT by inserting a new semester at the given index", () => {
+    // initialState has [FALL 2025, WINTER 2026]; insert SUMMER 2026 at index 2
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2026", atIndex: 2 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(3);
+    expect(result.semesters[2].term).toBe("SUMMER 2026");
+    expect(result.semesters[2].courses).toEqual([]);
+  });
+
+  it("handles INSERT_SEMESTER_AT by inserting in the middle of the list", () => {
+    // initialState has [FALL 2025, WINTER 2026]; insert FALL 2025's missing would be e.g. a SUMMER
+    // Insert a semester at index 1 between the two existing ones
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2025" as const, atIndex: 1 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(3);
+    expect(result.semesters[0].term).toBe("FALL 2025");
+    expect(result.semesters[1].term).toBe("SUMMER 2025");
+    expect(result.semesters[2].term).toBe("WINTER 2026");
+  });
+
+  it("does not insert a duplicate semester for INSERT_SEMESTER_AT", () => {
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "FALL 2025" as const, atIndex: 1 },
+    };
+
+    const result = timelineReducer(initialState, action);
+
+    expect(result.semesters.length).toBe(initialState.semesters.length);
+  });
+
+  it("pushes to history on INSERT_SEMESTER_AT", () => {
+    const action = {
+      type: TimelineActionConstants.InsertSemesterAt,
+      payload: { semesterId: "SUMMER 2026" as const, atIndex: 2 },
+    };
+
+    const result = timelineReducer(initialState, action);
+    expect(result.history.length).toBe(1);
   });
 });

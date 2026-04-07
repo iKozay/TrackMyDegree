@@ -102,16 +102,9 @@ export default function RequirementsSelectPage() {
             }}
           >
             {programs.map((p) => (
-              <div
+              <button
                 key={p.id}
-                role="button"
-                tabIndex={0}
                 onClick={() => navigate(`/requirements/${p.id}`)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    navigate(`/requirements/${p.id}`);
-                  }
-                }}
                 style={{
                   border: '1px solid #e5e7eb',
                   borderRadius: 12,
@@ -120,6 +113,8 @@ export default function RequirementsSelectPage() {
                   boxShadow: '0 1px 4px rgba(0,0,0,.06)',
                   cursor: 'pointer',
                   transition: 'transform .08s ease, box-shadow .08s ease',
+                  textAlign: 'left',
+                  width: '100%',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
@@ -141,7 +136,7 @@ export default function RequirementsSelectPage() {
                   {p.title}
                 </h5>
                 <p style={{ margin: 0, fontSize: 13, color: '#6b7280' }}>{p.subtitle}</p>
-              </div>
+              </button>
             ))}
           </div>
         )}

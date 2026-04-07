@@ -8,17 +8,25 @@ import type {
   SemesterId,
   SemesterCourse,
 } from "../../types/timeline.types";
-import { useDroppable } from "@dnd-kit/core";
+import { useDroppable, useDraggable } from "@dnd-kit/core";
 
-// 🔹 Mock dnd-kit/core the same way we mocked DraggableCourse in other tests
+// 🔹 Mock dnd-kit/core — includes both useDroppable and useDraggable
 vi.mock("@dnd-kit/core", () => {
   const useDroppableMock = vi.fn(() => ({
     isOver: false,
     setNodeRef: vi.fn(),
   }));
 
+  const useDraggableMock = vi.fn(() => ({
+    attributes: {},
+    listeners: {},
+    setNodeRef: vi.fn(),
+    isDragging: false,
+  }));
+
   return {
     useDroppable: useDroppableMock,
+    useDraggable: useDraggableMock,
   };
 });
 
@@ -58,9 +66,8 @@ describe("DroppableSemester", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "OOP I",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -68,9 +75,8 @@ describe("DroppableSemester", () => {
       title: "System Hardware",
       credits: 4,
       description: "Hardware",
-      offeredIN: [] as SemesterId[],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [] as SemesterId[],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };
@@ -172,5 +178,81 @@ describe("DroppableSemester", () => {
 
     const semesterDiv = container.querySelector(".semester");
     expect(semesterDiv).toHaveClass("drag-over");
+  });
+
+  it("adds semester--dragging class when useDraggable reports isDragging = true", () => {
+    const useDraggableMock = useDraggable as unknown as ReturnType<typeof vi.fn>;
+
+    useDraggableMock.mockReturnValueOnce({
+      attributes: {},
+      listeners: {},
+      setNodeRef: vi.fn(),
+      isDragging: true,
+    });
+
+    const fallWinterSemesterId = "FALL/WINTER 2025-26" as SemesterId;
+
+    const { container } = render(
+      <DroppableSemester
+        semesterId={fallWinterSemesterId}
+        courses={courses}
+        semesterCourses={[]}
+        onCourseSelect={() => {}}
+        selectedCourse={null}
+      />
+    );
+
+    const semesterDiv = container.querySelector(".semester");
+    expect(semesterDiv).toHaveClass("semester--dragging");
+  });
+
+  it("shows drag handle for FALL/WINTER semesters", () => {
+    const fallWinterSemesterId = "FALL/WINTER 2025-26" as SemesterId;
+
+    render(
+      <DroppableSemester
+        semesterId={fallWinterSemesterId}
+        courses={courses}
+        semesterCourses={[]}
+        onCourseSelect={() => {}}
+        selectedCourse={null}
+      />
+    );
+
+    expect(
+      screen.getByRole("button", { name: /drag to reorder semester/i })
+    ).toBeInTheDocument();
+  });
+
+  it("does not show drag handle for regular (non-FALL/WINTER) semesters", () => {
+    render(
+      <DroppableSemester
+        semesterId={semesterId}
+        courses={courses}
+        semesterCourses={[]}
+        onCourseSelect={() => {}}
+        selectedCourse={null}
+      />
+    );
+
+    expect(
+      screen.queryByRole("button", { name: /drag to reorder semester/i })
+    ).toBeNull();
+  });
+
+  it("renders correct season label for FALL/WINTER semester", () => {
+    const fallWinterSemesterId = "FALL/WINTER 2025-26" as SemesterId;
+
+    render(
+      <DroppableSemester
+        semesterId={fallWinterSemesterId}
+        courses={courses}
+        semesterCourses={[]}
+        onCourseSelect={() => {}}
+        selectedCourse={null}
+      />
+    );
+
+    expect(screen.getByText(/fall\/winter/i)).toBeInTheDocument();
   });
 });

@@ -143,7 +143,7 @@ describe('courseProcessorWorker', () => {
       opts: { attempts: 3 },
     };
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
     await expect(workerProcessor(job)).rejects.toThrow('processing failed');
 
@@ -168,12 +168,16 @@ describe('courseProcessorWorker', () => {
       opts: { attempts: 3 },
     };
 
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => { });
 
     await expect(workerProcessor(job)).rejects.toThrow('processing failed');
 
     expect(unlink).toHaveBeenCalledWith('/tmp/job-last-attempt.pdf');
-    expect(cacheJobResult).not.toHaveBeenCalled();
+
+    // ✅ Updated expectation
+    expect(cacheJobResult).toHaveBeenCalledWith('job-last-attempt', {
+      payload: { status: 'failed', data: null },
+    });
 
     errorSpy.mockRestore();
   });

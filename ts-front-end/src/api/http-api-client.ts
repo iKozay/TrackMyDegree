@@ -1,5 +1,6 @@
 import { ENV } from "../config";
 import { request } from "./request";
+import { getCsrfToken } from "./csrf";
 
 const SERVER = ENV.API_SERVER || "http://localhost:8000/api";
 
@@ -22,6 +23,13 @@ const buildOptions = (
     ...(token && { Authorization: `Bearer ${token}` }),
     ...(extraOptions.headers ?? {}),
   };
+
+  // Attach CSRF token for unsafe methods
+  const unsafeMethods: HTTPMethod[] = ["POST", "PUT", "PATCH", "DELETE"];
+  const csrfToken = getCsrfToken();
+  if (unsafeMethods.includes(method) && csrfToken) {
+    headers["X-CSRF-Token"] = csrfToken;
+  }
 
   const options: RequestInit = {
     ...extraOptions,

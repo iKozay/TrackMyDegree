@@ -41,11 +41,18 @@ describe('CourseController', () => {
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
           prereqCoreqText: "",
-          rules: {
-            prereq: [['MATH101']],
-            coreq: [],
-            not_taken: [],
-          },
+          rules: [
+            {
+              "level": "warning",
+              "message": "At least 1 of the following courses must be completed previously: MATH101.",
+              "params": {
+                "courseList": [
+                  "MATH101"
+                ],
+                "minCourses": 1
+              },
+              "type": "prerequisite"
+            }],
         },
         {
           _id: 'COMP102',
@@ -54,11 +61,18 @@ describe('CourseController', () => {
           credits: 3,
           offeredIn: ['Fall', 'Winter'],
           prereqCoreqText: "",
-          rules: {
-            prereq: [['MATH102']],
-            coreq: [],
-            not_taken: [],
-          },
+          rules: [
+            {
+              "level": "warning",
+              "message": "At least 1 of the following courses must be completed previously: MATH102.",
+              "params": {
+                "courseList": [
+                  "MATH102"
+                ],
+                "minCourses": 1
+              },
+              "type": "prerequisite"
+            }],
         },
       ];
 

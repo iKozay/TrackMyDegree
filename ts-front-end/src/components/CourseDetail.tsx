@@ -7,19 +7,21 @@ import {
   LucideAlarmMinus,
   CheckCircle,
 } from "lucide-react";
-import { RequisiteGroup } from "./RequisiteGroup";
+import CourseRules from "./CourseRules";
 import type {
   Course,
   CourseCode,
   CourseMap,
   CourseStatusValue,
   SemesterId,
+  SemesterList
 } from "../types/timeline.types"; // adjust path
 import { CourseStatusActions } from "./CourseStatusToggle";
 import { CourseScheduleModal } from "../legacy/components/CourseScheduleModal";
 interface CourseDetailsProps {
   course?: Course | null;
-  courses?: CourseMap;
+  semesters: SemesterList;
+  courses: CourseMap;
   onRemoveCourse?: (courseId: CourseCode, semesterId: SemesterId) => void;
   onChangeCourseStatus?: (
     courseId: CourseCode,
@@ -29,7 +31,8 @@ interface CourseDetailsProps {
 
 const CourseDetail: React.FC<CourseDetailsProps> = ({
   course,
-  courses = {},
+  courses,
+  semesters,
   onRemoveCourse,
   onChangeCourseStatus,
 }) => {
@@ -51,10 +54,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return <CheckCircle className="status-icon completed" size={16} />;
       case "planned":
         return <Calendar className="status-icon planned" size={16} />;
-      case "incomplete":
-        return (
-          <LucideAlarmMinus className="status-icon incomplete" size={16} />
-        );
       default:
         return (
           <LucideAlarmMinus className="status-icon incomplete" size={16} />
@@ -68,8 +67,6 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         return "Completed";
       case "planned":
         return "Planned";
-      case "incomplete":
-        return "Incomplete";
       default:
         return "Incomplete";
     }
@@ -105,7 +102,7 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
           <Calendar size={16} />
           <span>
             Offered in:{" "}
-            {course.offeredIN.length > 0 ? course.offeredIN.join(", ") : "N/A"}
+            {course.offeredIn.length > 0 ? course.offeredIn.join(", ") : "N/A"}
           </span>
         </div>
 
@@ -120,17 +117,12 @@ const CourseDetail: React.FC<CourseDetailsProps> = ({
         </div>
       </div>
 
-      <RequisiteGroup
-        title="Prerequisites"
-        groups={course.prerequisites}
+      <CourseRules
+        course={course}
         courses={courses}
+        semesters={semesters}
       />
 
-      <RequisiteGroup
-        title="Corequisites"
-        groups={course.corequisites}
-        courses={courses}
-      />
     </div>
   );
 };

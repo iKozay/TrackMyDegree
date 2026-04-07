@@ -1,7 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MainModal } from "../../components/MainModal";
-import type { Pool, CourseMap } from "../../types/timeline.types";
+import type { CoursePoolData } from "@trackmydegree/shared";
+import type { CourseMap } from "../../types/timeline.types";
 
 vi.mock("../../components/BaseModal", () => ({
   BaseModal: ({ children, open }: { children: React.ReactNode; open: boolean }) =>
@@ -17,9 +18,13 @@ vi.mock("../../components/InsightsModal", () => ({
   ),
 }));
 
-vi.mock("../../components/AddModal", () => ({
-  AddModal: ({ type }: { type: string }) => (
-    <div data-testid="add-modal">Add Modal - {type}</div>
+vi.mock("../../components/ManageModal", () => ({
+  ManageModal: ({ type, onAdd, onRemove }: { type: string; onAdd: (id: string, t: string) => void; onRemove: (id: string, t: string) => void }) => (
+    <div data-testid="manage-modal">
+      Manage Modal - {type}
+      <button data-testid="manage-add-btn" onClick={() => onAdd("COMP 248", type)}>Add</button>
+      <button data-testid="manage-remove-btn" onClick={() => onRemove("COMP 248", type)}>Remove</button>
+    </div>
   ),
 }));
 
@@ -39,14 +44,16 @@ vi.mock("../../components/CoopValidationModal", () => ({
 describe("MainModal", () => {
   const mockOnSave = vi.fn();
   const mockOnAdd = vi.fn();
+  const mockOnRemove = vi.fn();
   const mockOnClose = vi.fn();
 
-  const mockPools: Pool[] = [
+  const mockPools: CoursePoolData[] = [
     {
       _id: "pool-cs-core",
       name: "Computer Science Core",
       courses: ["COMP 248", "COMP 249"],
       creditsRequired: 30,
+      rules: [],
     },
   ];
 
@@ -56,9 +63,8 @@ describe("MainModal", () => {
       title: "OOP I",
       description: "Test",
       credits: 3,
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "completed", semester: null },
     },
   };
@@ -71,6 +77,7 @@ describe("MainModal", () => {
     timelineName: "My Timeline",
     onSave: mockOnSave,
     onAdd: mockOnAdd,
+    onRemove: mockOnRemove,
     onClose: mockOnClose,
   };
 
@@ -106,18 +113,27 @@ describe("MainModal", () => {
     expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it("should render AddModal with exemption type when type is exemption", () => {
+  it("should render ManageModal with exemption type when type is exemption", () => {
     render(<MainModal {...defaultProps} type="exemption" />);
 
-    expect(screen.getByTestId("add-modal")).toBeInTheDocument();
-    expect(screen.getByText("Add Modal - exemption")).toBeInTheDocument();
+    expect(screen.getByTestId("manage-modal")).toBeInTheDocument();
+    expect(screen.getByText("Manage Modal - exemption")).toBeInTheDocument();
   });
 
-  it("should render AddModal with deficiency type when type is deficiency", () => {
+  it("should render ManageModal with deficiency type when type is deficiency", () => {
     render(<MainModal {...defaultProps} type="deficiency" />);
 
-    expect(screen.getByTestId("add-modal")).toBeInTheDocument();
-    expect(screen.getByText("Add Modal - deficiency")).toBeInTheDocument();
+    expect(screen.getByTestId("manage-modal")).toBeInTheDocument();
+    expect(screen.getByText("Manage Modal - deficiency")).toBeInTheDocument();
+  });
+
+  it("should call onRemove and show toast when ManageModal remove button is clicked", () => {
+    render(<MainModal {...defaultProps} type="exemption" />);
+
+    const removeBtn = screen.getByTestId("manage-remove-btn");
+    fireEvent.click(removeBtn);
+
+    expect(mockOnRemove).toHaveBeenCalledWith("COMP 248", "exemption");
   });
 
   it("should render SaveTimelineModal when type is save", () => {
@@ -154,10 +170,10 @@ describe("MainModal", () => {
     expect(screen.getByTestId("insights-modal")).toBeInTheDocument();
 
     rerender(<MainModal {...defaultProps} type="exemption" />);
-    expect(screen.getByText("Add Modal - exemption")).toBeInTheDocument();
+    expect(screen.getByText("Manage Modal - exemption")).toBeInTheDocument();
 
     rerender(<MainModal {...defaultProps} type="deficiency" />);
-    expect(screen.getByText("Add Modal - deficiency")).toBeInTheDocument();
+    expect(screen.getByText("Manage Modal - deficiency")).toBeInTheDocument();
 
     rerender(<MainModal {...defaultProps} type="save" />);
     expect(screen.getByTestId("save-timeline-modal")).toBeInTheDocument();

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import SemesterPlanner from "../../components/SemesterPlanner";
 import type {
   CourseMap,
@@ -17,6 +17,35 @@ vi.mock("../../components/DroppableSemester", () => {
   };
 });
 
+// 🔹 Mock useDroppable used by SemesterSlot inside SemesterPlanner
+vi.mock("@dnd-kit/core", () => ({
+  useDroppable: vi.fn(() => ({ isOver: false, setNodeRef: vi.fn() })),
+}));
+
+// 🔹 Mock useTimelineDnd context (needed by SemesterPlanner)
+vi.mock("../../contexts/timelineDndContext", () => ({
+  useTimelineDnd: vi.fn(() => ({ activeCourseId: null, activeSemesterId: null })),
+}));
+
+// 🔹 Mock react-toastify
+vi.mock("react-toastify", () => ({
+  toast: {
+    warning: vi.fn(),
+    success: vi.fn(),
+    error: vi.fn(),
+  },
+}));
+
+// 🔹 Mock wouldCreateDuplicateFallWinter so we can control its return value
+vi.mock("../../utils/timelineUtils", () => ({
+  wouldCreateDuplicateFallWinter: vi.fn(() => false),
+  getMissingSemesterBetween: vi.fn(() => null),
+}));
+
+import { useTimelineDnd } from "../../contexts/timelineDndContext";
+import { toast } from "react-toastify";
+import { wouldCreateDuplicateFallWinter } from "../../utils/timelineUtils";
+
 describe("SemesterPlanner", () => {
   const courses: CourseMap = {
     "COMP 248": {
@@ -24,9 +53,8 @@ describe("SemesterPlanner", () => {
       title: "Object-Oriented Programming I",
       credits: 3,
       description: "Intro OOP",
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
     "SOEN 228": {
@@ -34,9 +62,8 @@ describe("SemesterPlanner", () => {
       title: "System Hardware",
       credits: 4,
       description: "Hardware course",
-      offeredIN: [],
-      prerequisites: [],
-      corequisites: [],
+      offeredIn: [],
+      rules: [],
       status: { status: "incomplete", semester: null },
     },
   };
@@ -54,6 +81,11 @@ describe("SemesterPlanner", () => {
 
   const onCourseSelect = vi.fn();
   const onAddSemester = vi.fn();
+  const onAddFallWinterSemester = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it("renders the header title and Add Semester button", () => {
     render(
@@ -63,6 +95,7 @@ describe("SemesterPlanner", () => {
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
         onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
       />
     );
 
@@ -83,6 +116,7 @@ describe("SemesterPlanner", () => {
         onCourseSelect={onCourseSelect}
         selectedCourse={null}
         onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
       />
     );
 
@@ -102,6 +136,7 @@ describe("SemesterPlanner", () => {
         onCourseSelect={onCourseSelect}
         selectedCourse={"COMP 248"}
         onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
       />
     );
 
@@ -109,35 +144,240 @@ describe("SemesterPlanner", () => {
     expect(screen.getByText(/academic plan/i)).toBeInTheDocument();
   });
 
-    it("shows default header when timelineName is undefined", () => {
-        render(
-            <SemesterPlanner
-                semesters={semesters}
-                courses={courses}
-                onCourseSelect={onCourseSelect}
-                selectedCourse={null}
-                onAddSemester={onAddSemester}
-                timelineName={undefined}
-            />
-        );
-        expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-            "Academic Plan"
-        );
+  it("shows default header when timelineName is undefined", () => {
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+        timelineName={undefined}
+      />
+    );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      "Academic Plan"
+    );
+  });
+
+  it("shows provided timelineName in header when defined", () => {
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+        timelineName={"MyTimeline12345"}
+      />
+    );
+    expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
+      "MyTimeline12345"
+    );
+  });
+
+  it("opens popover and shows both semester options when Add Semester is clicked", () => {
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    // Popover should not be visible initially
+    expect(screen.queryByRole("menu")).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+
+    // Popover open
+    expect(screen.getByRole("menu")).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /add semester/i })).toBeInTheDocument();
+    expect(screen.getByRole("menuitem", { name: /add fall\/winter semester/i })).toBeInTheDocument();
+  });
+
+  it("calls onAddSemester and closes popover when 'Add Semester' menu item is clicked", () => {
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /^add semester/i }));
+
+    expect(onAddSemester).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("calls onAddFallWinterSemester and closes popover when 'Add Fall/Winter Semester' is clicked", () => {
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /add fall\/winter semester/i }));
+
+    expect(onAddFallWinterSemester).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("renders semester drop slots when a semester card is being dragged", () => {
+    (useTimelineDnd as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      activeCourseId: null,
+      activeSemesterId: "FALL/WINTER 2025-26" as SemesterId,
     });
 
-    it("shows provided timelineName in header when defined", () => {
-        render(
-            <SemesterPlanner
-                semesters={semesters}
-                courses={courses}
-                onCourseSelect={onCourseSelect}
-                selectedCourse={null}
-                onAddSemester={onAddSemester}
-                timelineName={"MyTimeline12345"}
-            />
-        );
-        expect(screen.getByRole("heading", { level: 2 })).toHaveTextContent(
-            "MyTimeline12345"
-        );
+    const { container } = render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    // SemesterSlot elements are rendered when isSemesterDragging is true
+    const slots = container.querySelectorAll(".semester-drop-slot");
+    // semesters.length + 1 trailing slot = 3 slots
+    expect(slots.length).toBe(semesters.length + 1);
+  });
+
+  it("does not render semester drop slots when no semester is being dragged", () => {
+    (useTimelineDnd as ReturnType<typeof vi.fn>).mockReturnValueOnce({
+      activeCourseId: null,
+      activeSemesterId: null,
     });
+
+    const { container } = render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    const slots = container.querySelectorAll(".semester-drop-slot");
+    expect(slots.length).toBe(0);
+  });
+
+  it("shows toast warning and does NOT call onAddFallWinterSemester when duplicate would be created", () => {
+    vi.mocked(wouldCreateDuplicateFallWinter).mockReturnValueOnce(true);
+
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /add fall\/winter semester/i }));
+
+    expect(toast.warning).toHaveBeenCalledWith(
+      "Only one Fall/Winter semester is allowed per academic year",
+    );
+    expect(onAddFallWinterSemester).not.toHaveBeenCalled();
+    // Popover should close after the warning
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("calls onAddFallWinterSemester and does NOT show a toast when no duplicate would be created", () => {
+    vi.mocked(wouldCreateDuplicateFallWinter).mockReturnValueOnce(false);
+
+    render(
+      <SemesterPlanner
+        semesters={semesters}
+        courses={courses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+        onAddSemester={onAddSemester}
+        onAddFallWinterSemester={onAddFallWinterSemester}
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /add semester/i }));
+    fireEvent.click(screen.getByRole("menuitem", { name: /add fall\/winter semester/i }));
+
+    expect(onAddFallWinterSemester).toHaveBeenCalledTimes(1);
+    expect(toast.warning).not.toHaveBeenCalled();
+    expect(screen.queryByRole("menu")).toBeNull();
+  });
+
+  it("scrolls to the end of semester list when a new semester is added", () => {
+    // Start with 2 semesters
+    const initialSemesters = [
+      { term: "FALL 2025", courses: [{ code: "COMP 248", message: "" }] },
+      { term: "WINTER 2026", courses: [{ code: "SOEN 228", message: "" }] },
+    ];
+    const coursesCopy = { ...courses };
+    const onCourseSelectMock = vi.fn();
+    const onAddSemesterMock = vi.fn();
+    const onAddFallWinterSemesterMock = vi.fn();
+
+    // Render with initial semesters
+    const { rerender, container } = render(
+      <SemesterPlanner
+        semesters={initialSemesters}
+        courses={coursesCopy}
+        onCourseSelect={onCourseSelectMock}
+        selectedCourse={null}
+        onAddSemester={onAddSemesterMock}
+        onAddFallWinterSemester={onAddFallWinterSemesterMock}
+      />
+    );
+
+    // Find the semesters grid and mock scrollTo
+    const grid = container.querySelector('.semesters-grid');
+    expect(grid).toBeTruthy();
+    if (!grid) throw new Error('semesters-grid not found');
+    grid.scrollTo = vi.fn();
+    // Set scrollWidth to a fake value
+    Object.defineProperty(grid, 'scrollWidth', { value: 1234, configurable: true });
+
+    // Add a new semester
+    const newSemesters = [
+      ...initialSemesters,
+      { term: "SUMMER 2026", courses: [] },
+    ];
+    rerender(
+      <SemesterPlanner
+        semesters={newSemesters}
+        courses={coursesCopy}
+        onCourseSelect={onCourseSelectMock}
+        selectedCourse={null}
+        onAddSemester={onAddSemesterMock}
+        onAddFallWinterSemester={onAddFallWinterSemesterMock}
+      />
+    );
+
+    // Assert scrollTo was called with the end of the grid
+    expect(grid.scrollTo).toHaveBeenCalledWith({ left: 1234, behavior: 'smooth' });
+  });
 });

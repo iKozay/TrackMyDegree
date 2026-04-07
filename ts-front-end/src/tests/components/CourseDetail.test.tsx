@@ -7,20 +7,18 @@ import type {
   CourseMap,
   CourseStatusValue,
   SemesterId,
+  SemesterList,
 } from "../../types/timeline.types";
+import { RuleType } from "@trackmydegree/shared";
 
-// 🔹 Mock RequisiteGroup so we don't test its internals here
-const requisiteMock = vi.fn();
+const courseRulesMock = vi.fn();
 
-vi.mock("../../components/RequisiteGroup", () => ({
-  RequisiteGroup: (props: any) => {
-    requisiteMock(props);
+vi.mock("../../components/CourseRules", () => ({
+  default: (props: any) => {
+    courseRulesMock(props);
     return (
-      <div data-testid="requisite-group">
-        <h4>{props.title}</h4>
-        <span>
-          {Array.isArray(props.groups) ? props.groups.length : 0} groups
-        </span>
+      <div data-testid="course-rules">
+        <span>CourseRules with {props.course?.rules?.length || 0} rules</span>
       </div>
     );
   },
@@ -31,9 +29,27 @@ const makeCourse = (status: CourseStatusValue): Course => ({
   title: "Object-Oriented Programming I",
   credits: 3,
   description: "Intro to OOP",
-  offeredIN: ["FALL 2025", "WINTER 2026"] as SemesterId[],
-  prerequisites: [{ anyOf: ["MATH 203", "MATH 204"] }],
-  corequisites: [{ anyOf: ["ENCS 282"] }],
+  offeredIn: ["FALL 2025", "WINTER 2026"] as SemesterId[],
+  rules: [
+    {
+      type: RuleType.Prerequisite,
+      level: "warning",
+      message: "At least 1 of the following courses must be completed previously: MATH 203.",
+      params: {
+        courseList: ["MATH 203"],
+        minCourses: 1
+      }
+    },
+    {
+      type: RuleType.Corequisite,
+      level: "warning",
+      message: "At least 1 of the following courses must be completed previously or taken concurrently: ENCS 282.",
+      params: {
+        courseList: ["ENCS 282"],
+        minCourses: 1
+      }
+    }
+  ],
   status: {
     status,
     semester: "FALL 2025" as SemesterId,
@@ -42,11 +58,11 @@ const makeCourse = (status: CourseStatusValue): Course => ({
 
 describe("CourseDetail", () => {
   beforeEach(() => {
-    requisiteMock.mockClear();
+    courseRulesMock.mockClear();
   });
 
   it("renders empty state when no course is provided", () => {
-    render(<CourseDetail course={null} courses={{}} />);
+    render(<CourseDetail course={null} courses={{}} semesters={[]} />);
 
     expect(screen.getByText(/select a course/i)).toBeInTheDocument();
     expect(
@@ -59,7 +75,7 @@ describe("CourseDetail", () => {
 
   it("renders basic course information when course is provided", () => {
     const course = makeCourse("incomplete");
-    render(<CourseDetail course={course} courses={{}} />);
+    render(<CourseDetail course={course} courses={{}} semesters={[]} />);
 
     // Code + title share one <h3> ("COMP 248 : …"), so match substring with regex
     const heading = screen.getByRole("heading", { level: 3 });
@@ -75,13 +91,13 @@ describe("CourseDetail", () => {
     expect(screen.getByText(/Scheduled: FALL 2025/i)).toBeInTheDocument();
   });
 
-  it("shows N/A when offeredIN is empty", () => {
+  it("shows N/A when offeredIn is empty", () => {
     const course: Course = {
       ...makeCourse("incomplete"),
-      offeredIN: [],
+      offeredIn: [],
     };
 
-    render(<CourseDetail course={course} courses={{}} />);
+    render(<CourseDetail course={course} courses={{}} semesters={[]} />);
 
     expect(screen.getByText(/Offered in:/i).textContent).toContain("N/A");
   });
@@ -101,34 +117,37 @@ describe("CourseDetail", () => {
 
     statuses.forEach((status) => {
       const course = makeCourse(status);
-      const { unmount } = render(<CourseDetail course={course} courses={{}} />);
+      const { unmount } = render(<CourseDetail course={course} courses={{}} semesters={[]} />);
 
       expect(screen.getByText(expectedText[status])).toBeInTheDocument();
       unmount();
     });
   });
 
-  it("passes prerequisites and corequisites to RequisiteGroup", () => {
+  it("passes course and rules to CourseRules", () => {
     const course = makeCourse("incomplete");
     const courses: CourseMap = {
       [course.id]: course,
     };
+    const semesters: SemesterList = [
+      {
+        term: "FALL 2025",
+        courses: [
+          { code: "COMP 248", message: "" }
+        ]
+      }
+    ];
 
-    render(<CourseDetail course={course} courses={courses} />);
+    render(<CourseDetail course={course} courses={courses} semesters={semesters} />);
 
-    // We mocked RequisiteGroup so every render triggers requisiteMock
-    expect(requisiteMock).toHaveBeenCalledTimes(2);
+    // We mocked CourseRules so every render triggers courseRulesMock
+    expect(courseRulesMock).toHaveBeenCalledTimes(1);
 
-    const [prereqCall, coreqCall] = requisiteMock.mock.calls;
+    const callArgs = courseRulesMock.mock.calls[0][0];
 
-    // First call: "Prerequisites"
-    expect(prereqCall[0].title).toBe("Prerequisites");
-    expect(prereqCall[0].groups).toEqual(course.prerequisites);
-    expect(prereqCall[0].courses).toBe(courses);
-
-    // Second call: "Corequisites"
-    expect(coreqCall[0].title).toBe("Corequisites");
-    expect(coreqCall[0].groups).toEqual(course.corequisites);
-    expect(coreqCall[0].courses).toBe(courses);
+    // Check that CourseRules received the correct props
+    expect(callArgs.course).toBe(course);
+    expect(callArgs.courses).toBe(courses);
+    expect(callArgs.semesters).toBe(semesters);
   });
 });

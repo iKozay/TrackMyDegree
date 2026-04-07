@@ -1,4 +1,6 @@
-export type JobStatus = "done" | "processing" | "error";
+import type { CoursePoolData, Rule } from "@trackmydegree/shared";
+import { TimelineActionConstants } from "./actions";
+export type JobStatus = "done" | "processing" | "failed";
 
 export type JobID = string; // e.g. "7272727727219nui"
 
@@ -12,15 +14,11 @@ export interface Degree {
 
 export type CourseCode = string;
 
-export interface Pool {
-  _id: string;
-  name: string;
-  creditsRequired: number;
-  courses: CourseCode[];
-}
-
-export type Term = "FALL" | "WINTER" | "SUMMER"; // TODO: add FALL/WINTER
-export type SemesterId = `${Term} ${number}`; // e.g. "FALL 2025"
+export type Term = "FALL" | "WINTER" | "SUMMER" | "FALL/WINTER";
+// Used to know order of semesters for drag-and-drop reordering of Fall/Winter semesters to display the correct academic year
+export type SemesterId =
+  | `${"FALL" | "WINTER" | "SUMMER"} ${number}`   // e.g. "FALL 2025"
+  | `FALL/WINTER ${number}-${number}`;             // e.g. "FALL/WINTER 2025-26"
 
 export type SemesterCourse = {
   code: CourseCode;
@@ -33,11 +31,6 @@ export type Semester = {
 };
 
 export type SemesterList = Semester[];
-
-// One “group” of requisites like { anyOf: ["COMP 248", "COMP 249"] }
-export interface RequisiteGroup {
-  anyOf: string[]; // can be course codes or special strings like "Cegep Mathematics 103"
-}
 
 // Course status
 export type CourseStatusValue = "incomplete" | "completed" | "planned";
@@ -54,11 +47,9 @@ export interface Course {
   credits: number | null;
   description: string;
 
-  // keeping the backend field name as-is; in UI you might rename to `offeredIn`
-  offeredIN: SemesterId[];
+  offeredIn: SemesterId[];
 
-  prerequisites: RequisiteGroup[] | string;
-  corequisites: RequisiteGroup[] | string;
+  rules: Rule[];
 
   status: CourseStatus;
 }
@@ -69,7 +60,7 @@ export type CourseMap = Record<CourseCode, Course>;
 export interface TimelineResult {
   timelineName?: string;
   degree: Degree;
-  pools: Pool[];
+  pools: CoursePoolData[];
   semesters: SemesterList;
   courses: CourseMap;
 }
@@ -93,7 +84,7 @@ type modalState = {
 export interface TimelineState {
   timelineName: string;
   degree: Degree;
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   semesters: SemesterList;
   selectedCourse: CourseCode | null;
@@ -110,8 +101,6 @@ export type TimelinePartialUpdate = {
   timelineName?: string;
 };
 
-import { TimelineActionConstants } from "./actions";
-
 /**
  * Typed union of all actions the reducer understands.
  */
@@ -121,7 +110,7 @@ export type TimelineActionType =
       payload: {
         timelineName: string;
         degree: Degree;
-        pools: Pool[];
+        pools: CoursePoolData[];
         courses: CourseMap;
         semesters: SemesterList;
       };
@@ -160,5 +149,19 @@ export type TimelineActionType =
       type: typeof TimelineActionConstants.AddCourse;
       payload: { courseId: CourseCode; type: string };
     }
+  | {
+      type: typeof TimelineActionConstants.RemoveCourse;
+      payload: { courseId: CourseCode; type: string };
+    }
   | { type: typeof TimelineActionConstants.AddSemester }
-  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } };
+  | { type: typeof TimelineActionConstants.AddFallWinterSemester }
+  | { type: typeof TimelineActionConstants.RemoveSemester; payload: { semesterId: SemesterId } }
+  | { type: typeof TimelineActionConstants.SetTimelineName; payload: { timelineName: string } }
+  | {
+      type: typeof TimelineActionConstants.MoveSemester;
+      payload: { fromIndex: number; toIndex: number };
+    }
+  | {
+      type: typeof TimelineActionConstants.InsertSemesterAt;
+      payload: { semesterId: SemesterId; atIndex: number };
+    };

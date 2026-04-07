@@ -55,6 +55,14 @@ export const courseProcessorWorker = new Worker<CourseProcessorJobData>(
     } catch (err) {
       console.error(`Error processing job ${jobId}:`, err);
 
+      if (isLastAttempt) {
+        await cacheJobResult(jobId, {
+          payload: {
+            status: 'failed',
+            data: null,
+          },
+        });
+      }
       // Clean up temp file only on the last attempt so retries can still read it
       if (isLastAttempt && job.data.kind === 'file') {
         await unlink(job.data.filePath).catch(() => {});

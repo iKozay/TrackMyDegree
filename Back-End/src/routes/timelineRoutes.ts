@@ -4,8 +4,8 @@ import { timelineController } from '@controllers/timelineController';
 import { assignJobId, RequestWithJobId } from '@middleware/assignJobId';
 import { queue } from '../workers/queue';
 import mongoose from 'mongoose';
-import { getJobResult } from '../lib/cache';
-import { TimelineResult } from '@shared/timeline';
+import { getJobResult, cacheJobResult } from '../lib/cache';
+import { TimelineResult } from '@trackmydegree/shared';
 
 const router = express.Router();
 
@@ -74,7 +74,7 @@ router.post('/', async (req: Request, res: Response) => {
       return;
     }
 
-// get result from cache
+    // get result from cache
     const cached = await getJobResult<TimelineResult>(jobId);
 
     if (!cached) {
@@ -82,7 +82,11 @@ router.post('/', async (req: Request, res: Response) => {
     }
     const cachedTimeline = cached.payload.data;
 
-    const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
+    const timeline = await timelineController.saveTimeline(
+      userId,
+      timelineName,
+      cachedTimeline,
+    );
     res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     console.error('Error in POST /timeline', error);
@@ -129,7 +133,7 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
     const { id } = req.params;
     const { jobId } = req as RequestWithJobId;
 
-     if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -140,11 +144,18 @@ router.get('/:id', assignJobId, async (req: Request, res: Response) => {
       return;
     }
 
-      await queue.add('processData', {
-        jobId,
-        kind: 'timelineData',
-        timelineId: id as string,
-      });
+    await cacheJobResult(jobId, {
+      payload: {
+        status: 'processing',
+        data: null,
+      },
+    });
+
+    await queue.add('processData', {
+      jobId,
+      kind: 'timelineData',
+      timelineId: id as string,
+    });
 
     res.status(HTTP.ACCEPTED).json({
       jobId,
@@ -207,7 +218,10 @@ router.put('/:id', async (req: Request, res: Response) => {
       });
     }
 
-    const timeline = await timelineController.updateTimeline(id as string, updates);
+    const timeline = await timelineController.updateTimeline(
+      id as string,
+      updates,
+    );
     res.status(HTTP.OK).json(timeline);
   } catch (error) {
     console.error('Error in PUT /timeline/:id', error);
@@ -250,7 +264,7 @@ router.delete('/:id', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-   if (!mongoose.Types.ObjectId.isValid(id as string)) {
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
       return res.status(HTTP.BAD_REQUEST).json({
         error: INVALID_ID_FORMAT,
       });
@@ -307,7 +321,9 @@ router.delete('/user/:userId', async (req: Request, res: Response) => {
       });
     }
 
-    const count = await timelineController.deleteAllUserTimelines(userId as string);
+    const count = await timelineController.deleteAllUserTimelines(
+      userId as string,
+    );
     res.status(HTTP.OK).json({
       message: `Deleted ${count} timelines for user`,
     });

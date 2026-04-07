@@ -1,0 +1,126 @@
+/* CourseRules Component Styles */
+.course-rules {
+  margin-top: 24px;
+  margin-bottom: 20px;
+}
+
+.rule-section {
+  margin-bottom: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.rule-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border: none;
+  border-bottom: 1px solid #e2e8f0;
+  width: 100%;
+  text-align: left;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.2s ease;
+}
+
+.rule-section.section-satisfied .rule-header {
+  background: #f8fafc;
+}
+
+.rule-section.section-unsatisfied .rule-header {
+  background: #f8fafc;
+}
+
+.rule-header h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: #334155;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.collapse-icon {
+  flex-shrink: 0;
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.rule-items {
+  padding: 0;
+}
+
+.rule-item {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.rule-item:last-child {
+  border-bottom: none;
+}
+
+.rule-item.unsatisfied {
+  background-color: inherit;
+}
+
+.rule-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-message {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: #475569;
+}
+
+.course-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.course-item {
+  display: inline-block;
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-weight: 500;
+  border-radius: 4px;
+  border: 1px solid;
+  line-height: 1.2;
+}
+
+/* Course status colors */
+.course-item.status-completed {
+  background-color: #dcfce7;
+  border-color: #86efac;
+  color: #15803d;
+}
+
+.course-item.status-planned {
+  background-color: #dbeafe;
+  border-color: #93c5fd;
+  color: #1d4ed8;
+}
+
+.course-item.status-incomplete {
+  background-color: #fef3c7;
+  border-color: #fcd34d;
+  color: #92400e;
+}
+
+.course-item.status-unknown {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #334155;
+}

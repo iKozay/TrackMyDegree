@@ -9,7 +9,16 @@ export interface DragCourseData {
   semesterId?: SemesterId;
 }
 
-export interface DroppableSemesterData {
+// Represents a semester card in DnD operations (both as draggable and droppable)
+export interface DndSemesterData {
   type: "semester";
   semesterId: SemesterId;
 }
+
+// Used for dropping a semester card into a new position (to reorder Fall/Winter semesters)
+export interface DroppableSemesterSlotData {
+  type: "semester-slot";
+  // Index of semester after drop
+  targetIndex: number;
+}
+

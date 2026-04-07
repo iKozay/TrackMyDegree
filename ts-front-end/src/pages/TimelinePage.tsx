@@ -34,18 +34,31 @@ const TimeLinePage: React.FC = () => {
     return <TimelineLoader />;
   }
 
-  if (status === "error") {
-    return <TimelineError onRetry={tryAgain} message={errorMessage ?? undefined} />;
+  if (status === "failed") {
+    return (
+      <TimelineError onRetry={tryAgain} message={errorMessage ?? undefined} />
+    );
   }
-  
-  // Find the exemption pool, with fallback to empty pool
-  const exemptionCoursePool = state.pools.find(pool => 
-    pool._id.toLowerCase().includes("exemption")
-  ) || { _id: "exemption", name: "Exemption", creditsRequired: 0, courses: [] };
 
-  const deficiencyCoursePool = state.pools.find(pool => 
-    pool._id.toLowerCase().includes("deficiency")
-  ) || { _id: "deficiency", name: "Deficiency", creditsRequired: 0, courses: [] };
+  // Find the exemption pool, with fallback to empty pool
+  const exemptionCoursePool = state.pools.find((pool) =>
+    pool._id.toLowerCase().includes("exemptions"),
+  ) || {
+    _id: "exemption",
+    name: "Exemption",
+    creditsRequired: 0,
+    courses: [],
+    rules: [],
+  };
+
+  const deficiencyCoursePool = state.pools.find((pool) =>
+    pool._id.toLowerCase().includes("deficiencies"),
+  ) || {
+    _id: "deficiency",
+    name: "Deficiency",
+    creditsRequired: 0,
+    courses: [],
+  };
 
   const handleOpenModal = (open: boolean, type: string) => {
     if (open && type === "save" && !user) {
@@ -55,7 +68,7 @@ const TimeLinePage: React.FC = () => {
       navigate(`/signin`);
       return;
     }
-    if(type === 'degree-audit'){
+    if (type === "degree-audit") {
       navigate(`/degree-audit/${jobId}?fromPage=timelinePage`);
       return;
     }
@@ -67,7 +80,8 @@ const TimeLinePage: React.FC = () => {
       courses={state.courses}
       semesters={state.semesters}
       onMoveFromPoolToSemester={actions.moveFromPoolToSemester}
-      onMoveBetweenSemesters={actions.moveBetweenSemesters}>
+      onMoveBetweenSemesters={actions.moveBetweenSemesters}
+      onMoveSemester={actions.moveSemester}>
       <div className="app">
         {state.modal.open && (
           <MainModal
@@ -77,15 +91,16 @@ const TimeLinePage: React.FC = () => {
             courses={state.courses}
             timelineName={state.timelineName}
             onSave={async (timelineName: string) => {
-                if (!user) return;
-                try {
-                    await saveTimeline(user.id, timelineName, jobId);
-                    actions.setTimelineName(timelineName);
-                } catch {
-                    toast.error("Failed to save timeline. Please try again.");
-                }
+              if (!user) return;
+              try {
+                await saveTimeline(user.id, timelineName, jobId);
+                actions.setTimelineName(timelineName);
+              } catch {
+                toast.error("Failed to save timeline. Please try again.");
+              }
             }}
             onAdd={actions.addCourse}
+            onRemove={actions.removeCourse}
             onClose={handleOpenModal}
           />
         )}
@@ -94,8 +109,13 @@ const TimeLinePage: React.FC = () => {
           canRedo={canRedo}
           onUndo={actions.undo}
           onRedo={actions.redo}
-          earnedCredits={calculateEarnedCredits(state.courses, exemptionCoursePool)}
-          totalCredits={state.degree.totalCredits + deficiencyCoursePool.creditsRequired}
+          earnedCredits={calculateEarnedCredits(
+            state.courses,
+            exemptionCoursePool,
+          )}
+          totalCredits={
+            state.degree.totalCredits + deficiencyCoursePool.creditsRequired
+          }
           onOpenModal={handleOpenModal}
         />
 
@@ -116,6 +136,9 @@ const TimeLinePage: React.FC = () => {
               onCourseSelect={actions.selectCourse}
               selectedCourse={state.selectedCourse}
               onAddSemester={actions.addSemester}
+              onAddFallWinterSemester={actions.addFallWinterSemester}
+              onRemoveSemester={actions.removeSemester}
+              onInsertSemesterAt={actions.insertSemesterAt}
               timelineName={state.timelineName}
             />
           </section>
@@ -128,6 +151,7 @@ const TimeLinePage: React.FC = () => {
                   : null
               }
               courses={state.courses}
+              semesters={state.semesters}
               onRemoveCourse={actions.removeFromSemester}
               onChangeCourseStatus={actions.changeCourseStatus}
             />

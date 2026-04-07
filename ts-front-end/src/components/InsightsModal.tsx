@@ -1,13 +1,14 @@
 import React, { useMemo, useState } from "react";
-import type { CourseMap, Pool } from "../types/timeline.types";
+import type { CourseMap } from "../types/timeline.types";
 import { OverallProgressBar } from "./OverallProgressBar";
 import { PoolProgressChart } from "./PoolProgressChart";
 import { CoopValidationModal } from "./CoopValidationModal";
 import "../styles/components/InsightsModal.css";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 type InsightsModalProps = {
   open: boolean;
-  pools: Pool[];
+  pools: CoursePoolData[];
   courses: CourseMap;
   onClose: () => void;
   onOpenDegreeAudit?: () => void;
@@ -102,6 +103,11 @@ export const InsightsModal: React.FC<InsightsModalProps> = ({
 
   return (
     <div className="insights-modal-backdrop">
+      <button
+        className="insights-modal-backdrop-btn"
+        onClick={onClose}
+        aria-label="Dismiss modal"
+      />
       <div className="insights-modal-content">
         <button
           className="insights-modal-close"

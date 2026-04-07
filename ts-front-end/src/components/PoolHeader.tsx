@@ -1,9 +1,10 @@
 import { ChevronDown, ChevronRight } from "lucide-react";
-import type { Pool, CourseMap } from "../types/timeline.types";
+import type { CourseMap } from "../types/timeline.types";
 import { calculateCoursePoolEarnedCredits } from "../utils/timelineUtils";
+import { type CoursePoolData } from "@trackmydegree/shared";
 
 interface PoolHeaderProps {
-  pool: Pool;
+  pool: CoursePoolData;
   isExpanded: boolean;
   courses: CourseMap;
   hasActiveSearch: boolean;

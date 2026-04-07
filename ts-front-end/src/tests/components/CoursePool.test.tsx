@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import CoursePool from "../../components/CoursePool";
+import type { CoursePoolData } from "@trackmydegree/shared";
 import type {
-  Pool,
   CourseMap,
   CourseCode,
   SemesterId,
@@ -28,24 +28,27 @@ vi.mock("../../components/PoolCoursesList", () => ({
 // We use the real PoolHeader (no need to mock it)
 // import { PoolHeader } from "../../components/PoolHeader"; // used indirectly
 
-const pools: Pool[] = [
+const pools: CoursePoolData[] = [
   {
     _id: "pool-ecp",
     name: "ECP_ENGR_CORE",
     creditsRequired: 0,
     courses: ["ENGR 201"] as CourseCode[],
+    rules: [],
   },
   {
     _id: "pool-engr",
     name: "Engineering Core",
     creditsRequired: 30.5,
     courses: ["ENGR 201", "ENGR 233"] as CourseCode[],
+    rules: [],
   },
   {
     _id: "pool-soen",
     name: "Software Engineering Core",
     creditsRequired: 47.5,
     courses: ["SOEN 228", "SOEN 287"] as CourseCode[],
+    rules: [],
   },
 ];
 
@@ -55,9 +58,8 @@ const courses: CourseMap = {
     title: "Engineering Mechanics",
     credits: 3,
     description: "",
-    offeredIN: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: [] as SemesterId[],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "ENGR 233": {
@@ -65,9 +67,8 @@ const courses: CourseMap = {
     title: "Applied Advanced Calculus",
     credits: 3,
     description: "",
-    offeredIN: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: [] as SemesterId[],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "SOEN 228": {
@@ -75,9 +76,8 @@ const courses: CourseMap = {
     title: "System Hardware",
     credits: 4,
     description: "",
-    offeredIN: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: [] as SemesterId[],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
   "SOEN 287": {
@@ -85,9 +85,8 @@ const courses: CourseMap = {
     title: "Web Programming",
     credits: 3,
     description: "",
-    offeredIN: [] as SemesterId[],
-    prerequisites: [],
-    corequisites: [],
+    offeredIn: [] as SemesterId[],
+    rules: [],
     status: { status: "incomplete", semester: null },
   },
 };
@@ -256,7 +255,95 @@ describe("CoursePool", () => {
     const ecpList = lists.find(
       (el) => el.getAttribute("data-pool-name") === "ECP ENGR CORE",
     );
+    expect(ecpList).toBeTruthy();
+  });
 
-    expect(ecpList).toBeDefined();
+  it("passes showIncompleted=false to pool lists when incompleted toggle is off", () => {
+    const onCourseSelect = vi.fn();
+
+    const coursesWithStatuses: CourseMap = {
+      ...courses,
+      "ENGR 201": {
+        ...courses["ENGR 201"],
+        status: { status: "completed", semester: "FALL 2025" as SemesterId },
+      },
+      "ENGR 233": {
+        ...courses["ENGR 233"],
+        status: { status: "planned", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={pools}
+        courses={coursesWithStatuses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />,
+    );
+
+    fireEvent.click(screen.getByLabelText(/incompleted only/i));
+
+    const input = screen.getByPlaceholderText(
+      /search courses by code or title/i,
+    );
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    const receivedShowIncompletedValues = poolCoursesListMock.mock.calls.map(
+      ([props]) => props.showIncompleted,
+    );
+    expect(receivedShowIncompletedValues).toContain(true);
+  });
+
+  it("does not auto-expand mismatched course ids during search", () => {
+    const onCourseSelect = vi.fn();
+
+    const mismatchedPools: CoursePoolData[] = [
+      {
+        _id: "pool-mismatch",
+        name: "Engineering Core",
+        creditsRequired: 12,
+        courses: ["ENGR391", "ENGR392"] as CourseCode[],
+        rules: [],
+      },
+    ];
+
+    const mismatchedCourses: CourseMap = {
+      "ENGR 391": {
+        id: "ENGR 391" as CourseCode,
+        title: "Numerical Methods in Engineering",
+        credits: 3,
+        description: "",
+        offeredIn: [] as SemesterId[],
+        rules: [],
+        status: { status: "planned", semester: "FALL 2026" as SemesterId },
+      },
+      "ENGR 392": {
+        id: "ENGR 392" as CourseCode,
+        title: "Impact of Technology on Society",
+        credits: 3,
+        description: "",
+        offeredIn: [] as SemesterId[],
+        rules: [],
+        status: { status: "completed", semester: "WINTER 2026" as SemesterId },
+      },
+    };
+
+    render(
+      <CoursePool
+        pools={mismatchedPools}
+        courses={mismatchedCourses}
+        onCourseSelect={onCourseSelect}
+        selectedCourse={null}
+      />,
+    );
+
+    const input = screen.getByPlaceholderText(
+      /search courses by code or title/i,
+    );
+    fireEvent.change(input, { target: { value: "engr" } });
+
+    expect(screen.getByText("Engineering Core")).toBeInTheDocument();
+    expect(screen.queryByTestId("pool-courses-list")).toBeNull();
   });
 });

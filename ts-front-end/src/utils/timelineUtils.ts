@@ -4,13 +4,15 @@ import type {
   Course,
   CourseCode,
   CourseMap,
-  Pool,
-  RequisiteGroup,
   SemesterId,
   SemesterList,
   TimelinePartialUpdate,
   TimelineState,
 } from "../types/timeline.types";
+import { type CoursePoolData, type Rule, type MinCoursesFromSetParams, type MaxCoursesFromSetParams, type MinCreditsFromSetParams, type MaxCreditsFromSetParams, RuleType, type MinCreditsCompletedParams } from "@trackmydegree/shared";
+import { toast } from "react-toastify";
+import { api } from "../api/http-api-client";
+import { rebuildSemesterTerms } from "../handlers/timelineHandler";
 
 // Function that checks if a course already exists in a semester
 export function canDropCourse(
@@ -57,23 +59,77 @@ export function canDropCourse(
   };
 }
 
-export function calculateEarnedCredits(courses: CourseMap, pool: Pool): number {
+/**
+ * Returns true if adding a new FALL/WINTER semester would duplicate one that
+ * already exists (mirrors the term-computation logic in addFallWinterSemester).
+ */
+export function wouldCreateDuplicateFallWinter(semesters: SemesterList): boolean {
+  if (semesters.length === 0) return false;
+
+  const lastRegular = [...semesters]
+    .reverse()
+    .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+  const lastSemester = semesters.at(-1);
+  if (!lastSemester) return false;
+
+  const parts = lastSemester.term.split(" ");
+  const season = parts[0];
+  const year = Number.parseInt(parts[1], 10);
+  if (Number.isNaN(year)) return false;
+
+  let fallYear: number;
+  if (lastRegular) {
+    const [, lYear] = lastRegular.term.split(" ");
+    fallYear = Number.parseInt(lYear, 10);
+  } else if (season === "FALL/WINTER") {
+    fallYear = year + 1;
+  } else {
+    fallYear = year;
+  }
+
+  const shortYear = (fallYear + 1) % 100;
+  const shortYearStr = shortYear.toString().padStart(2, "0");
+  const newTerm = `FALL/WINTER ${fallYear}-${shortYearStr}`;
+
+  return semesters.some((s) => s.term === newTerm);
+}
+
+/**
+ * Returns true if reordering the semester at `fromIndex` to `toIndex` would
+ * result in two FALL/WINTER semesters receiving the same term key.
+ */
+export function wouldCreateDuplicateSemesterKey(
+  semesters: SemesterList,
+  fromIndex: number,
+  toIndex: number,
+): boolean {
+  if (fromIndex === toIndex) return false;
+  const reordered = [...semesters];
+  const [moved] = reordered.splice(fromIndex, 1);
+  // Insert the moved semester into its new position
+  reordered.splice(toIndex, 0, moved);
+  const rebuilt = rebuildSemesterTerms(reordered);
+  const terms = rebuilt.map((s) => s.term);
+  return terms.length !== new Set(terms).size;
+}
+
+export function calculateEarnedCredits(courses: CourseMap, pool: CoursePoolData,
+): number {
   return Object.values(courses).reduce((total, course) => {
     // Exclude exempted courses from the calculation
     if (pool.courses.includes(course.id)) {
       return total;
     }
 
-    if (course.status.status === "completed") {
+    if (course.status.status === "completed" || course.status.status === "planned") {
       return total + (course.credits || 0);
     }
     return total;
   }, 0);
 }
 
-export function calculateCoursePoolEarnedCredits(
-  courses: CourseMap,
-  pool: Pool,
+export function calculateCoursePoolEarnedCredits(courses: CourseMap, pool: CoursePoolData,
 ): number {
   return Object.values(courses).reduce((total, course) => {
     if (
@@ -85,9 +141,6 @@ export function calculateCoursePoolEarnedCredits(
     return total;
   }, 0);
 }
-
-import { toast } from "react-toastify";
-import { api } from "../api/http-api-client";
 
 export async function saveTimeline(
   userId: string,
@@ -112,6 +165,7 @@ function isCourseSatisfied(
   courseSemesterIndex: number,
   semesters: SemesterList,
 ): boolean {
+  // This function checks if a course is satisfied (completed or planned in a previous semesters)
   if (!course) return false;
 
   if (course.status.status === "completed") return true;
@@ -126,11 +180,12 @@ function isCourseSatisfied(
     prereqSemesterIndex !== -1 && prereqSemesterIndex < courseSemesterIndex
   );
 }
-function isCourseSatisfiedSameOrBefore(
+function isCourseSatisfiedSameSemester(
   course: Course | undefined,
   courseSemesterIndex: number,
   semesters: SemesterList,
 ): boolean {
+  // This function checks if a course is satisfied (completed or planned in same semester)
   if (!course) return false;
 
   if (course.status.status === "completed") return true;
@@ -139,17 +194,22 @@ function isCourseSatisfiedSameOrBefore(
 
   const index = semesters.findIndex((s) => s.term === course.status.semester);
 
-  return index !== -1 && index <= courseSemesterIndex;
+  return index !== -1 && index === courseSemesterIndex;
 }
-function isRequisiteGroup(req: RequisiteGroup | string): req is RequisiteGroup {
-  return typeof req === "object" && req !== null && "anyOf" in req;
+function isCourseSatisfiedSameOrBefore(
+  course: Course | undefined,
+  courseSemesterIndex: number,
+  semesters: SemesterList
+): boolean {
+  // This function checks if a course is satisfied (completed or planned in a previous semesters or the same semester)
+  return isCourseSatisfied(course, courseSemesterIndex, semesters) || isCourseSatisfiedSameSemester(course, courseSemesterIndex, semesters);
 }
 
 export function getCourseValidationMessage(
   course: Course,
   state: TimelineState,
 ): string {
-  const { semesters, courses } = state;
+  const { semesters } = state;
 
   const courseSemesterId = course.status.semester;
   if (!courseSemesterId) return "";
@@ -159,43 +219,225 @@ export function getCourseValidationMessage(
   );
   if (courseSemesterIndex === -1) return "";
 
-  /* ---------------- PREREQUISITES ---------------- */
+  const violations: string[] = [];
 
-  for (const prereqGroup of course.prerequisites ?? []) {
-    if (isRequisiteGroup(prereqGroup)) {
-      const satisfied = prereqGroup.anyOf.some((code) =>
-        isCourseSatisfied(courses[code], courseSemesterIndex, semesters),
-      );
+  /* ---------------- DEGREE REQUIREMENTS ---------------- */
+  checkIfCourseInDegreeRequirements(course, state.pools, violations);  
 
-      if (!satisfied) {
-        return `Prerequisite (${prereqGroup.anyOf.join(" or ")}) not met`;
-      }
-    }
+  /* ---------------- COURSE RULES ---------------- */
+  processRules(course, course.rules, state, violations);
+
+  /* -------------- COURSEPOOL RULES -------------- */
+  const pool = state.pools.find((p) =>
+    p.courses.includes(course.id)
+  );
+
+  if (pool?.rules && Array.isArray(pool.rules) && pool.rules.length > 0) {
+    processRules(course, pool.rules, state, violations);
   }
 
-  /* ---------------- COREQUISITES ---------------- */
-  for (const coreqGroup of course.corequisites ?? []) {
-    if (isRequisiteGroup(coreqGroup)) {
-      const satisfied = coreqGroup.anyOf.some((code) =>
-        isCourseSatisfiedSameOrBefore(
-          courses[code],
-          courseSemesterIndex,
-          semesters,
-        ),
-      );
-
-      if (!satisfied) {
-        return `Corequisite (${coreqGroup.anyOf.join(" or ")}) not met`;
-      }
-    }
+  // pretty print the violations (if any)
+  if (violations.length > 0) {
+    return violations.join("\n");
   }
 
   return "";
 }
 
+export function processRules(targetCourse: Course, rules: Rule[], state: TimelineState, violations: string[]) {
+  // Guard check: ensure rules is an array
+  if (!Array.isArray(rules) || rules.length === 0) {
+    return;
+  }
+
+  for (const rule of rules) {
+    switch (rule.type) {
+      case RuleType.Prerequisite:{
+        processRequisiteRule(rule, isCourseSatisfied, state, violations);
+        break;
+      }
+      case RuleType.Corequisite:{
+        processRequisiteRule(rule, isCourseSatisfiedSameSemester, state, violations);
+        break;
+      }
+      case RuleType.PrerequisiteOrCorequisite: {
+        processRequisiteRule(rule, isCourseSatisfiedSameOrBefore, state, violations);
+        break;
+      }
+      case RuleType.NotTaken: {
+        processMaxCoursesFromSetRule(rule, null, state, violations);
+        break;
+      }
+      case RuleType.MinimumCredits: {
+        processMinCreditsRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MinCreditsFromSet: {
+        processMinCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MaxCreditsFromSet: {
+        processMaxCreditsFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MinCoursesFromSet: {
+        processMinCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      case RuleType.MaxCoursesFromSet: {
+        processMaxCoursesFromSetRule(rule, targetCourse, state, violations);
+        break;
+      }
+      default:
+        break;
+    }
+  }
+}
+
+function processRequisiteRule(
+  rule: Rule,
+  validationFunction: (course: Course | undefined, courseSemesterIndex: number, semesters: SemesterList) => boolean,
+  state: TimelineState,
+  violations: string[]
+) {
+  const { courseList } = rule.params as MinCoursesFromSetParams;
+
+  const satisfied = courseList.some((code) => {
+    const course = state.courses[code];
+    return validationFunction(course, Number.MAX_SAFE_INTEGER, state.semesters);
+  });
+
+  if (!satisfied) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCreditsRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { minCredits } = rule.params as MinCreditsCompletedParams;
+
+  // Get all courses before the semester of the target course (or all courses if targetCourse is null)
+  const coursesBeforeTarget: CourseMap = {};
+  for (const code in state.courses) {
+    const course = state.courses[code];
+    if (!course.status.semester) continue;
+
+    const semesterIndex = state.semesters.findIndex(
+      (s) => s.term === course.status.semester
+    );
+
+    const targetSemesterIndex = targetCourse
+      ? state.semesters.findIndex((s) => s.term === targetCourse.status.semester)
+      : Number.MAX_SAFE_INTEGER;
+
+    if (semesterIndex !== -1 && semesterIndex < targetSemesterIndex) {
+      coursesBeforeTarget[code] = course;
+    }
+  }
+  
+  const earnedCredits = calculateEarnedCredits(coursesBeforeTarget, {
+    _id: "",
+    name: "",
+    courses: [],
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits < minCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCreditsFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, minCredits } = rule.params as MinCreditsFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits < minCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCreditsFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, maxCredits } = rule.params as MaxCreditsFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCredits = calculateCoursePoolEarnedCredits(state.courses, {
+    _id: "",
+    name: "",
+    courses: courseList,
+    creditsRequired: 0,
+    rules: [],
+  });
+
+  if (earnedCredits > maxCredits) {
+    violations.push(rule.message);
+  }
+}
+
+function processMinCoursesFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, minCourses } = rule.params as MinCoursesFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses < minCourses) {
+    violations.push(rule.message);
+  }
+}
+
+function processMaxCoursesFromSetRule(rule: Rule, targetCourse: Course | null, state: TimelineState, violations: string[]) {
+  const { courseList, maxCourses } = rule.params as MaxCoursesFromSetParams;
+  if (targetCourse && !courseList.includes(targetCourse.id)) return;
+
+  const earnedCourses = courseList.filter((code) => 
+    isCourseSatisfied(state.courses[code], Number.MAX_SAFE_INTEGER, state.semesters)
+  ).length;
+
+  if (earnedCourses > maxCourses) {
+    violations.push(rule.message);
+  }
+}
+
+function checkIfCourseInDegreeRequirements(course: Course, pools: CoursePoolData[], violations: string[]) {
+  // A course is valid if it exists in at least one non-exemption pool.
+  const isInDegreeRequirements = pools
+    .filter((pool) => pool._id.toLowerCase() !== "exemptions")
+    .some((pool) => pool.courses.includes(course.id));
+
+  if (!isInDegreeRequirements) {
+    violations.push("Course is not part of the degree requirements.");
+  }
+}
+
+// Compare function for sorting course IDs by department then course number
+export function compareCourseIds(a: string, b: string): number {
+  const COURSE_RE = /^([A-Z]{3,4})\s+(\d{3,4})$/;
+
+  const matchA = COURSE_RE.exec(a.trim());
+  const matchB = COURSE_RE.exec(b.trim());
+
+  if (!matchA && !matchB) return a.localeCompare(b);
+  if (!matchA) return 1;
+  if (!matchB) return -1;
+
+  const deptCmp = matchA[1].localeCompare(matchB[1]);
+  if (deptCmp !== 0) return deptCmp;
+
+  return Number.parseInt(matchA[2], 10) - Number.parseInt(matchB[2], 10);
+}
+
 function getPoolCourses(
-  pools: Pool[],
-  id: "exemptions" | "deficiencies",
+  pools: CoursePoolData[],
+  id: "exemptions" | "deficiencies"
 ): CourseCode[] {
   return pools.find((p) => p._id.toLowerCase() === id)?.courses ?? [];
 }
@@ -211,16 +453,16 @@ export function computeTimelinePartialUpdate(
   }
 
   /* ---------- EXEMPTIONS ---------- */
-  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort();
-  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort();
+  const prevEx = [...getPoolCourses(prev.pools, "exemptions")].sort(compareCourseIds);
+  const currEx = [...getPoolCourses(curr.pools, "exemptions")].sort(compareCourseIds);
 
   if (JSON.stringify(prevEx) !== JSON.stringify(currEx)) {
     update.exemptions = currEx;
   }
 
   /* ---------- DEFICIENCIES ---------- */
-  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort();
-  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort();
+  const prevDef = [...getPoolCourses(prev.pools, "deficiencies")].sort(compareCourseIds);
+  const currDef = [...getPoolCourses(curr.pools, "deficiencies")].sort(compareCourseIds);
 
   if (JSON.stringify(prevDef) !== JSON.stringify(currDef)) {
     update.deficiencies = currDef;
@@ -327,14 +569,14 @@ export function canAddCourse(
   courseId: CourseCode,
   type: string,
   courses: CourseMap,
-  pools: Pool[],
+  pools: CoursePoolData[],
 ): AddCourseValidationResult {
-  const poolName =
-    type === "exemption"
-      ? "exemptions"
-      : type === "deficiency"
-        ? "deficiencies"
-        : null;
+  let poolName: string | null = null;
+  if (type === "exemption") {
+    poolName = "exemptions";
+  } else if (type === "deficiency") {
+    poolName = "deficiencies";
+  }
 
   if (!poolName) return "invalid_type";
 
@@ -349,4 +591,160 @@ export function canAddCourse(
   }
 
   return "ok";
+}
+
+/**
+ * If `left` is a FALL/WINTER term, find the previous regular semester before it and return that semester's term.
+ * If `left` is not a FALL/WINTER term, return it as is.
+ * If no suitable semester is found, return null.
+ * @param left
+ * @param semesters
+ */
+function resolveLeftSemester(
+    left: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    if (!left.startsWith("FALL/WINTER")) return left;
+
+    const leftIdx = semesters.findIndex((s) => s.term === left);
+    if (leftIdx === -1) return null;
+
+    const regularTerm = semesters
+        .slice(0, leftIdx)
+        .reverse()
+        .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+    return regularTerm?.term ?? null;
+}
+
+/**
+ * If `right` is a FALL/WINTER term, find the next regular semester after it and return that semester's term.
+ * If `right` is not a FALL/WINTER term, return it as is.
+ * If no suitable semester is found, return null.
+ * @param right
+ * @param semesters
+ */
+function resolveRightSemester(
+    right: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    if (!right.startsWith("FALL/WINTER")) return right;
+
+    const rightIdx = semesters.findIndex((s) => s.term === right);
+    if (rightIdx === -1) return null;
+
+    const regularTerm = semesters
+        .slice(rightIdx + 1)
+        .find((s) => !s.term.startsWith("FALL/WINTER"));
+
+    return regularTerm?.term ?? null;
+}
+
+/**
+ * Given two semester IDs and the list of semesters, determine if there's a missing semester between them.
+ * This is used to decide whether to show a "+" button for adding a semester in the UI.
+ * @param left
+ * @param right
+ * @param semesters
+ */
+export function getMissingSemesterBetween(
+    left: SemesterId,
+    right: SemesterId,
+    semesters: SemesterList,
+): SemesterId | null {
+    const leftIsFallWinter = left.startsWith("FALL/WINTER");
+    const rightIsFallWinter = right.startsWith("FALL/WINTER");
+
+    const resolvedLeft = resolveLeftSemester(left, semesters);
+    if (!resolvedLeft) return null;
+
+    const resolvedRight = resolveRightSemester(right, semesters);
+    if (!resolvedRight) return null;
+
+    const parsed = parseSemester(resolvedLeft);
+    if (!parsed) return null;
+
+    const next = getNextSemester(parsed.season, parsed.year);
+    if (!next) return null;
+
+    const candidate = `${next.season} ${next.year}` as SemesterId;
+    if (candidate === resolvedRight) return null;
+
+    // This prevents showing Fall or Winter gaps between consecutive Fall/Winter terms
+    if (leftIsFallWinter && rightIsFallWinter && next.season !== "SUMMER") {
+        return null;
+    }
+
+    // Edge case: If we have two consecutive Fall/Winter semesters in the list,
+    // only show the Summer (+) button BETWEEN them, not before the first or after the second
+    if (next.season === "SUMMER") {
+        if (shouldHideSummerGapBetweenFallWinter(leftIsFallWinter, rightIsFallWinter, left, right, semesters)) {
+            return null;
+        }
+    }
+
+    return candidate;
+}
+
+/**
+ * Parses a semester ID into its season and year components.
+ * Returns null if the semester format is invalid.
+ */
+function parseSemester(semesterId: SemesterId): { season: string; year: number } | null {
+    const [season, yearStr] = semesterId.split(" ");
+    const year = Number.parseInt(yearStr, 10);
+
+    if (Number.isNaN(year)) return null;
+
+    return { season, year };
+}
+
+/**
+ * Returns the next semester in the sequence after the given season and year.
+ * Returns null if the season is invalid.
+ */
+function getNextSemester(season: string, year: number): { season: string; year: number } | null {
+    if (season === "SUMMER") {
+        return { season: "FALL", year };
+    }
+    if (season === "FALL") {
+        return { season: "WINTER", year: year + 1 };
+    }
+    if (season === "WINTER") {
+        return { season: "SUMMER", year };
+    }
+    return null;
+}
+
+/**
+ * Checks if we should hide the semester gap button between two consecutive Fall/Winter semesters.
+ * Returns true if the gap should be hidden.
+ */
+function shouldHideSummerGapBetweenFallWinter(
+    leftIsFallWinter: boolean,
+    rightIsFallWinter: boolean,
+    left: SemesterId,
+    right: SemesterId,
+    semesters: SemesterList,
+): boolean {
+    const leftIdx = semesters.findIndex((s) => s.term === left);
+    const rightIdx = semesters.findIndex((s) => s.term === right);
+
+    // Check if right is a Fall/Winter and there's another Fall/Winter after it
+    if (rightIsFallWinter && rightIdx < semesters.length - 1) {
+        const nextSemester = semesters[rightIdx + 1];
+        if (nextSemester.term.startsWith("FALL/WINTER")) {
+            return true;
+        }
+    }
+
+    // Check if left is a Fall/Winter and there's another Fall/Winter before it
+    if (leftIsFallWinter && leftIdx > 0) {
+        const prevSemester = semesters[leftIdx - 1];
+        if (prevSemester.term.startsWith("FALL/WINTER")) {
+            return true;
+        }
+    }
+
+    return false;
 }

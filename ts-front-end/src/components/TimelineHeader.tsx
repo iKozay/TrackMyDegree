@@ -6,7 +6,7 @@ import {
   Share2,
   Download,
   BarChart3,
-  Plus,
+  Settings2,
   Save,
 } from "lucide-react";
 import { downloadTimelinePdf } from "../utils/timelineUtils";
@@ -111,13 +111,13 @@ const PrimaryActions: React.FC<PrimaryActionsProps> = ({ onOpenModal }) => {
         Insights
       </button>
       <button className="btn btn-tertiary" onClick={handleDeficiency}>
-        <Plus size={16} />
-        Add Deficiency
+        <Settings2 size={16} />
+        Manage Deficiencies
       </button>
 
       <button className="btn btn-tertiary" onClick={handleExemption}>
-        <Plus size={16} />
-        Add Exemption
+        <Settings2 size={16} />
+        Manage Exemptions
       </button>
 
       <button className="btn btn-secondary" onClick={handleSave}>

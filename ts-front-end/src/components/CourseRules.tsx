@@ -1,0 +1,257 @@
+import React, { useState } from "react";
+import { RuleType, type Rule } from "@trackmydegree/shared";
+import type {
+  Course,
+  CourseMap,
+  CourseStatusValue,
+  SemesterList,
+} from "../types/timeline.types";
+import {
+  History,
+  ClockArrowDown,
+  CalendarClock,
+  Calculator,
+  CalendarX,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
+import "../styles/components/CourseRules.css";
+
+interface CourseRulesProps {
+  course: Course;
+  courses: CourseMap;
+  semesters: SemesterList;
+}
+
+interface RuleDisplayInfo {
+  title: string;
+  icon: React.ReactNode;
+}
+
+const ruleTypeDisplayMap: Record<string, RuleDisplayInfo> = {
+  prerequisite: {
+    title: "Prerequisites",
+    icon: <History size={16} />,
+  },
+  corequisite: {
+    title: "Corequisites",
+    icon: <ClockArrowDown size={16} />,
+  },
+  prerequisite_or_corequisite: {
+    title: "Prerequisites or Corequisites",
+    icon: <CalendarClock size={16} />,
+  },
+  min_credits: {
+    title: "Minimum Credits Required",
+    icon: <Calculator size={16} />,
+  },
+  not_taken: {
+    title: "Exclusions",
+    icon: <CalendarX size={16} />,
+  },
+};
+
+const CourseRules: React.FC<CourseRulesProps> = ({
+  course,
+  courses,
+  semesters,
+}) => {
+  // Check if a specific rule is satisfied (not in violations)
+  const isRuleSatisfied = (rule: Rule): boolean => {
+    // Find the course in semesters and check if message contains the rule message
+    for (const semester of semesters) {
+      for (const semCourse of semester.courses) {
+        if (semCourse.code === course.id) {
+          if (semCourse.message?.includes(rule.message)) {
+            return false; // Rule is violated
+          }
+        }
+      }
+    }
+    return true; // Rule is satisfied
+  };
+
+  // Group rules by type (safely handle non-array input)
+  const groupedRules = (Array.isArray(course.rules) ? course.rules : []).reduce(
+    (acc, rule) => {
+      const ruleType = rule.type;
+      if (!acc[ruleType]) {
+        acc[ruleType] = [];
+      }
+      acc[ruleType].push(rule);
+      return acc;
+    },
+    {} as Record<string, Rule[]>,
+  );
+
+  // Define the order as specified
+  const ruleTypeOrder = [
+    "min_credits",
+    "prerequisite",
+    "corequisite",
+    "prerequisite_or_corequisite",
+    "not_taken",
+  ];
+
+  // Sort rule types according to the specified order
+  const sortedRuleTypes = ruleTypeOrder.filter(
+    (ruleType) => groupedRules[ruleType],
+  );
+
+  const [collapsedSections, setCollapsedSections] = useState<Set<string>>(
+    () => new Set<string>(),
+  );
+
+  if (!Array.isArray(course.rules) || course.rules.length === 0) {
+    return null;
+  }
+
+  const toggleSection = (ruleType: string) => {
+    const newCollapsed = new Set(collapsedSections);
+    if (newCollapsed.has(ruleType)) {
+      newCollapsed.delete(ruleType);
+    } else {
+      newCollapsed.add(ruleType);
+    }
+    setCollapsedSections(newCollapsed);
+  };
+
+  const getCourseStatus = (
+    courseCode: string,
+  ): CourseStatusValue | undefined => {
+    return courses[courseCode]?.status?.status;
+  };
+
+  const renderCourseList = (courseList: string[]) => {
+    if (!courseList || courseList.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="course-list">
+        {courseList.map((courseCode, index) => {
+          const status = getCourseStatus(courseCode);
+          return (
+            <span
+              key={`${courseCode}-${index}`}
+              className={`course-item status-${status ?? "unknown"}`}>
+              {courseCode}
+            </span>
+          );
+        })}
+      </div>
+    );
+  };
+
+  const renderRuleContent = (rule: Rule) => {
+    const courseList = (rule.params as { courseList?: string[] }).courseList;
+    const minCredits = (rule.params as { minCredits?: number }).minCredits;
+
+    // If the rule has a message, use it
+    if (rule.message) {
+      return (
+        <div className="rule-content">
+          <p className="rule-message">{rule.message.split(":")[0]}:</p>
+          {courseList && renderCourseList(courseList)}
+        </div>
+      );
+    }
+
+    // Fallback rendering for rules without messages
+    if (courseList) {
+      let messageText = "";
+      switch (rule.type) {
+        case RuleType.Prerequisite:
+          messageText = "Needs to be completed before taking this course";
+          break;
+        case RuleType.Corequisite:
+          messageText = "Needs to be taken in the same semester as this course";
+          break;
+        case RuleType.PrerequisiteOrCorequisite:
+          messageText =
+            "Needs to be taken either before or in the same semester as this course";
+          break;
+        case RuleType.NotTaken:
+          messageText = "Cannot be taken with this course";
+          break;
+        case RuleType.MinimumCredits:
+          messageText = "Minimum credits required";
+          break;
+      }
+
+      return (
+        <div className="rule-content">
+          <p className="rule-message">{messageText}</p>
+          {renderCourseList(courseList)}
+        </div>
+      );
+    }
+
+    if (minCredits) {
+      return (
+        <div className="rule-content">
+          <p className="rule-message">Minimum {minCredits} credits required</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="rule-content">
+        <p className="rule-message">Rule parameters not recognized</p>
+      </div>
+    );
+  };
+
+  return (
+    <div className="course-rules">
+      {sortedRuleTypes.map((ruleType) => {
+        const displayInfo = ruleTypeDisplayMap[ruleType] || {
+          title: ruleType
+            .replaceAll("_", " ")
+            .replaceAll(/\b\w/g, (l) => l.toUpperCase()),
+          icon: <History size={16} />,
+        };
+
+        const rulesOfType = groupedRules[ruleType];
+        const isCollapsed = collapsedSections.has(ruleType);
+
+        // Check if all rules in this section are satisfied
+        const allRulesSatisfied = rulesOfType.every((rule) =>
+          isRuleSatisfied(rule),
+        );
+
+        return (
+          <div
+            key={ruleType}
+            className={`rule-section ${allRulesSatisfied ? "section-satisfied" : "section-unsatisfied"}`}>
+            <button
+              className="rule-header"
+              onClick={() => toggleSection(ruleType)}
+              aria-expanded={isCollapsed}>
+              {displayInfo.icon}
+              <h4>{displayInfo.title}</h4>
+              <div className="spacer"></div>
+              {isCollapsed ? (
+                <ChevronUp size={16} className="collapse-icon" />
+              ) : (
+                <ChevronDown size={16} className="collapse-icon" />
+              )}
+            </button>
+
+            {isCollapsed && (
+              <div className="rule-items">
+                {rulesOfType.map((rule, index) => (
+                  <div key={`${ruleType}-${index}`} className={"rule-item"}>
+                    {renderRuleContent(rule)}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
+export default CourseRules;

@@ -77,7 +77,7 @@ export class AuthController {
         .exec();
 
       // Use dummy hash if user is not found to prevent timing attacks
-      const hash = user && user.password ? user.password : DUMMY_HASH;
+      const hash = user?.password ?? DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
       if (user && passwordMatch && user._id) {
@@ -223,7 +223,7 @@ export class AuthController {
   ): Promise<boolean> {
     try {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user || !user.password) return false;
+      if (!user?.password) return false;
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) return false;

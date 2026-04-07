@@ -135,6 +135,28 @@ describe("TimelineHeader", () => {
     expect(onOpenModal).toHaveBeenCalledWith(true, "insights");
   });
 
+  it("opens exemption modal when Manage Exemptions is clicked", () => {
+    const onOpenModal = vi.fn();
+
+    render(<TimelineHeader {...baseProps} onOpenModal={onOpenModal} />);
+
+    const exemptionBtn = screen.getByRole("button", { name: /manage exemptions/i });
+    fireEvent.click(exemptionBtn);
+
+    expect(onOpenModal).toHaveBeenCalledWith(true, "exemption");
+  });
+
+  it("opens deficiency modal when Manage Deficiencies is clicked", () => {
+    const onOpenModal = vi.fn();
+
+    render(<TimelineHeader {...baseProps} onOpenModal={onOpenModal} />);
+
+    const deficiencyBtn = screen.getByRole("button", { name: /manage deficiencies/i });
+    fireEvent.click(deficiencyBtn);
+
+    expect(onOpenModal).toHaveBeenCalledWith(true, "deficiency");
+  });
+
   it("copies URL and shows confirmation when Share is clicked", async () => {
     render(<TimelineHeader {...baseProps} />);
 

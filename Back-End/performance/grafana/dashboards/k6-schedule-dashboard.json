@@ -1,0 +1,369 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 100,
+      "title": "Overview",
+      "type": "row"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 1,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "vus", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "Virtual Users",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "req/s", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "reqps"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 10,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_reqs", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[
+            { "params": ["value"], "type": "field" },
+            { "params": [], "type": "sum" },
+            { "params": ["1s"], "type": "non_negative_derivative" }
+          ]],
+          "tags": []
+        }
+      ],
+      "title": "HTTP Requests Rate",
+      "type": "timeseries"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 101,
+      "title": "Health Rates",
+      "type": "row"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "red",    "value": null },
+              { "color": "yellow", "value": 0.9  },
+              { "color": "green",  "value": 0.95 }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 10 },
+      "id": 2,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "schedule_iteration_success_rate", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "Iteration Success Rate",
+      "description": "Rate of iterations where the HTTP 200 check passed. Target: >95%",
+      "type": "stat"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "special", "options": { "match": "null", "result": { "text": "N/A", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null  },
+              { "color": "yellow", "value": 0.005 },
+              { "color": "red",    "value": 0.01  }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 10 },
+      "id": 3,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "schedule_failed_rate", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "Schedule Failed Rate",
+      "description": "Rate of iterations where the HTTP status check failed. Target: <1%",
+      "type": "stat"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "special", "options": { "match": "null", "result": { "text": "N/A", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null  },
+              { "color": "yellow", "value": 0.005 },
+              { "color": "red",    "value": 0.01  }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 10 },
+      "id": 4,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "http_req_failed", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/section/schedule" }]
+        }
+      ],
+      "title": "HTTP Failed Rate",
+      "description": "Rate of requests that received no HTTP response — connection refused, timeout. Target: <1%",
+      "type": "stat"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "mappings": [
+            { "type": "special", "options": { "match": "null", "result": { "text": "N/A", "color": "green" } } }
+          ],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green",  "value": null  },
+              { "color": "yellow", "value": 0.005 },
+              { "color": "red",    "value": 0.01  }
+            ]
+          },
+          "unit": "percentunit",
+          "noValue": "N/A"
+        }
+      },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 10 },
+      "id": 5,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": { "calcs": ["mean"], "fields": "", "values": false },
+        "text": { "titleSize": 14, "valueSize": 28 },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }, { "params": ["null"], "type": "fill" }],
+          "measurement": "schedule_http_failed_rate", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": []
+        }
+      ],
+      "title": "HTTP Status Failed",
+      "description": "Rate of responses that were not HTTP 200. Target: <1%",
+      "type": "stat"
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 102,
+      "title": "Endpoint Latency",
+      "type": "row"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "Duration (ms)", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "ms"
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 19 },
+      "id": 9,
+      "options": {
+        "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "right" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "alias": "Schedule (p95)",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [95], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/section/schedule" }]
+        },
+        {
+          "alias": "Schedule (p99)",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "B", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [99], "type": "percentile" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/section/schedule" }]
+        },
+        {
+          "alias": "Schedule (avg)",
+          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "measurement": "http_req_duration", "orderByTime": "ASC", "policy": "default",
+          "refId": "C", "resultFormat": "time_series",
+          "select": [[{ "params": ["value"], "type": "field" }, { "params": [], "type": "mean" }]],
+          "tags": [{ "key": "name", "operator": "=", "value": "GET /api/section/schedule" }]
+        }
+      ],
+      "title": "Endpoint Latency — GET /api/section/schedule",
+      "description": "p95 target: <8000ms. p99 target: <9000ms. avg shown for comparison.",
+      "type": "timeseries"
+    }
+
+  ],
+  "refresh": "5s",
+  "schemaVersion": 27,
+  "style": "dark",
+  "tags": ["k6", "performance", "schedule"],
+  "templating": { "list": [] },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "k6 Schedule Performance Test",
+  "uid": "k6-schedule",
+  "version": 0
+}

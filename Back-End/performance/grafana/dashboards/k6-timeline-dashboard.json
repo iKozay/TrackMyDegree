@@ -78,6 +78,7 @@
             "showPoints": "never", "spanNulls": true
           },
           "mappings": [],
+          "min": 0,
           "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
           "unit": "reqps"
         }
@@ -90,13 +91,16 @@
       },
       "targets": [
         {
-          "groupBy": [{ "params": ["$__interval"], "type": "time" }],
+          "groupBy": [
+            { "params": ["$__interval"], "type": "time" },
+            { "params": ["0"], "type": "fill" }
+          ],
           "measurement": "http_reqs", "orderByTime": "ASC", "policy": "default",
           "refId": "A", "resultFormat": "time_series",
           "select": [[
             { "params": ["value"], "type": "field" },
             { "params": [], "type": "sum" },
-            { "params": ["1s"], "type": "non_negative_derivative" }
+            { "params": ["$__interval"], "type": "non_negative_derivative" }
           ]],
           "tags": []
         }
@@ -106,8 +110,99 @@
     },
 
     {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "iter/s", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 9 },
+      "id": 16,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "groupBy": [
+            { "params": ["$__interval"], "type": "time" },
+            { "params": ["0"], "type": "fill" }
+          ],
+          "measurement": "iterations", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[
+            { "params": ["value"], "type": "field" },
+            { "params": [], "type": "sum" },
+            { "params": ["$__interval"], "type": "non_negative_derivative" }
+          ]],
+          "tags": []
+        }
+      ],
+      "title": "Iteration Rate",
+      "description": "Completed iterations per second. Each iteration is one full upload → poll → save → update → retrieve → delete flow.",
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": "InfluxDB-k6",
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisLabel": "total iterations", "axisPlacement": "auto", "barAlignment": 0,
+            "drawStyle": "line", "fillOpacity": 10, "gradientMode": "none",
+            "hideFrom": { "tooltip": false, "viz": false, "legend": false },
+            "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "never", "spanNulls": true
+          },
+          "mappings": [],
+          "min": 0,
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] },
+          "unit": "short"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 9 },
+      "id": 17,
+      "options": {
+        "legend": { "calcs": ["sum", "last"], "displayMode": "table", "placement": "bottom" },
+        "tooltip": { "mode": "multi" }
+      },
+      "targets": [
+        {
+          "groupBy": [
+            { "params": ["$__interval"], "type": "time" },
+            { "params": ["0"], "type": "fill" }
+          ],
+          "measurement": "iterations", "orderByTime": "ASC", "policy": "default",
+          "refId": "A", "resultFormat": "time_series",
+          "select": [[
+            { "params": ["value"], "type": "field" },
+            { "params": [], "type": "sum" }
+          ]],
+          "tags": []
+        }
+      ],
+      "title": "Iterations (cumulative)",
+      "description": "Running total of completed iterations across the test run.",
+      "type": "timeseries"
+    },
+
+    {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
       "id": 101,
       "title": "Health Rates",
       "type": "row"
@@ -131,7 +226,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 10 },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 18 },
       "id": 2,
       "options": {
         "colorMode": "background",
@@ -176,7 +271,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 10 },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 18 },
       "id": 12,
       "options": {
         "colorMode": "background",
@@ -221,7 +316,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 10 },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 18 },
       "id": 3,
       "options": {
         "colorMode": "background",
@@ -266,7 +361,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 14 },
+      "gridPos": { "h": 4, "w": 6, "x": 0, "y": 22 },
       "id": 14,
       "options": {
         "colorMode": "background",
@@ -311,7 +406,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 14 },
+      "gridPos": { "h": 4, "w": 6, "x": 6, "y": 22 },
       "id": 8,
       "options": {
         "colorMode": "background",
@@ -356,7 +451,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 14 },
+      "gridPos": { "h": 4, "w": 6, "x": 12, "y": 22 },
       "id": 9,
       "options": {
         "colorMode": "background",
@@ -401,7 +496,7 @@
           "noValue": "N/A"
         }
       },
-      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 14 },
+      "gridPos": { "h": 4, "w": 6, "x": 18, "y": 22 },
       "id": 15,
       "options": {
         "colorMode": "background",
@@ -428,7 +523,7 @@
 
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 26 },
       "id": 102,
       "title": "Job Processing",
       "type": "row"
@@ -450,12 +545,16 @@
           "mappings": [],
           "thresholds": {
             "mode": "absolute",
-            "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 3000 }]
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 5000 },
+              { "color": "red", "value": 8000 }
+            ]
           },
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 19 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 27 },
       "id": 4,
       "options": {
         "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom" },
@@ -480,7 +579,7 @@
         }
       ],
       "title": "Job Processing Time — upload to done (ms)",
-      "description": "End-to-end time from PDF upload accepted to job status=done. Includes queue wait + worker processing. Target p95 < 3000ms",
+      "description": "End-to-end time from PDF upload accepted to job status=done. Includes queue wait + worker processing. Yellow ≥ 5000ms, red ≥ 8000ms (threshold: p95 < 8000ms).",
       "type": "timeseries"
     },
 
@@ -502,7 +601,7 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 19 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 27 },
       "id": 11,
       "options": {
         "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "bottom" },
@@ -533,7 +632,7 @@
 
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 27 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 35 },
       "id": 103,
       "title": "Endpoint Latency",
       "type": "row"
@@ -557,7 +656,7 @@
           "unit": "ms"
         }
       },
-      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 28 },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 36 },
       "id": 5,
       "options": {
         "legend": { "calcs": ["mean", "max", "last"], "displayMode": "table", "placement": "right" },
@@ -620,7 +719,7 @@
 
     {
       "collapsed": false,
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 36 },
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 44 },
       "id": 104,
       "title": "Poll Status Breakdown",
       "type": "row"
@@ -644,7 +743,7 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 37 },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 45 },
       "id": 7,
       "options": {
         "legend": { "calcs": ["sum", "last"], "displayMode": "table", "placement": "bottom" },
@@ -724,7 +823,7 @@
           "unit": "short"
         }
       },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 37 },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 45 },
       "id": 13,
       "options": {
         "legend": { "calcs": ["sum", "mean"], "displayMode": "table", "placement": "bottom" },

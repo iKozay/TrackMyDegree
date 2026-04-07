@@ -1,6 +1,6 @@
 
 
-import { CourseData } from "@shared/degree";
+import { CourseData, MinCoursesFromSetParams, RuleType } from "@trackmydegree/shared";
 
 // Normalizes a course code by removing all whitespace,
 // inserting a space between the letter prefix and numeric part, and converting it to uppercase.
@@ -41,11 +41,12 @@ export function getCoursesThatNeedCMinus(
   };
 
   for (const requiredCourse of requiredCourses) {
-    const prereqList = allCourses[requiredCourse]?.rules?.prereq;
+    const prereqList = allCourses[requiredCourse]?.rules?.filter(r => r.type === RuleType.Prerequisite);
     if (!prereqList) continue;
     for (const prereqs of prereqList) {
       //if course is a prereq for core courses
-      for (const prereq of prereqs) {
+      const params = prereqs.params as MinCoursesFromSetParams;
+      for (const prereq of params.courseList) {
         if (!requiredCourses.has(prereq) && is200LevelCourse(prereq)) continue; //only required 200-level courses need C-
 
         coursesThatNeedCMinus.add(prereq);
@@ -85,4 +86,53 @@ export function validateGrade(minGrade: string, courseGrade?: string): boolean {
   const minValue = gradeValues[minGrade.toUpperCase()] ?? 0;
 
   return studentValue >= minValue;
+}
+
+export function addAllPrerequisitesAndCorequisitesToCourseArr(degreeCourses: CourseData[], allCourses: CourseData[]) {
+  const coursesToAdd = new Set<CourseData>();
+  const visited = new Set<string>();
+
+  // Build a lookup map for quick access
+  const courseMap = new Map<string, CourseData>();
+  for (const course of allCourses) {
+    courseMap.set(course._id, course);
+  }
+
+  // DFS to find all prerequisites and corequisites
+  function dfs(courseCode: string) {
+    if (visited.has(courseCode)) return;
+    visited.add(courseCode);
+
+    const course = courseMap.get(courseCode);
+    if (!course) return;
+    if (!Array.isArray(course.rules)){
+      console.warn(`Course ${courseCode} has invalid rules format`);
+      return;
+    }
+    for (const rule of course.rules) {
+      if (rule.type === RuleType.Prerequisite || rule.type === RuleType.Corequisite) {
+        const params = rule.params as MinCoursesFromSetParams;
+
+        for (const prereq of params.courseList) {
+          const prereqCourse = courseMap.get(prereq);
+          if (prereqCourse) {
+            coursesToAdd.add(prereqCourse);
+            dfs(prereq);
+          }
+        }
+      }
+    }
+  }
+
+  // Start DFS from all degree courses
+  for (const course of degreeCourses) {
+    dfs(course._id);
+  }
+
+  // add all coursesToAdd to degreeCourses
+  for (const course of coursesToAdd) {
+    if (!degreeCourses.some(c => c._id === course._id)) {
+      degreeCourses.push(course);
+    }
+  }
 }

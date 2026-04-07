@@ -6,7 +6,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { notFoundHandler, errorHandler } from '@middleware/errorHandler';
-
+import { startBackupScheduler } from '@services/backup';
 import { connectRedis } from '@lib/redisClient';
 
 //Routes import
@@ -32,6 +32,7 @@ import {
   resetPasswordLimiter,
   signupLimiter,
 } from '@middleware/rateLimiter';
+import { csrfMiddleware } from "@middleware/csrfMiddleware";
 import { getSentryProfilingIntegrations } from '@utils/misc';
 import helmet from 'helmet';
 
@@ -100,19 +101,24 @@ mongoose.connection.on('disconnected', () => {
 
 Sentry.setupExpressErrorHandler(app);
 
-if (process.env.NODE_ENV === 'development') {
-  const corsOptions = {
-    origin: ['http://localhost:3000', 'http://localhost:5173'],
+app.use(
+  cors({
+    origin: process.env.CLIENT?.split(","),
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
-  };
-  app.use(cors(corsOptions));
-}
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-CSRF-Token",
+    ],
+    exposedHeaders: ["X-CSRF-Token"],
+  })
+);
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cookieParser());
+app.use(csrfMiddleware);
 
 // Swagger (docs)
 app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
@@ -158,6 +164,8 @@ const start = async () => {
 
   app.listen(PORT, () => {
     console.log(`Server listening on Port: ${PORT}`);
+    //Start backup service only after connecting to DB
+    startBackupScheduler();
   });
 };
 

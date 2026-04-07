@@ -8,8 +8,13 @@ import {
 
 // Simple test component that uses the hook
 const TestComponent: React.FC = () => {
-  const { activeCourseId } = useTimelineDnd();
-  return <div>Active: {activeCourseId ?? "none"}</div>;
+  const { activeCourseId, activeSemesterId } = useTimelineDnd();
+  return (
+    <div>
+      <div>Active course: {activeCourseId ?? "none"}</div>
+      <div>Active semester: {activeSemesterId ?? "none"}</div>
+    </div>
+  );
 };
 
 describe("useTimelineDnd", () => {
@@ -22,21 +27,41 @@ describe("useTimelineDnd", () => {
 
   it("returns context value when used inside provider", () => {
     render(
-      <TimelineDndContext.Provider value={{ activeCourseId: "COMP 248" }}>
+      <TimelineDndContext.Provider
+        value={{ activeCourseId: "COMP 248", activeSemesterId: null }}>
         <TestComponent />
       </TimelineDndContext.Provider>
     );
 
-    expect(screen.getByText(/Active: COMP 248/)).toBeInTheDocument();
+    expect(screen.getByText(/Active course: COMP 248/)).toBeInTheDocument();
+    expect(screen.getByText(/Active semester: none/)).toBeInTheDocument();
   });
 
   it("handles null activeCourseId correctly", () => {
     render(
-      <TimelineDndContext.Provider value={{ activeCourseId: null }}>
+      <TimelineDndContext.Provider
+        value={{ activeCourseId: null, activeSemesterId: null }}>
         <TestComponent />
       </TimelineDndContext.Provider>
     );
 
-    expect(screen.getByText(/Active: none/)).toBeInTheDocument();
+    expect(screen.getByText(/Active course: none/)).toBeInTheDocument();
+  });
+
+  it("exposes activeSemesterId from context", () => {
+    render(
+      <TimelineDndContext.Provider
+        value={{
+          activeCourseId: null,
+          activeSemesterId: "FALL/WINTER 2025-26",
+        }}>
+        <TestComponent />
+      </TimelineDndContext.Provider>
+    );
+
+    expect(
+      screen.getByText(/Active semester: FALL\/WINTER 2025-26/)
+    ).toBeInTheDocument();
+    expect(screen.getByText(/Active course: none/)).toBeInTheDocument();
   });
 });
