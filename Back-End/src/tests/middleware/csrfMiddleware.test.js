@@ -1,6 +1,6 @@
 const mockCsrfProtection = jest.fn();
 
-jest.mock('csrf', () => {
+jest.mock('csurf', () => {
   return jest.fn(() => mockCsrfProtection);
 });
 
