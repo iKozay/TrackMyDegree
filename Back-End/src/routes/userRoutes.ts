@@ -2,16 +2,14 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
-import { authMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
+import { authMiddleware, adminCheckMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
 import mongoose from 'mongoose';
 import { User } from '@models';
 import { mailServicePromise } from '@services/mailService';
-import { authMiddleware, adminCheckMiddleware } from '@middleware/authMiddleware';
 import { v4 as uuidv4 } from 'uuid';
 import redisClient from '@lib/redisClient';
 import { RESET_EXPIRY_MINUTES } from '@utils/constants';
-import { inviteAdminLimiter } from '@middleware/rateLimiter';
-import { userRateLimiter } from '@middleware/rateLimiter';
+import { inviteAdminLimiter, userRateLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
