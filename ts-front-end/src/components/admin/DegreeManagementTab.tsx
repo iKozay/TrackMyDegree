@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Badge, Button, Col, Form, Modal, Row, Spinner, Tab, Table, Tabs } from 'react-bootstrap';
+import React, { useCallback, useEffect, useState } from 'react';
+import { Alert, Badge, Button, Col, Form, Row, Spinner, Tab, Table, Tabs } from 'react-bootstrap';
 import { api } from '../../api/http-api-client';
-import type { ApiResponse } from '../../types/response.types';
-import type { DegreeData, CoursePoolData, CreateDegreeInput, UpdateDegreeInput, CreateCoursePoolInput, CourseData } from '@trackmydegree/shared';
+import type { DegreeData, CoursePoolData, CourseData } from '@trackmydegree/shared';
 
 // ─── Degrees sub-tab ─────────────────────────────────────────────────────────
 
@@ -14,74 +13,29 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
   const [degrees, setDegrees] = useState<DegreeData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<DegreeData | null>(null);
-  const [form, setForm] = useState<CreateDegreeInput>({ name: '', totalCredits: 0 });
-  const [saving, setSaving] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const result = await api.get<ApiResponse<DegreeData[]>>('/admin/collections/degrees/documents');
-      setDegrees(result.data ?? []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load degrees');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => { void load(); }, [load]);
-
-  const openCreate = () => {
-    setEditing(null);
-    setForm({ name: '', totalCredits: 0 });
-    setShowModal(true);
-  };
-
-  const openEdit = (degree: DegreeData) => {
-    setEditing(degree);
-    setForm({ name: degree.name, totalCredits: degree.totalCredits, degreeType: degree.degreeType });
-    setShowModal(true);
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      if (editing) {
-        await api.put<DegreeData>(`/degree/${editing._id}`, form as UpdateDegreeInput);
-      } else {
-        await api.post<DegreeData>('/degree', form);
+  useEffect(() => {
+    const load = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await api.get<DegreeData[]>('/degree');
+        setDegrees(Array.isArray(data) ? data : []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load degrees');
+      } finally {
+        setLoading(false);
       }
-      setShowModal(false);
-      await load();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Save failed');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this degree?')) return;
-    try {
-      await api.delete(`/degree/${id}`);
-      await load();
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Delete failed');
-    }
-  };
+    };
+    void load();
+  }, []);
 
   if (loading) return <div className="py-4 text-center"><Spinner animation="border" /></div>;
   if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <span className="text-muted">{degrees.length} degree{degrees.length !== 1 ? 's' : ''}</span>
-        <Button size="sm" onClick={openCreate}>+ Add Degree</Button>
-      </div>
+      <p className="text-muted mb-3">{degrees.length} degree{degrees.length !== 1 ? 's' : ''}</p>
       <Table striped hover responsive>
         <thead>
           <tr>
@@ -94,7 +48,11 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
         </thead>
         <tbody>
           {degrees.length === 0 && (
-            <tr><td colSpan={5} className="text-center text-muted py-4">No degrees found. Use the Seed Database tab to import data.</td></tr>
+            <tr>
+              <td colSpan={5} className="text-center text-muted py-4">
+                No degrees found. Use the Seed Database tab to import data.
+              </td>
+            </tr>
           )}
           {degrees.map((d) => (
             <tr key={d._id}>
@@ -103,78 +61,17 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
               <td>{d.totalCredits}</td>
               <td><Badge bg="secondary">{d.coursePools?.length ?? 0}</Badge></td>
               <td className="text-end">
-                <Button size="sm" variant="outline-primary" className="me-1" onClick={() => onManagePools(d._id)}>Manage Pools</Button>
-                <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => openEdit(d)}>Edit</Button>
-                <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(d._id)}>Delete</Button>
+                <Button size="sm" variant="outline-primary" onClick={() => onManagePools(d._id)}>
+                  Manage Pools
+                </Button>
               </td>
             </tr>
           ))}
         </tbody>
       </Table>
-
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>{editing ? 'Edit Degree' : 'Add Degree'}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Total Credits</Form.Label>
-              <Form.Control type="number" value={form.totalCredits} onChange={(e) => setForm((f) => ({ ...f, totalCredits: Number(e.target.value) }))} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Degree Type</Form.Label>
-              <Form.Control value={form.degreeType ?? ''} onChange={(e) => setForm((f) => ({ ...f, degreeType: e.target.value }))} placeholder="e.g. BEng, BSc" />
-            </Form.Group>
-          </Form>
-          {editing && (
-            <p className="text-muted small mt-2 mb-0">
-              To add or remove course pools for this degree, click <strong>Manage Pools</strong> in the table.
-            </p>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button onClick={() => void handleSave()} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
-
-// ─── Course search hook ───────────────────────────────────────────────────────
-
-function useCourseSearch() {
-  const [query, setQuery] = useState('');
-  const [results, setResults] = useState<CourseData[]>([]);
-  const [searching, setSearching] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!query.trim()) { setResults([]); return; }
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(async () => {
-      setSearching(true);
-      try {
-        const result = await api.get<ApiResponse<CourseData[]>>(
-          `/admin/collections/courses/documents?keyword=${encodeURIComponent(query)}&limit=10`,
-        );
-        setResults(result.data ?? []);
-      } catch {
-        setResults([]);
-      } finally {
-        setSearching(false);
-      }
-    }, 300);
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current); };
-  }, [query]);
-
-  return { query, setQuery, results, searching };
-}
 
 // ─── Course Pools sub-tab ─────────────────────────────────────────────────────
 
@@ -189,18 +86,13 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
   const [loadingDegrees, setLoadingDegrees] = useState(true);
   const [loadingPools, setLoadingPools] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [showModal, setShowModal] = useState(false);
-  const [editing, setEditing] = useState<CoursePoolData | null>(null);
-  const [form, setForm] = useState<Omit<CreateCoursePoolInput, 'degreeId'>>({ name: '', creditsRequired: 0, courses: [] });
-  const [saving, setSaving] = useState(false);
-  const courseSearch = useCourseSearch();
 
   useEffect(() => {
     const fetchDegrees = async () => {
       setLoadingDegrees(true);
       try {
-        const result = await api.get<ApiResponse<DegreeData[]>>('/admin/collections/degrees/documents');
-        const list = result.data ?? [];
+        const data = await api.get<DegreeData[]>('/degree');
+        const list = Array.isArray(data) ? data : [];
         setDegrees(list);
         if (!initialDegreeId && list.length > 0) setSelectedDegreeId(list[0]._id);
       } catch (err) {
@@ -212,7 +104,6 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
     void fetchDegrees();
   }, [initialDegreeId]);
 
-  // Sync initialDegreeId prop when it changes (e.g. navigated from Degrees tab)
   useEffect(() => {
     if (initialDegreeId) setSelectedDegreeId(initialDegreeId);
   }, [initialDegreeId]);
@@ -222,11 +113,10 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
     setLoadingPools(true);
     setError(null);
     try {
-      const result = await api.get<CoursePoolData[]>(
+      const data = await api.get<CoursePoolData[]>(
         `/degree/${encodeURIComponent(degreeId)}/coursepools`,
       );
-      const list = (result ?? []);
-      setPools(list);
+      setPools(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load pools');
     } finally {
@@ -236,128 +126,43 @@ const CoursePoolsPanel: React.FC<CoursePoolsPanelProps> = ({ initialDegreeId }) 
 
   useEffect(() => { if (selectedDegreeId) void loadPools(selectedDegreeId); }, [selectedDegreeId, loadPools]);
 
-  const openCreate = () => { setEditing(null); setForm({ name: '', creditsRequired: 0, courses: [] }); courseSearch.setQuery(''); setShowModal(true); };
-  const openEdit = (pool: CoursePoolData) => { setEditing(pool); setForm({ name: pool.name, creditsRequired: pool.creditsRequired, courses: [...pool.courses] }); courseSearch.setQuery(''); setShowModal(true); };
-
-  const addCourse = (courseId: string) => {
-    if (!form.courses.includes(courseId)) {
-      setForm((f) => ({ ...f, courses: [...f.courses, courseId] }));
-    }
-    courseSearch.setQuery('');
-  };
-
-  const removeCourse = (courseId: string) => {
-    setForm((f) => ({ ...f, courses: f.courses.filter((c) => c !== courseId) }));
-  };
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      if (editing) { await api.put(`/coursepool/${editing._id}`, form); }
-      else { await api.post('/coursepool', { ...form, degreeId: selectedDegreeId }); }
-      setShowModal(false);
-      await loadPools(selectedDegreeId);
-    } catch (err) { alert(err instanceof Error ? err.message : 'Save failed'); }
-    finally { setSaving(false); }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!window.confirm('Delete this pool?')) return;
-    try { await api.delete(`/coursepool/${id}`); await loadPools(selectedDegreeId); }
-    catch (err) { alert(err instanceof Error ? err.message : 'Delete failed'); }
-  };
-
   if (loadingDegrees) return <div className="py-4 text-center"><Spinner animation="border" /></div>;
 
   return (
     <>
       <Row className="mb-3 align-items-center">
         <Col xs="auto">
-          <Form.Select value={selectedDegreeId} onChange={(e) => setSelectedDegreeId(e.target.value)} style={{ minWidth: 220 }}>
+          <Form.Select
+            value={selectedDegreeId}
+            onChange={(e) => setSelectedDegreeId(e.target.value)}
+            style={{ minWidth: 220 }}
+          >
             {degrees.map((d) => <option key={d._id} value={d._id}>{d.name}</option>)}
           </Form.Select>
         </Col>
-        <Col className="text-end">
-          <Button size="sm" onClick={openCreate} disabled={!selectedDegreeId}>+ Add Pool</Button>
-        </Col>
       </Row>
       {error && <Alert variant="danger">{error}</Alert>}
-      {loadingPools ? <div className="py-4 text-center"><Spinner animation="border" /></div> : (
+      {loadingPools ? (
+        <div className="py-4 text-center"><Spinner animation="border" /></div>
+      ) : (
         <Table striped hover responsive>
-          <thead><tr><th>Name</th><th>Credits Required</th><th>Courses</th><th></th></tr></thead>
+          <thead>
+            <tr><th>Name</th><th>Credits Required</th><th>Courses</th></tr>
+          </thead>
           <tbody>
             {pools.map((p) => (
               <tr key={p._id}>
                 <td>{p.name}</td>
                 <td>{p.creditsRequired}</td>
                 <td><Badge bg="secondary">{p.courses.length}</Badge></td>
-                <td className="text-end">
-                  <Button size="sm" variant="outline-secondary" className="me-1" onClick={() => openEdit(p)}>Edit</Button>
-                  <Button size="sm" variant="outline-danger" onClick={() => void handleDelete(p._id)}>Delete</Button>
-                </td>
               </tr>
             ))}
-            {pools.length === 0 && <tr><td colSpan={4} className="text-center text-muted py-4">No pools found</td></tr>}
+            {pools.length === 0 && (
+              <tr><td colSpan={3} className="text-center text-muted py-4">No pools found</td></tr>
+            )}
           </tbody>
         </Table>
       )}
-
-      <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
-        <Modal.Header closeButton><Modal.Title>{editing ? 'Edit Pool' : 'Add Pool'}</Modal.Title></Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Credits Required</Form.Label>
-              <Form.Control type="number" value={form.creditsRequired} onChange={(e) => setForm((f) => ({ ...f, creditsRequired: Number(e.target.value) }))} />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Courses</Form.Label>
-              <div className="mb-2 d-flex flex-wrap gap-1">
-                {form.courses.map((courseId) => (
-                  <Badge key={courseId} bg="secondary" className="d-flex align-items-center gap-1" style={{ fontSize: '0.85em' }}>
-                    {courseId}
-                    <span role="button" style={{ cursor: 'pointer' }} onClick={() => removeCourse(courseId)}>&times;</span>
-                  </Badge>
-                ))}
-                {form.courses.length === 0 && <span className="text-muted small">No courses added yet</span>}
-              </div>
-              <Form.Control
-                placeholder="Search course code or title…"
-                value={courseSearch.query}
-                onChange={(e) => courseSearch.setQuery(e.target.value)}
-              />
-              {courseSearch.searching && <small className="text-muted">Searching…</small>}
-              {courseSearch.results.length > 0 && (
-                <div className="border rounded mt-1" style={{ maxHeight: 180, overflowY: 'auto' }}>
-                  {courseSearch.results.map((c) => {
-                    return (
-                      <div
-                        key={c._id}
-                        className="px-3 py-2 d-flex justify-content-between align-items-center"
-                        style={{ cursor: 'pointer', borderBottom: '1px solid #eee' }}
-                        onClick={() => addCourse(c._id)}
-                      >
-                        <span><code>{c._id}</code> — {c.title}</span>
-                        <Badge bg={form.courses.includes(c._id) ? 'success' : 'outline-secondary'}>
-                          {form.courses.includes(c._id) ? 'Added' : '+ Add'}
-                        </Badge>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </Form.Group>
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>Cancel</Button>
-          <Button onClick={() => void handleSave()} disabled={saving}>{saving ? 'Saving…' : 'Save'}</Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
@@ -376,13 +181,13 @@ const CoursesPanel: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      const query = new URLSearchParams({
+      const params = new URLSearchParams({
         page: String(page),
         limit: String(limit),
-        ...(search && { keyword: search }),
+        ...(search && { search }),
       });
-      const result = await api.get<ApiResponse<CourseData[]>>(`/admin/collections/courses/documents?${query.toString()}`);
-      setCourses(result.data ?? []);
+      const data = await api.get<CourseData[]>(`/courses?${params.toString()}`);
+      setCourses(Array.isArray(data) ? data : []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load courses');
     } finally {
@@ -396,16 +201,29 @@ const CoursesPanel: React.FC = () => {
 
   return (
     <>
-      <Row className="mb-3 align-items-center">
+      <Row className="mb-3">
         <Col>
-          <Form.Control placeholder="Search courses…" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <Form.Control
+            placeholder="Search courses…"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+          />
         </Col>
       </Row>
       {error && <Alert variant="danger">{error}</Alert>}
-      {loading ? <div className="py-4 text-center"><Spinner animation="border" /></div> : (
+      {loading ? (
+        <div className="py-4 text-center"><Spinner animation="border" /></div>
+      ) : (
         <>
           <Table striped hover responsive>
-            <thead><tr><th>Code</th><th>Title</th><th className="text-center">Credits</th><th className="text-center">Offered In</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Code</th>
+                <th>Title</th>
+                <th className="text-center">Credits</th>
+                <th className="text-center">Offered In</th>
+              </tr>
+            </thead>
             <tbody>
               {courses.map((c) => (
                 <tr key={c._id}>
@@ -415,7 +233,9 @@ const CoursesPanel: React.FC = () => {
                   <td className="text-center">{(c.offeredIn ?? []).join(', ') || '—'}</td>
                 </tr>
               ))}
-              {courses.length === 0 && <tr><td colSpan={4} className="text-center text-muted py-4">No courses found</td></tr>}
+              {courses.length === 0 && (
+                <tr><td colSpan={4} className="text-center text-muted py-4">No courses found</td></tr>
+              )}
             </tbody>
           </Table>
           <div className="d-flex justify-content-between align-items-center">
@@ -449,6 +269,7 @@ const DegreeManagementTab: React.FC = () => {
         onSelect={(k) => setActiveSubTab(k ?? 'degrees')}
         id="degree-management-tabs"
         className="mb-3"
+        mountOnEnter
       >
         <Tab eventKey="degrees" title="Degrees">
           <DegreesPanel onManagePools={handleManagePools} />

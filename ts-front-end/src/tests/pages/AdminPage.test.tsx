@@ -1,95 +1,83 @@
-import { render, screen, fireEvent } from "@testing-library/react";
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import AdminPage from "../../pages/AdminPage";
-import { useAuth } from "../../hooks/useAuth";
+import { render, screen, fireEvent, cleanup } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import AdminPage from '../../pages/AdminPage';
+import { useAuth } from '../../hooks/useAuth';
 
-vi.mock("../../hooks/useAuth");
+vi.mock('../../hooks/useAuth');
 
-vi.mock("../../components/admin/MetricsTab", () => ({
-  default: () => <div>Metrics Tab</div>,
+vi.mock('../../components/admin/MetricsTab', () => ({
+  default: () => <div data-testid="metrics-tab">Metrics</div>,
 }));
-
-vi.mock("../../components/admin/DegreeManagementTab", () => ({
-  default: () => <div>DegreeManagementTab</div>,
+vi.mock('../../components/admin/DegreeManagementTab', () => ({
+  default: () => <div data-testid="degree-tab">Degrees</div>,
 }));
-
-vi.mock("../../components/admin/UserManagementTab", () => ({
-  default: () => <div>UserManagementTab</div>,
+vi.mock('../../components/admin/UserManagementTab', () => ({
+  default: () => <div data-testid="user-tab">Users</div>,
 }));
-
-vi.mock("../../components/admin/SeedingTab", () => ({
-  default: () => <div>SeedingTab</div>,
+vi.mock('../../components/admin/SeedingTab', () => ({
+  default: () => <div data-testid="seeding-tab">Seeding</div>,
 }));
-
-vi.mock("../../components/admin/BackupManagementTab", () => ({
+vi.mock('../../components/admin/BackupManagementTab', () => ({
   default: () => <div data-testid="backup-management-tab">Backup Tab</div>,
 }));
 
-describe("AdminPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
+describe('AdminPage', () => {
+  beforeEach(() => { vi.clearAllMocks(); });
+  afterEach(() => { cleanup(); });
+
+  it('shows login message when not authenticated', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: false } as any);
+    render(<AdminPage />);
+    expect(screen.getByText(/Please log in to see your data\./i)).toBeInTheDocument();
   });
 
-  it("should show login message when not authenticated", () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: false,
-    } as any);
-
+  it('renders admin dashboard heading when authenticated', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
     render(<AdminPage />);
-
-    expect(
-      screen.getByText("Please log in to see your data.")
-    ).toBeTruthy();
+    expect(screen.getByText(/Admin Dashboard/i)).toBeInTheDocument();
   });
 
-  it("should render admin dashboard when authenticated", () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-    } as any);
-
+  it('shows all 5 tab titles', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
     render(<AdminPage />);
-
-    expect(screen.getByText("Admin Dashboard")).toBeTruthy();
-    expect(screen.getByText("Metrics Tab")).toBeTruthy();
+    expect(screen.getByText('Metrics & Stats')).toBeInTheDocument();
+    expect(screen.getByText('Degrees & Courses')).toBeInTheDocument();
+    expect(screen.getByText('Manage Users')).toBeInTheDocument();
+    expect(screen.getByText('Seed Database')).toBeInTheDocument();
+    expect(screen.getByText('Backups')).toBeInTheDocument();
   });
 
-  it("should switch to degrees tab and cover degree branch", () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-    } as any);
-
+  it('renders MetricsTab by default', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
     render(<AdminPage />);
-
-    fireEvent.click(screen.getByRole("tab", { name: "Degrees & Courses" }));
-
-    expect(screen.getByText("DegreeManagementTab")).toBeTruthy();
+    expect(screen.getByTestId('metrics-tab')).toBeInTheDocument();
   });
 
-  it("should switch to backups tab and render BackupManagementTab", () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-    } as any);
-
+  it('switches to Degrees & Courses tab on click', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
     render(<AdminPage />);
-
-    fireEvent.click(screen.getByRole("tab", { name: "Backups" }));
-
-    expect(screen.getByTestId("backup-management-tab")).toBeTruthy();
+    fireEvent.click(screen.getByText('Degrees & Courses'));
+    expect(screen.getByTestId('degree-tab')).toBeInTheDocument();
   });
 
-  it("should fallback to metrics tab when null key is selected", () => {
-    vi.mocked(useAuth).mockReturnValue({
-      isAuthenticated: true,
-    } as any);
-
+  it('switches to Manage Users tab on click', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
     render(<AdminPage />);
+    fireEvent.click(screen.getByText('Manage Users'));
+    expect(screen.getByTestId('user-tab')).toBeInTheDocument();
+  });
 
-    // Click another tab first
-    fireEvent.click(screen.getByRole("tab", { name: "Manage Users" }));
-    expect(screen.getByText("UserManagementTab")).toBeTruthy();
+  it('switches to Seed Database tab on click', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
+    render(<AdminPage />);
+    fireEvent.click(screen.getByText('Seed Database'));
+    expect(screen.getByTestId('seeding-tab')).toBeInTheDocument();
+  });
 
-    // Click Metrics again to ensure fallback/default path is covered
-    fireEvent.click(screen.getByRole("tab", { name: "Metrics & Stats" }));
-    expect(screen.getByText("Metrics Tab")).toBeTruthy();
+  it('switches to Backups tab on click', () => {
+    vi.mocked(useAuth).mockReturnValue({ isAuthenticated: true } as any);
+    render(<AdminPage />);
+    fireEvent.click(screen.getByText('Backups'));
+    expect(screen.getByTestId('backup-management-tab')).toBeInTheDocument();
   });
 });
