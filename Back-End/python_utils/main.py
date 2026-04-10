@@ -194,6 +194,12 @@ def get_course_schedule():
 def health_check():
     return jsonify({"status": "ok"})
 
+def initialize():
+    global initialized
+    if not initialized:
+        init_instances()
+        initialized = True
+
 def init_instances():
     global course_scraper_instance, degree_data_scraper_instance, concordia_api_instance
 
@@ -204,7 +210,12 @@ def init_instances():
         concordia_api_instance = get_concordia_api_instance()
         logger.info("Concordia API instance created")
         module_status["concordia_api"] = "ready"
-        start_download_scheduler()  # Start the 24-hour cycle
+
+        logger.info("Running initial dataset download (blocking)...")
+        concordia_api_instance.download_datasets()
+        write_last_run_timestamp()
+
+        schedule_next_download(DOWNLOAD_INTERVAL_SECONDS)
 
     # Step 2: Initialize Course Data Scraper  
     if course_scraper_instance is None:
@@ -235,10 +246,11 @@ if cache_path:
 if env_file:
     load_dotenv(env_file)
 
-init_instances()
 
 def main():
     app.run(host="0.0.0.0", port=15001)
 
+
 if __name__ == "__main__":
+    initialize()
     main()

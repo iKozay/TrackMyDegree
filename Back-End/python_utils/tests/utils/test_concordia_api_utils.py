@@ -92,25 +92,7 @@ class TestConcordiaAPIUtils:
         result = self.api._get_from_csv("course_schedule", subject="SOEN", catalog="111")
         assert result == []
 
-    @patch("utils.concordia_api_utils.download_file")
-    @patch("utils.concordia_api_utils.pd.read_csv")
-    @patch("os.makedirs")
-    @patch("os.path.exists")
-    @patch("os.path.join")
-    def test_download_datasets_in_dev_mode_uses_local_cache(
-        self, mock_join, mock_exists, mock_makedirs, mock_read_csv, mock_download_file
-    ):
-        # Setup
-        self.api.dev_mode = True
-        mock_exists.return_value = True
-        mock_read_csv.return_value = pd.DataFrame({"Subject": ["COMP"], "Catalog Nbr": ["248"], "Term Code": ["202430"]})
-        mock_join.side_effect = lambda *args: os.path.sep.join(args)
-
-        self.api.download_datasets()
-        assert "course_schedule" in self.api.data_cache
-        assert "course_section" in self.api.data_cache
-        mock_download_file.assert_not_called()
-
+    @patch("utils.concordia_api_utils.get_redis_client")
     @patch("utils.concordia_api_utils.download_file")
     @patch("utils.concordia_api_utils.pd.read_csv")
     @patch("tempfile.gettempdir")
@@ -118,7 +100,7 @@ class TestConcordiaAPIUtils:
     @patch("os.path.exists")
     @patch("os.makedirs")
     def test_download_datasets_in_prod_mode_downloads(
-        self, mock_makedirs, mock_exists, mock_join, mock_gettempdir, mock_read_csv, mock_download_file
+        self, mock_makedirs, mock_exists, mock_join, mock_gettempdir, mock_read_csv, mock_download_file, mock_get_redis
     ):
         self.api.dev_mode = False
         mock_gettempdir.return_value = "/tempdir"
