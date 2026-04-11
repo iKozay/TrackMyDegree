@@ -30,7 +30,7 @@
     "mongoose": "^8.19.2",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
-    "nodemailer": "^7.0.11",
+    "nodemailer": "^8.0.5",
     "path-to-regexp": "^8.4.2",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
