@@ -114,7 +114,9 @@ export const buildTimeline = async (
   const { degreeData: degree, coursePools, courses } = result;
 
   if (programInfo.ewtSatisfied) {
-    exemptions.push('ENCS272'); // EWT is satisfied → exempt ENCS272
+    if (!exemptions.includes('ENCS272')) {
+      exemptions.push('ENCS272'); // EWT is satisfied → exempt ENCS272
+    }
   }
 
   if (programInfo.isExtendedCreditProgram) {
