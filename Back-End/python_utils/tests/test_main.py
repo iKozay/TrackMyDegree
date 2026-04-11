@@ -9,8 +9,17 @@ import json
 import time
 import threading
 
-# Mock the entire main module before importing it to prevent initialization
-with patch('main.init_instances', return_value=None):
+# Mock main module dependencies before importing it, since main initializes on import.
+_mock_concordia_api = MagicMock()
+_mock_concordia_api.download_datasets.return_value = None
+
+with patch.dict(os.environ, {"REDIS_URL": "redis://localhost:6379"}, clear=False), \
+    patch('utils.concordia_api_utils.init_concordia_api_instance', return_value=None), \
+    patch('utils.concordia_api_utils.get_concordia_api_instance', return_value=_mock_concordia_api), \
+    patch('scraper.course_data_scraper.init_course_scraper_instance', return_value=None), \
+    patch('scraper.course_data_scraper.get_course_scraper_instance', return_value=MagicMock()), \
+    patch('scraper.degree_data_scraper.DegreeDataScraper', return_value=MagicMock()), \
+    patch('threading.Timer'):
     from main import app
     import main
 
