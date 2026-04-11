@@ -48,6 +48,7 @@ async function getDataFromParams(params: BuildTimelineParams) {
         degree: data.degreeId,
         isCoop: data.isCoop,
         isExtendedCreditProgram: data.isExtendedCredit,
+        ewtSatisfied: false,// Assuming that ENCS 272 is already in exemptions coursepool. If not, user can add it manually
       };
       semestersResults = data.semesters;
       courseStatusMap = data.courseStatusMap;
@@ -111,6 +112,10 @@ export const buildTimeline = async (
   if (!result) throw new Error('Error fetching degree data from database');
 
   const { degreeData: degree, coursePools, courses } = result;
+
+  if (programInfo.ewtSatisfied) {
+    exemptions.push('ENCS272'); // EWT is satisfied → exempt ENCS272
+  }
 
   if (programInfo.isExtendedCreditProgram) {
     await handleEcp(coursePools, courses, degree);
