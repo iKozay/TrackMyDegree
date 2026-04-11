@@ -246,11 +246,11 @@ if cache_path:
 if env_file:
     load_dotenv(env_file)
 
+initialize()
 
 def main():
     app.run(host="0.0.0.0", port=15001)
 
 
 if __name__ == "__main__":
-    initialize()
     main()
