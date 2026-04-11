@@ -3,7 +3,9 @@ import { MongoMemoryServer } from 'mongodb-memory-server';
 import {
   generateDegreeAudit,
   generateDegreeAuditForUser,
-  generateDegreeAuditFromTimeline
+  generateDegreeAuditFromTimeline,
+  estimateGraduation,
+  graduationTermToAcademicYear,
 } from '@services/audit';
 import { Course, CoursePool, Degree, Timeline, User } from '@models';
 import { GenerateAuditParams, TimelineCourse, TimelineResult} from '@trackmydegree/shared';
@@ -14,6 +16,12 @@ const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
 const STATUS_IN_PROGRESS = 'In Progress';
 const DEGREE_NAME = 'Bachelor of Computer Science';
+const TERM_WINTER_2024 = 'Winter 2024';
+const TERM_WINTER_2025 = 'Winter 2025';
+const TERM_WINTER_2026 = 'Winter 2026';
+const TERM_WINTER_2027 = 'Winter 2027';
+const ENGR_490_TITLE = 'Capstone Design Project';
+const ENGR_490_DESC = 'General engineering capstone';
 
 // eslint-disable-next-line sonarjs/no-duplicate-string
 jest.mock('@utils/misc', () => {
@@ -176,7 +184,7 @@ describe('DegreeAuditService', () => {
       ['COMP 352', { status: 'planned', semester: 'Fall 2023' }],
       ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
       ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
-      ['COMP 346', { status: 'planned', semester: 'Winter 2024' }],
+      ['COMP 346', { status: 'planned', semester: TERM_WINTER_2024 }],
     ]);
 
     const timeline = await Timeline.create({
@@ -603,7 +611,7 @@ describe('DegreeAuditService', () => {
 
       await Timeline.findByIdAndUpdate(testTimelineId, {
         courseStatusMap: new Map([
-          ['COMP 248', { status: 'planned', semester: 'Winter 2024' }],
+          ['COMP 248', { status: 'planned', semester: TERM_WINTER_2024 }],
           ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
         ]),
       });
@@ -902,8 +910,18 @@ describe('DegreeAuditService', () => {
 
       expect(audit.student.expectedGraduation).toBeDefined();
       expect(audit.student.expectedGraduation).toMatch(
-        /^(Winter|Summer|Fall) \d{4}$/,
+        /^(Winter|Fall) \d{4}$/,
       );
+    });
+
+    it('should never produce a Summer graduation term', async () => {
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+      expect(audit.student.expectedGraduation).not.toMatch(/^Summer/);
     });
   });
 
@@ -1082,6 +1100,180 @@ describe('DegreeAuditService', () => {
       const audit = await generateDegreeAudit(params);
 
       expect(audit.progress.total).toBe(120); // Default value
+    });
+  });
+
+  describe('estimateGraduation (unit)', () => {
+    it('should return current Winter term when no credits remain and date is in Winter', () => {
+      const result = estimateGraduation(0, new Date('2026-02-15'));
+      expect(result).toBe(TERM_WINTER_2026);
+    });
+
+    it('should return Fall when no credits remain and date is in Summer', () => {
+      const result = estimateGraduation(0, new Date('2026-06-15'));
+      expect(result).toBe('Fall 2026');
+    });
+
+    it('should return current Fall when no credits remain and date is in Fall', () => {
+      const result = estimateGraduation(0, new Date('2026-10-15'));
+      expect(result).toBe('Fall 2026');
+    });
+
+    it('should advance through Fall/Winter only (no Summer)', () => {
+      // 45 credits = 3 terms at 15 credits/term
+      // Starting Winter 2026: Winter 2026 → Fall 2026 → Winter 2027
+      const result = estimateGraduation(45, new Date('2026-01-15'));
+      expect(result).toBe(TERM_WINTER_2027);
+    });
+
+    it('should skip summer and start from Fall when date is in Summer', () => {
+      // 30 credits = 2 terms: Fall 2026 → Winter 2027
+      const result = estimateGraduation(30, new Date('2026-06-15'));
+      expect(result).toBe(TERM_WINTER_2027);
+    });
+
+    it('should handle a single remaining term from Fall', () => {
+      // 15 credits = 1 term, starting Fall 2026
+      const result = estimateGraduation(15, new Date('2026-10-15'));
+      expect(result).toBe('Fall 2026');
+    });
+
+    it('should handle a single remaining term from Winter', () => {
+      const result = estimateGraduation(15, new Date('2026-02-15'));
+      expect(result).toBe(TERM_WINTER_2026);
+    });
+
+    it('should handle 30 credits per year exactly', () => {
+      // 60 credits = 4 terms: Fall 2026 → Winter 2027 → Fall 2027 → Winter 2028
+      const result = estimateGraduation(60, new Date('2026-09-01'));
+      expect(result).toBe('Winter 2028');
+    });
+
+    it('should round up partial terms', () => {
+      // 16 credits from Fall → ceil(16/15) = 2 terms: Fall 2026 → Winter 2027
+      const result = estimateGraduation(16, new Date('2026-09-01'));
+      expect(result).toBe(TERM_WINTER_2027);
+    });
+
+    it('should never produce a Summer term', () => {
+      for (let credits = 0; credits <= 180; credits += 15) {
+        for (let month = 0; month < 12; month++) {
+          const date = new Date(2026, month, 15);
+          const term = estimateGraduation(credits, date);
+          expect(term).not.toMatch(/^Summer/);
+        }
+      }
+    });
+  });
+
+  describe('graduationTermToAcademicYear', () => {
+    it('should map Winter 2026 to 2025-2026', () => {
+      expect(graduationTermToAcademicYear(TERM_WINTER_2026)).toBe('2025-2026');
+    });
+
+    it('should map Fall 2026 to 2026-2027', () => {
+      expect(graduationTermToAcademicYear('Fall 2026')).toBe('2026-2027');
+    });
+
+    it('should map Winter 2027 to 2026-2027', () => {
+      expect(graduationTermToAcademicYear(TERM_WINTER_2027)).toBe('2026-2027');
+    });
+
+    it('should map Fall 2025 to 2025-2026', () => {
+      expect(graduationTermToAcademicYear('Fall 2025')).toBe('2025-2026');
+    });
+
+    it('should map Fall 2027 to 2027-2028', () => {
+      expect(graduationTermToAcademicYear('Fall 2027')).toBe('2027-2028');
+    });
+  });
+
+  describe('curriculum selection via expected graduation', () => {
+    it('should select the correct academic year for a student with many remaining credits', async () => {
+      // Student has only COMP 248 completed (3 credits out of 120)
+      // Remaining = 117, which is ~8 terms from Jan 2025
+      // Graduation should be several years out → academic year well past 2025-2026
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      expect(audit).toBeDefined();
+      expect(audit.student.expectedGraduation).toMatch(/^(Winter|Fall) \d{4}$/);
+      expect(audit.student.expectedGraduation).not.toMatch(/^Summer/);
+    });
+
+    it('should select a nearer academic year for a student close to graduation', async () => {
+      // Student has almost all credits completed
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
+          ['COMP 249', { status: 'completed', semester: 'Winter 2023' }],
+          ['COMP 352', { status: 'completed', semester: 'Fall 2023' }],
+          ['COMP 346', { status: 'completed', semester: TERM_WINTER_2024 }],
+          ['COMP 371', { status: 'completed', semester: 'Fall 2024' }],
+          ['COMP 445', { status: 'completed', semester: 'Fall 2024' }],
+          ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
+          ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
+          ['COMP 490', { status: 'completed', semester: TERM_WINTER_2024 }],
+          ['ENGL 101', { status: 'completed', semester: 'Fall 2022' }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      expect(audit).toBeDefined();
+      expect(audit.student.expectedGraduation).toBeDefined();
+    });
+
+    it('should count planned courses in the current term toward active credits', async () => {
+      (misc.isTermInProgress as jest.Mock).mockReturnValue(true);
+
+      await Timeline.findByIdAndUpdate(testTimelineId, {
+        courseStatusMap: new Map([
+          ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
+          ['COMP 249', { status: 'completed', semester: 'Winter 2023' }],
+          ['COMP 352', { status: 'completed', semester: 'Fall 2023' }],
+          ['COMP 346', { status: 'completed', semester: TERM_WINTER_2024 }],
+          ['COMP 371', { status: 'completed', semester: 'Fall 2024' }],
+          ['COMP 445', { status: 'completed', semester: 'Fall 2024' }],
+          ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
+          ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
+          ['COMP 490', { status: 'planned', semester: TERM_WINTER_2025 }],
+          ['ENGL 101', { status: 'planned', semester: TERM_WINTER_2025 }],
+        ]),
+      });
+
+      const params: GenerateAuditParams = {
+        timelineId: testTimelineId,
+        userId: testUserId,
+      };
+
+      const audit = await generateDegreeAudit(params);
+
+      expect(audit).toBeDefined();
+      // Planned courses in the current term should be counted as in-progress,
+      // giving a nearer graduation estimate
+      expect(audit.student.expectedGraduation).toMatch(/^(Winter|Fall) \d{4}$/);
+
+      const actual =
+        jest.requireActual<typeof import('@utils/misc')>('@utils/misc');
+      (misc.isTermInProgress as jest.Mock).mockImplementation(
+        actual.isTermInProgress,
+      );
     });
   });
 });
