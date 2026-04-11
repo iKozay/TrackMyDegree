@@ -238,6 +238,7 @@ export async function loadKnownEntityIds(payload: {
   diffs: Array<{
     entityType: VersionedEntityType;
     entityId: string;
+    patch?: JsonPatch;
   }>;
 }): Promise<ExistingEntityIds> {
   const newDegreeIds = new Set(payload.degrees.map((degree) => degree._id));
@@ -248,52 +249,65 @@ export async function loadKnownEntityIds(payload: {
   const { referencedDegreeIds, referencedCoursePoolIds, referencedCourseIds } =
     collectReferencedIds(payload);
 
-  const [existingDegrees, existingCoursePools, existingCourses] =
-    await Promise.all([
-      Degree.find(
-        {
-          _id: {
-            $in: Array.from(referencedDegreeIds),
-          },
-        },
-        { _id: 1 },
-      )
-        .lean()
-        .exec(),
-      CoursePool.find(
-        {
-          _id: {
-            $in: Array.from(referencedCoursePoolIds),
-          },
-        },
-        { _id: 1 },
-      )
-        .lean()
-        .exec(),
-      Course.find(
-        {
-          _id: {
-            $in: Array.from(referencedCourseIds),
-          },
-        },
-        { _id: 1 },
-      )
-        .lean()
-        .exec(),
-    ]);
+  const degreeIdsToHydrate = Array.from(referencedDegreeIds);
+
+  const degreesFromDb =
+    degreeIdsToHydrate.length > 0
+      ? await Degree.find(
+          { _id: { $in: degreeIdsToHydrate } },
+          { _id: 1, coursePools: 1 },
+        )
+          .lean<Array<{ _id: string; coursePools?: string[] }>>()
+          .exec()
+      : [];
+
+  const expandedCoursePoolIds = new Set<string>(referencedCoursePoolIds);
+  for (const degree of degreesFromDb) {
+    for (const poolId of degree.coursePools || []) {
+      expandedCoursePoolIds.add(String(poolId));
+    }
+  }
+
+  const poolIdsArray = Array.from(expandedCoursePoolIds);
+
+  const poolsFromDb =
+    poolIdsArray.length > 0
+      ? await CoursePool.find(
+          { _id: { $in: poolIdsArray } },
+          { _id: 1, courses: 1 },
+        )
+          .lean<Array<{ _id: string; courses?: string[] }>>()
+          .exec()
+      : [];
+
+  const expandedCourseIds = new Set<string>(referencedCourseIds);
+  for (const pool of poolsFromDb) {
+    for (const courseId of pool.courses || []) {
+      expandedCourseIds.add(String(courseId));
+    }
+  }
+
+  const courseIdsArray = Array.from(expandedCourseIds);
+
+  const coursesFromDb =
+    courseIdsArray.length > 0
+      ? await Course.find({ _id: { $in: courseIdsArray } }, { _id: 1 })
+          .lean<Array<{ _id: string }>>()
+          .exec()
+      : [];
 
   return {
     knownDegrees: new Set([
       ...newDegreeIds,
-      ...existingDegrees.map((degree) => String(degree._id)),
+      ...degreesFromDb.map((degree) => String(degree._id)),
     ]),
     knownCoursePools: new Set([
       ...newCoursePoolIds,
-      ...existingCoursePools.map((coursePool) => String(coursePool._id)),
+      ...poolsFromDb.map((pool) => String(pool._id)),
     ]),
     knownCourses: new Set([
       ...newCourseIds,
-      ...existingCourses.map((course) => String(course._id)),
+      ...coursesFromDb.map((course) => String(course._id)),
     ]),
   };
 }

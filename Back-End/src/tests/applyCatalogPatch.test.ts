@@ -220,7 +220,13 @@ describe('applyCatalogPatch', () => {
       degrees: [],
       coursePools: [],
       courses: [],
-      diffs: [],
+      diffs: [
+        {
+          entityType: 'Degree',
+          entityId: 'D',
+          patch: [{ op: 'replace', path: '/name', value: 'D' }],
+        },
+      ],
     });
     expect(knownIds.knownDegrees.has('D')).toBe(true);
 
@@ -389,6 +395,103 @@ describe('applyCatalogPatch', () => {
             academicYear: '2027-2028',
             academicYearStart: 2027,
             patch: [{ op: 'replace', path: coursePoolsPath, value: ['P'] }],
+          },
+        ],
+      }),
+    ).resolves.toBeUndefined();
+  });
+
+  it('expands known course pools from DB degree when the diff does not touch /coursePools', async () => {
+    (Degree.find as jest.Mock)
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([
+          {
+            _id: 'Joint',
+            coursePools: ['POOL_A', 'POOL_B'],
+          },
+        ]),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([
+          {
+            _id: 'Joint',
+            name: 'Joint',
+            totalCredits: 90,
+            coursePools: ['POOL_A', 'POOL_B'],
+            degreeType: 'Standalone',
+            ecpDegreeId: '',
+            baseAcademicYear: '2026-2027',
+          },
+        ]),
+      });
+
+    (CoursePool.find as jest.Mock)
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([
+          { _id: 'POOL_A', courses: ['COMP 248'] },
+          { _id: 'POOL_B', courses: [] },
+        ]),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([
+          {
+            _id: 'POOL_A',
+            name: 'A',
+            creditsRequired: 3,
+            courses: ['COMP 248'],
+            baseAcademicYear: '2026-2027',
+          },
+          {
+            _id: 'POOL_B',
+            name: 'B',
+            creditsRequired: 0,
+            courses: [],
+            baseAcademicYear: '2026-2027',
+          },
+        ]),
+      });
+
+    (Course.find as jest.Mock)
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([{ _id: 'COMP 248' }]),
+      })
+      .mockReturnValueOnce({
+        lean: jest.fn().mockReturnThis(),
+        exec: jest.fn().mockResolvedValue([
+          {
+            _id: 'COMP 248',
+            title: 'Test',
+            description: '',
+            credits: 3,
+            baseAcademicYear: '2026-2027',
+          },
+        ]),
+      });
+
+    await expect(
+      validateReferences({
+        degrees: [],
+        coursePools: [],
+        courses: [],
+        diffs: [
+          {
+            _id: 'Degree:Joint:2026-2027',
+            entityType: 'Degree',
+            entityId: 'Joint',
+            academicYear: '2026-2027',
+            academicYearStart: 2026,
+            patch: [
+              {
+                op: 'replace',
+                path: '/ecpDegreeId',
+                value: 'ECP',
+              },
+            ],
           },
         ],
       }),
