@@ -1,5 +1,6 @@
-import { Timeline, User } from '@models';
+import { Timeline, User, Degree, Course } from '@models';
 import { degreeController } from '@controllers/degreeController';
+import { normalizeAcademicYear } from '@services/catalogVersionService';
 import {
   DegreeAuditData,
   StudentInfo,
@@ -226,58 +227,106 @@ function processPoolToRequirement(
   };
 }
 
-/**
- * Estimates expected graduation based on remaining credits
- */
-function estimateGraduation(remainingCredits: number): string {
-  const creditsPerSemester = 15; // Average credits per semester
-  const semestersRemaining = Math.ceil(remainingCredits / creditsPerSemester);
-
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  let currentYear = today.getFullYear();
-
-  // Determine current term
-  const termIndex = getTermIndex(currentMonth);
-  const { term, year } = calculateFutureGraduation(
-    termIndex,
-    currentYear,
-    semestersRemaining,
-  );
-
-  return `${term} ${year}`;
-}
+const CREDITS_PER_TERM = 15;
 
 /**
- * Gets the term index based on month
+ * Estimates expected graduation assuming 30 credits per academic year
+ * (Fall + Winter only, no summer enrolment).
  */
-function getTermIndex(month: number): number {
-  if (month >= 0 && month <= 3) return 0; // Winter
-  if (month >= 4 && month <= 7) return 1; // Summer
-  return 2; // Fall
-}
+export function estimateGraduation(
+  remainingCredits: number,
+  referenceDate: Date = new Date(),
+): string {
+  const month = referenceDate.getMonth();
+  let year = referenceDate.getFullYear();
 
-/**
- * Calculates the future graduation term and year
- */
-function calculateFutureGraduation(
-  startTermIndex: number,
-  startYear: number,
-  semestersRemaining: number,
-): { term: string; year: number } {
-  const terms = ['Winter', 'Summer', 'Fall'];
-  let termIndex = startTermIndex;
-  let year = startYear;
+  // Start from the current or next active term (skip summer)
+  let isFall: boolean;
+  if (month <= 4) {
+    isFall = false; // Winter term (Jan–May)
+  } else if (month <= 7) {
+    isFall = true; // Summer → next active is Fall
+  } else {
+    isFall = true; // Fall term (Sep–Dec)
+  }
 
-  for (let i = 0; i < semestersRemaining; i++) {
-    termIndex++;
-    if (termIndex >= 3) {
-      termIndex = 0;
+  if (remainingCredits <= 0) {
+    return `${isFall ? 'Fall' : 'Winter'} ${year}`;
+  }
+
+  const termsRemaining = Math.ceil(remainingCredits / CREDITS_PER_TERM);
+
+  for (let i = 1; i < termsRemaining; i++) {
+    if (isFall) {
       year++;
+      isFall = false; // Fall → Winter of next calendar year
+    } else {
+      isFall = true; // Winter → Fall of same calendar year
     }
   }
 
-  return { term: terms[termIndex], year };
+  return `${isFall ? 'Fall' : 'Winter'} ${year}`;
+}
+
+/**
+ * Maps a graduation term string (e.g. "Winter 2026") to the academic year
+ * that governs the curriculum (e.g. "2025-2026").
+ *
+ *   Fall  YYYY  → YYYY-(YYYY+1)
+ *   Winter YYYY → (YYYY-1)-YYYY
+ */
+export function graduationTermToAcademicYear(graduationTerm: string): string {
+  const [term, yearStr] = graduationTerm.split(' ');
+  const year = Number.parseInt(yearStr, 10);
+
+  if (term === 'Fall') {
+    return `${year}-${year + 1}`;
+  }
+  // Winter
+  return `${year - 1}-${year}`;
+}
+
+/**
+ * Determines the curriculum academic year for a timeline based on estimated
+ * graduation. Loads only the minimal data needed (degree totalCredits and
+ * course credits for completed/in-progress courses).
+ */
+async function estimateAcademicYearForTimeline(
+  timeline: TimelineWithUser,
+): Promise<string> {
+  const degree = await Degree.findById(timeline.degreeId)
+    .select('totalCredits')
+    .lean<{ totalCredits?: number }>()
+    .exec();
+  const totalCredits = degree?.totalCredits || 120;
+
+  const courseStatusMap = timeline.courseStatusMap ?? {};
+  const activeCourseIds = Object.entries(courseStatusMap)
+    .filter(([, info]) => {
+      if (info.status === 'completed' || info.status === 'inprogress') return true;
+      if (
+        info.status === 'planned' &&
+        info.semester &&
+        isTermInProgress(info.semester)
+      ) return true;
+      return false;
+    })
+    .map(([id]) => id);
+
+  let activeCredits = 0;
+  if (activeCourseIds.length > 0) {
+    const courses = await Course.find({ _id: { $in: activeCourseIds } })
+      .select('credits')
+      .lean<{ credits?: number }[]>()
+      .exec();
+    activeCredits = courses.reduce((sum, c) => sum + (c.credits || 3), 0);
+  }
+
+  const remainingCredits = Math.max(0, totalCredits - activeCredits);
+  const graduationTerm = estimateGraduation(remainingCredits);
+  const academicYear = graduationTermToAcademicYear(graduationTerm);
+
+  return normalizeAcademicYear(academicYear) as string;
 }
 
 /**
@@ -541,10 +590,12 @@ export async function generateDegreeAudit(
   const timeline = await fetchAndValidateTimeline(timelineId, userId);
   const user = await fetchAndValidateUser(userId);
 
+  const academicYear = await estimateAcademicYearForTimeline(timeline);
+
   const [degreeData, coursePools, courseArr] = await Promise.all([
-    degreeController.readDegree(timeline.degreeId),
-    degreeController.getCoursePoolsForDegree(timeline.degreeId),
-    degreeController.getCoursesForDegree(timeline.degreeId),
+    degreeController.readDegree(timeline.degreeId, academicYear),
+    degreeController.getCoursePoolsForDegree(timeline.degreeId, academicYear),
+    degreeController.getCoursesForDegree(timeline.degreeId, academicYear),
   ]);
 
   const allCourses = buildCoursesDictionary(courseArr);
