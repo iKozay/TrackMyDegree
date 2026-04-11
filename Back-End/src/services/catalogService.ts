@@ -8,6 +8,7 @@ import {
   CatalogSnapshotPayload,
   fetchCatalogSnapshot,
 } from '@services/catalog/fetchCatalogSnapshot';
+import { CatalogError} from '@utils/errors';
 
 export interface CatalogArgs {
   academicYear: string;
@@ -36,16 +37,6 @@ export type CatalogResult = {
   };
   summary: Awaited<ReturnType<typeof applyCatalogPatch>>;
 };
-
-export class CatalogError extends Error {
-  inspectionFiles: InspectionFiles;
-
-  constructor(message: string, inspectionFiles: InspectionFiles) {
-    super(message);
-    this.name = 'CatalogError';
-    this.inspectionFiles = inspectionFiles;
-  }
-}
 
 const LOCAL_INSPECTION_FILES_DISABLED =
   'Catalog inspection file writes are only allowed in local development.';

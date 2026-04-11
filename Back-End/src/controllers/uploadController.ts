@@ -2,6 +2,7 @@
 import type { Request, Response, NextFunction, RequestHandler } from 'express';
 import { queue, CourseProcessorJobData } from '../workers/queue';
 import type { RequestWithJobId } from '../middleware/assignJobId';
+import { BadRequestError } from '@utils/errors';
 import { cacheJobResult } from '@lib/cache';
 
 export const uploadController: RequestHandler = async (
@@ -9,14 +10,12 @@ export const uploadController: RequestHandler = async (
   res: Response,
   _next: NextFunction,
 ): Promise<void> => {
-  try {
     const { jobId } = req as RequestWithJobId;
     const file = req.file;
     const body = req.body;
 
     if (!jobId) {
-      res.status(400).json({ message: 'Job ID missing. Did assignJobId run?' });
-      return;
+      throw new BadRequestError('Job ID is missing from the request');
     }
 
     await cacheJobResult(jobId, {
@@ -43,10 +42,7 @@ export const uploadController: RequestHandler = async (
         body,
       };
     } else {
-      res
-        .status(400)
-        .json({ message: 'No file or body provided in the request' });
-      return;
+      throw new BadRequestError('No file or body data provided for upload');
     }
 
     await queue.add('processData', jobData, {
@@ -59,8 +55,4 @@ export const uploadController: RequestHandler = async (
       status: 'processing',
       message: 'Job accepted',
     });
-  } catch (err) {
-    console.error('Error creating processing job:', err);
-    res.status(500).json({ message: 'Error creating job' });
-  }
 };

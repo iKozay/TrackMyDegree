@@ -8,6 +8,7 @@ import { normalizeCourseCode } from './courseHelper';
 import { processSemestersFromParsedData, generateEmptySemesters, generateSemestersFromPredefinedSequence } from './semesterBuilder';
 import { mapCoursesToTimelineFormat } from './courseMapper';
 import { getDegreeData, loadMissingCourses, getCourseData, getDegreeId } from './dataLoader';
+import { BadRequestError, NotFoundError } from '@utils/errors';
 
 
 // Timeline builder inputs
@@ -40,7 +41,7 @@ async function getDataFromParams(params: BuildTimelineParams) {
       break;
     case 'form':
       if (!data.degree)
-        throw new Error('Form Data received does not contain a degree');
+        throw new BadRequestError('Form Data received does not contain a degree');
       programInfo = data;
       break;
     case 'timelineData':
@@ -75,7 +76,7 @@ export async function buildTimelineFromDB(
     .exec();
 
   if (!timeline) {
-    throw new Error('Timeline not found');
+    throw new NotFoundError('Timeline not found');
   }
 
    const result = await buildTimeline({
@@ -108,7 +109,7 @@ export const buildTimeline = async (
   else degreeId = programInfo.degree;
 
   const result = await getDegreeData(degreeId);
-  if (!result) throw new Error('Error fetching degree data from database');
+  if (!result) throw new NotFoundError('Error fetching degree data from database');
 
   const { degreeData: degree, coursePools, courses } = result;
 

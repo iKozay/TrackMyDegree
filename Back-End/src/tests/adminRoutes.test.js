@@ -4,6 +4,8 @@ const express = require('express');
 const request = require('supertest');
 const { Course } = require('../models/course');
 const { User } = require('../models/user');
+const { errorHandler } = require('@middleware/errorHandler');
+const { CatalogError, INTERNAL_SERVER_ERROR } = require('@utils/errors');
 
 // Mock auth middleware
 jest.mock('../middleware/authMiddleware', () => ({
@@ -17,6 +19,7 @@ const adminRoutes = require('../routes/adminRoutes').default;
 const app = express();
 app.use(express.json());
 app.use('/admin', adminRoutes);
+app.use(errorHandler); // Use real error handler for testing error responses
 
 // Mock seeding controller so routes that trigger seeding don't perform real work
 jest.mock('../controllers/seedingController', () => ({
@@ -94,7 +97,7 @@ describe('Admin Routes', () => {
       const response = await request(app).get('/admin/collections').expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Internal server error');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       // Restore original method
       require('../controllers/adminController').adminController.getCollections =
@@ -111,7 +114,7 @@ describe('Admin Routes', () => {
       const response = await request(app).get('/admin/collections').expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Internal server error');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       // Restore original method
       require('../controllers/adminController').adminController.getCollections =
@@ -191,7 +194,7 @@ describe('Admin Routes', () => {
         .expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Internal server error');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       // Restore original method
       require('../controllers/adminController').adminController.getCollectionDocuments =
@@ -263,7 +266,7 @@ describe('Admin Routes', () => {
         .expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Internal server error');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       // Restore original method
       require('../controllers/adminController').adminController.clearCollection =
@@ -281,7 +284,7 @@ describe('Admin Routes', () => {
         .expect(500);
 
       expect(response.body.success).toBe(false);
-      expect(response.body.message).toBe('Internal server error');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       require('../controllers/adminController').adminController.clearCollection =
         originalClearCollection;
@@ -363,7 +366,7 @@ describe('Admin Routes', () => {
       const response = await request(app).post('/admin/catalogs-update').send({});
 
       expect(response.status).toBe(400);
-      expect(response.body).toEqual({
+      expect(response.body).toMatchObject({
         success: false,
         message: 'Academic year is required',
       });
@@ -371,7 +374,6 @@ describe('Admin Routes', () => {
 
     it('should return structured catalog errors', async () => {
       const catalogService = require('../services/catalogService');
-      const { CatalogError } = require('../services/catalogService');
       const originalRunCatalog = catalogService.runCatalog;
       catalogService.runCatalog = jest
         .fn()
@@ -436,8 +438,8 @@ describe('Admin Routes', () => {
         .get('/admin/fetch-backups')
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.listBackups = originalListBackups;
@@ -479,8 +481,8 @@ describe('Admin Routes', () => {
         .post('/admin/create-backup')
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.createBackup = originalCreateBackup;
@@ -562,8 +564,8 @@ describe('Admin Routes', () => {
         })
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.restoreBackup = originalRestoreBackup;
@@ -645,8 +647,8 @@ describe('Admin Routes', () => {
         })
         .expect(500);
 
-      expect(response.body).toEqual({
-        error: 'Internal server error',
+      expect(response.body).toMatchObject({
+        error: 'InternalServerError',
       });
 
       controller.deleteBackup = originalDeleteBackup;
@@ -804,7 +806,7 @@ describe('Admin Routes', () => {
             .get('/admin/connection-status')
             .expect(500);
 
-          expect(response.body.error).toBe('Internal server error');
+          expect(response.body.error).toBe('InternalServerError');
 
           // Restore original method
           require('../controllers/adminController').adminController.getConnectionStatus =

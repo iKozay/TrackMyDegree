@@ -5,6 +5,8 @@ const request = require('supertest');
 const courseRoutes = require('../routes/courseRoutes').default;
 const { Course } = require('../models/course');
 const { courseController } = require('../controllers/courseController');
+const {errorHandler} = require('../middleware/errorHandler');
+const { NotFoundError } = require('@utils/errors');
 
 
 jest.mock('../lib/cache', () => ({
@@ -25,6 +27,7 @@ describe('Course Routes', () => {
     app = express();
     app.use(express.json());
     app.use('/courses', courseRoutes);
+    app.use(errorHandler);
   });
 
   afterAll(async () => {
@@ -186,7 +189,7 @@ describe('Course Routes', () => {
 
       const response = await request(app).get('/courses').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       spy.mockRestore();
     });
@@ -199,7 +202,7 @@ describe('Course Routes', () => {
       const response = await request(app).get('/courses');
 
       expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('error', 'Internal server error');
+      expect(response.body).toHaveProperty('error', 'InternalServerError');
 
       spy.mockRestore();
     });
@@ -258,7 +261,7 @@ describe('Course Routes', () => {
       const response = await request(app)
         .get('/courses/all-codes')
         .expect(500);
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
       spy.mockRestore();
     });
 
@@ -268,7 +271,7 @@ describe('Course Routes', () => {
         .mockRejectedValue(new Error('Database error'));
       const response = await request(app).get('/courses/all-codes');
       expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('error', 'Internal server error');
+      expect(response.body).toHaveProperty('error', 'InternalServerError');
       spy.mockRestore();
     });
   });
@@ -369,9 +372,9 @@ describe('Course Routes', () => {
       // When a non-existent degree is used, getCoursePoolsForDegree throws an error
       const validResponse = await request(app)
         .get('/courses/by-degree/NONEXIST')
-        .expect(500); // Route returns 500 when degree doesn't exist
+        .expect(404); // Route returns 404 when degree doesn't exist
 
-      expect(validResponse.body.error).toBe('Internal server error');
+      expect(validResponse.body.message).toBe('Degree not found');
     });
 
     it('should handle server errors', async () => {
@@ -383,7 +386,7 @@ describe('Course Routes', () => {
         .get('/courses/by-degree/COMP')
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       spy.mockRestore();
     });
@@ -392,7 +395,7 @@ describe('Course Routes', () => {
       // Mock coursepoolController.getCoursePool to reject
       const spy = jest
         .spyOn(coursepoolController, 'getCoursePool')
-        .mockRejectedValue(new Error('Pool not found'));
+        .mockRejectedValue(new NotFoundError('Pool not found'));
 
       const response = await request(app)
         .get('/courses/by-degree/COMP')
@@ -410,7 +413,7 @@ describe('Course Routes', () => {
         .spyOn(courseController, 'getCourseByCode')
         .mockImplementation((code) => {
           if (code === 'COMP101') {
-            return Promise.reject(new Error('Course not found'));
+            return Promise.reject(new NotFoundError('Course not found'));
           }
           return Course.findById(code).lean().exec();
         });
@@ -502,7 +505,7 @@ describe('Course Routes', () => {
         .get('/courses/NONEXISTENT')
         .expect(404);
 
-      expect(response.body.error).toBe('Course not found');
+      expect(response.body.message).toBe('Course not found');
       expect(response.body).toHaveProperty('error');
     });
 
@@ -511,7 +514,7 @@ describe('Course Routes', () => {
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('not found');
+      expect(response.body.error).toContain('NotFoundError');
     });
 
     it('should return 400 if code is empty or whitespace', async () => {
@@ -526,7 +529,7 @@ describe('Course Routes', () => {
 
       const response = await request(app).get('/courses/COMP101').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       spy.mockRestore();
     });
@@ -620,10 +623,7 @@ describe('Course Routes', () => {
 
       it('should handle errors gracefully', async () => {
         const originalFindAll = courseController.findAll;
-        courseController.findAll = jest.fn().mockResolvedValue({
-          success: false,
-          error: 'Database error',
-        });
+        courseController.findAll = jest.fn().mockRejectedValue(new Error('Database error'));
 
         await expect(courseController.getCoursesByPool('Fall')).rejects.toThrow(
           'Database error',
@@ -650,10 +650,7 @@ describe('Course Routes', () => {
 
       it('should handle errors gracefully', async () => {
         const originalFindById = courseController.findById;
-        courseController.findById = jest.fn().mockResolvedValue({
-          success: false,
-          error: 'Database error',
-        });
+        courseController.findById = jest.fn().mockRejectedValue(new Error('Database error'));
 
         await expect(
           courseController.getCourseByCode('COMP101'),

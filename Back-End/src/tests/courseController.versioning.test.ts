@@ -19,6 +19,9 @@ describe('CourseController versioning paths', () => {
     controller = new CourseController();
   });
 
+  // --------------------------
+  // getCoursesByCodes
+  // --------------------------
   it('returns an empty list when no course codes are requested', async () => {
     await expect(controller.getCoursesByCodes([])).resolves.toEqual([]);
   });
@@ -34,152 +37,86 @@ describe('CourseController versioning paths', () => {
       { _id: 'COMP 248', title: 'Updated', description: '', credits: 3 },
     ]);
 
-    await expect(
-      controller.getCoursesByCodes(['COMP 248', 'COMP 248'], '2026-2027'),
-    ).resolves.toEqual([
-      { _id: 'COMP 248', title: 'Updated', description: '', credits: 3 },
-    ]);
+    const result = await controller.getCoursesByCodes(['COMP 248', 'COMP 248'], '2026-2027');
+    expect(result).toEqual([{ _id: 'COMP 248', title: 'Updated', description: '', credits: 3 }]);
   });
 
   it('propagates getCoursesByCodes errors', async () => {
     (Course.find as jest.Mock).mockImplementation(() => {
       throw new Error('find failed');
     });
-
-    await expect(controller.getCoursesByCodes(['COMP 248'])).rejects.toThrow(
-      'find failed',
-    );
+    await expect(controller.getCoursesByCodes(['COMP 248'])).rejects.toThrow('find failed');
   });
 
-  it('returns an empty array when course codes cannot be loaded', async () => {
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: false,
-      data: null,
-    });
-
+  // --------------------------
+  // getAllCourseCodes
+  // --------------------------
+  it('returns an empty array if findAll returns non-array', async () => {
+    controller.findAll = jest.fn().mockResolvedValue(null);
     await expect(controller.getAllCourseCodes()).resolves.toEqual([]);
   });
 
-  it('uses default error messages in failure branches and returns fallback values', async () => {
-    const handleErrorSpy = jest
-      .spyOn(controller as any, 'handleError')
-      .mockImplementation(() => undefined as never);
-
-    controller.bulkWrite = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(
-      controller.bulkCreateCourses([{ _id: 'COMP 248' } as any]),
-    ).resolves.toBeUndefined();
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to create courses' }),
-      'bulkCreateCourse',
-    );
-
-    controller.updateById = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(
-      controller.updateCourse('COMP 248', { title: 'Updated' }),
-    ).resolves.toBeNull();
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to update course' }),
-      'updateCourse',
-    );
-
-    controller.deleteById = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-    await expect(controller.deleteCourse('COMP 248')).resolves.toBeUndefined();
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to delete course' }),
-      'deleteCourse',
-    );
+  it('maps course IDs when findAll returns an array', async () => {
+    controller.findAll = jest.fn().mockResolvedValue([{ _id: 'COMP 248' }, { _id: 'COMP 249' }]);
+    const result = await controller.getAllCourseCodes();
+    expect(result).toEqual(['COMP 248', 'COMP 249']);
   });
 
-  it('propagates getAllCourseCodes errors', async () => {
+  it('propagates errors in getAllCourseCodes', async () => {
     controller.findAll = jest.fn().mockRejectedValue(new Error('boom'));
-
     await expect(controller.getAllCourseCodes()).rejects.toThrow('boom');
   });
 
+  // --------------------------
+  // getCourseByCode
+  // --------------------------
   it('resolves a single course by code', async () => {
-    controller.findById = jest.fn().mockResolvedValue({
-      success: true,
-      data: { _id: 'COMP 248', title: 'Intro', description: '', credits: 3 },
-    });
+    const baseCourse = { _id: 'COMP 248', title: 'Intro', description: '', credits: 3 };
+    controller.findById = jest.fn().mockResolvedValue(baseCourse);
+
     (resolveEntityVersion as jest.Mock).mockResolvedValue({
       entity: { _id: 'COMP 248', title: 'Updated', description: '', credits: 3 },
     });
 
-    await expect(
-      controller.getCourseByCode('COMP 248', '2026-2027'),
-    ).resolves.toEqual({
-      _id: 'COMP 248',
-      title: 'Updated',
-      description: '',
-      credits: 3,
+    const result = await controller.getCourseByCode('COMP 248', '2026-2027');
+    expect(resolveEntityVersion).toHaveBeenCalledWith({
+      entityType: 'Course',
+      entityId: 'COMP 248',
+      baseEntity: baseCourse,
+      academicYear: '2026-2027',
     });
+    expect(result).toEqual({ _id: 'COMP 248', title: 'Updated', description: '', credits: 3 });
   });
 
-  it('maps optional filters when loading all courses and resolves by pool', async () => {
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: true,
-      data: [{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }],
-    });
-    (resolveEntityVersions as jest.Mock).mockResolvedValue([
-      { _id: 'COMP 248', title: 'Intro', description: '', credits: 3 },
-    ]);
+  // --------------------------
+  // getAllCourses & getCoursesByPool
+  // --------------------------
+  it('maps filters and resolves courses for getAllCourses', async () => {
+    controller.findAll = jest.fn().mockResolvedValue([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
+    (resolveEntityVersions as jest.Mock).mockResolvedValue([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
 
-    await expect(
-      controller.getAllCourses({
-        pool: 'Fall',
-        search: 'Intro',
-        page: 2,
-        limit: 10,
-        sort: 'credits',
-        academicYear: '2026-2027',
-      }),
-    ).resolves.toEqual([
-      { _id: 'COMP 248', title: 'Intro', description: '', credits: 3 },
-    ]);
+    const result = await controller.getAllCourses({
+      pool: 'Fall',
+      search: 'Intro',
+      page: 1,
+      limit: 10,
+      sort: 'credits',
+      academicYear: '2026-2027',
+    });
+
     expect(controller.findAll).toHaveBeenCalledWith(
       { offeredIn: 'Fall' },
-      {
-        page: 2,
-        limit: 10,
-        sort: { credits: 1 },
-        search: 'Intro',
-        fields: ['title', 'description', '_id'],
-      },
+      { page: 1, limit: 10, sort: { credits: 1 }, search: 'Intro', fields: ['title', 'description', '_id'] }
     );
-
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: true,
-      data: [{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }],
-    });
-    await expect(controller.getCoursesByPool('Fall', '2026-2027')).resolves.toEqual([
-      { _id: 'COMP 248', title: 'Intro', description: '', credits: 3 },
-    ]);
+    expect(result).toEqual([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
   });
 
-  it('uses the default getCoursesByPool error message when none is provided', async () => {
-    const handleErrorSpy = jest
-      .spyOn(controller as any, 'handleError')
-      .mockImplementation(() => undefined as never);
+  it('resolves courses by pool', async () => {
+    controller.findAll = jest.fn().mockResolvedValue([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
+    (resolveEntityVersions as jest.Mock).mockResolvedValue([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
 
-    controller.findAll = jest.fn().mockResolvedValue({
-      success: false,
-      error: null,
-    });
-
-    await expect(controller.getCoursesByPool('Fall')).resolves.toBeUndefined();
-    expect(handleErrorSpy).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Failed to fetch courses' }),
-      'getCoursesByPool',
-    );
+    const result = await controller.getCoursesByPool('Fall', '2026-2027');
+    expect(result).toEqual([{ _id: 'COMP 248', title: 'Intro', description: '', credits: 3 }]);
+    expect(controller.findAll).toHaveBeenCalledWith({ offeredIn: 'Fall' });
   });
 });

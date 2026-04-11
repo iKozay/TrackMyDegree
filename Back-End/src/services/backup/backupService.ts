@@ -5,6 +5,7 @@ import path from 'node:path';
 import * as Sentry from '@sentry/node';
 import cron from 'node-cron';
 import { EJSON } from 'bson';
+import { DatabaseConnectionError } from '@utils/errors';
 
 // Initialize Backup Directory
 const BACKUP_DIR = (
@@ -40,9 +41,8 @@ async function ensureBackupDir(): Promise<void> {
 
 // Create Backup (User Data Only)
 export async function createBackup(): Promise<string> {
-  try {
     const db = mongoose.connection.db;
-    if (!db) throw new Error('No database connection available');
+    if (!db) throw new DatabaseConnectionError('No database connection available');
 
     await ensureBackupDir();
 
@@ -79,31 +79,19 @@ export async function createBackup(): Promise<string> {
 
     console.log(`Backup created successfully at: ${filePath}`);
     return fileName;
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error('Error creating backup:', error);
-    throw error;
-  }
 }
 
 // List Available Backups
 export async function listBackups(): Promise<string[]> {
-  try {
     await ensureBackupDir();
     const files = await fsPromises.readdir(BACKUP_DIR);
     return files.filter((file) => file.endsWith('.json'));
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error('Error listing backups:', error);
-    throw error;
-  }
 }
 
 // Restore Backup
 // Step 1: Clear user data collections
 // Step 2: Restore User Data from backup
 export async function restoreBackup(backupFileName: string): Promise<void> {
-  try {
     const filePath = path.join(BACKUP_DIR, backupFileName);
 
     if (!fs.existsSync(filePath)) {
@@ -147,16 +135,10 @@ export async function restoreBackup(backupFileName: string): Promise<void> {
     console.log(
       `[RESTORE] Backup restored successfully from: ${backupFileName}`,
     );
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error('Error restoring backup:', error);
-    throw error;
-  }
 }
 
 // Delete Backup
 export async function deleteBackup(backupFileName: string): Promise<void> {
-  try {
     const filePath = path.join(BACKUP_DIR, backupFileName);
 
     if (!fs.existsSync(filePath)) {
@@ -165,9 +147,4 @@ export async function deleteBackup(backupFileName: string): Promise<void> {
 
     await fsPromises.unlink(filePath);
     console.log(`Backup deleted: ${backupFileName}`);
-  } catch (error) {
-    Sentry.captureException(error);
-    console.error('Error deleting backup:', error);
-    throw error;
-  }
 }

@@ -12,15 +12,12 @@ export const request = async <T = unknown>(
     setCsrfToken(csrfHeader);
   }
 
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-  }
-
   const contentType = response.headers.get("Content-Type") ?? "";
+  const body = contentType.includes("application/json") ? await response.json() : await response.text();
 
-  if (contentType.includes("application/json")) {
-    return (await response.json()) as T;
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}: ${body?.message ?? response.statusText}`); //use message from response if available, otherwise use status text
   }
 
-  return (await response.text()) as T;
+  return body as T;
 };

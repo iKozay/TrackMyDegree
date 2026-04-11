@@ -3,6 +3,7 @@ import { addAllPrerequisitesAndCorequisitesToCourseArr, normalizeCourseCode } fr
 import { degreeController } from '@controllers/degreeController';
 import { Course } from '@models';
 import { courseController } from "@controllers/courseController";
+import { NotFoundError } from "@utils/errors";
 
 export async function getDegreeData(
   degreeId: string,
@@ -27,6 +28,10 @@ export async function getDegreeData(
 
   return { degreeData, coursePools, courses };
 }
+
+
+
+
 
 export async function loadMissingCourses(
   coursesToAdd: string[],
@@ -74,6 +79,6 @@ export async function getDegreeId(degreeName: string) {
       .toLowerCase()
       .includes(d.name.split(' ').slice(2).join(' ').toLowerCase()),
   )?._id;
-  if (!degreeId) throw new Error('Error fetching degree data from database');
+  if (!degreeId) throw new NotFoundError('Error fetching degree data from database');
   return degreeId;
 }

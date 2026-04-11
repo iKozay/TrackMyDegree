@@ -1,26 +1,27 @@
-import { Router, Request, Response } from 'express';
-import { getJobResult } from '../lib/cache';
+import { Router, Request, Response, NextFunction } from 'express';
+import {  getJobResult } from '../lib/cache';
 import { validateCoopTimeline } from '../services/coop/coopvalidationService';
 import { buildFilledCoopSequenceForm } from '../services/coop/coopFormService';
-import { CachedJobResult } from '../controllers/jobController';
+import { BadRequestError, NotFoundError } from '@utils/errors';
 const router = Router();
 
 /**
  * GET /api/coop/validate/:jobId
  */
-router.get('/validate/:jobId', async (req: Request, res: Response) => {
+router.get('/validate/:jobId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { jobId } = req.params;
 
     if (!jobId) {
-      return res.status(400).json({ error: 'jobId is required' });
+      throw new BadRequestError('jobId is required');
     }
 
-    // get result from cache
-    const cachedTimeline = await getJobResult<CachedJobResult>(jobId as string);
+      // get result from cache
+      const cachedTimeline = await getJobResult(jobId as string);
+  
 
     if (!cachedTimeline) {
-      return res.status(404).json({ error: 'Timeline not found in cache' });
+      throw new NotFoundError('Timeline not found in cache');
     }
 
     const timeline = cachedTimeline.payload.data;
@@ -29,8 +30,7 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
 
     return res.status(200).json(result);
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Internal server error' });
+    next(error);
   }
 });
 
@@ -38,18 +38,18 @@ router.get('/validate/:jobId', async (req: Request, res: Response) => {
  * GET /api/coop/form/:jobId
  * Auto-fill and download co-op sequence change request form (PDF).
  */
-router.get('/form/:jobId', async (req: Request, res: Response) => {
+router.get('/form/:jobId', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { jobId } = req.params;
 
     if (!jobId) {
-      return res.status(400).json({ error: 'jobId is required' });
+      throw new BadRequestError('jobId is required');
     }
 
-    const cachedTimeline = await getJobResult<CachedJobResult>(jobId as string);
+    const cachedTimeline = await getJobResult(jobId as string);
 
     if (!cachedTimeline) {
-      return res.status(404).json({ error: 'Timeline not found in cache' });
+      throw new NotFoundError('Timeline not found in cache');
     }
 
     const timeline = cachedTimeline.payload.data;
@@ -74,8 +74,7 @@ router.get('/form/:jobId', async (req: Request, res: Response) => {
 
     return res.status(200).send(Buffer.from(pdfBytes));
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({ error: 'Failed to generate co-op form PDF' });
+    next(error);
   }
 });
 

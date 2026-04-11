@@ -1,6 +1,5 @@
 import { User } from '@models';
 import bcrypt from 'bcryptjs';
-import * as Sentry from '@sentry/node';
 async function getUUID() {
   const { v4: uuidv4 } = await import('uuid');
   return uuidv4();
@@ -8,6 +7,8 @@ async function getUUID() {
 import { mailServicePromise } from '@services/mailService';
 import redisClient from '@lib/redisClient'; // import the Redis client instance
 import { RESET_EXPIRY_MINUTES, DUMMY_HASH } from '@utils/constants';
+import { BaseMongoController } from './baseMongoController';
+import { AlreadyExistsError, NotFoundError, UnauthorizedError } from '@utils/errors';
 
 
 export enum UserType {
@@ -34,16 +35,16 @@ export interface PasswordResetRequest {
   newPassword?: string;
 }
 
-export class AuthController {
-  /**
-   * Retrieves a user by their ID
-   */
-  async getUserById(userId: string): Promise<UserInfo | undefined> {
-    try {
-      const user = await User.findById(userId).lean().exec();
+export class AuthController extends BaseMongoController<any> {
+  constructor() {
+    super(User, 'Auth');
+  }
 
+  async getUserById(userId: string): Promise<UserInfo> {
+      const user = await User.findById(userId).lean().exec();
+      
       if (!user) {
-        return undefined;
+        throw new NotFoundError('User no longer exists');
       }
 
       return {
@@ -52,15 +53,8 @@ export class AuthController {
         email: user.email,
         type: user.type as UserType,
       };
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'getUserById' },
-        level: 'error',
-      });
-      console.error('[AuthController] getUserById error');
-      return undefined;
-    }
   }
+
 
   /**
    * Authenticates a user by verifying their email and password
@@ -69,8 +63,7 @@ export class AuthController {
   async authenticate(
     email: string,
     password: string,
-  ): Promise<UserInfo | undefined> {
-    try {
+  ): Promise<UserInfo> {
       const user = await User.findOne({ email: { $eq: email } })
         .select('+password')
         .lean()
@@ -80,40 +73,26 @@ export class AuthController {
       const hash = user?.password ?? DUMMY_HASH;
       const passwordMatch = await bcrypt.compare(password, hash);
 
-      if (user && passwordMatch && user._id) {
-        return {
+      if (!user || !passwordMatch || !user._id) {
+        throw new UnauthorizedError('Incorrect email or password');
+      }
+
+      return {
           _id: user._id.toString(),
           fullname: user.fullname,
           email: user.email,
           type: user.type as UserType,
         };
-      }
-
-      return undefined;
-    } catch (error) {
-      Sentry.captureException(error, { tags: { operation: 'authenticate' } });
-      console.error('[AuthController] Authentication error');
-      return undefined;
-    }
   }
 
   /**
    * Registers a new user after validating input
    */
-  async registerUser(userInfo: UserInfo, password: string): Promise<
-    | {
-        _id: string;
-        email: string;
-        fullname: string;
-        type: string;
-      }
-    | undefined
-  > {
+  async registerUser(userInfo: UserInfo, password: string): Promise<UserInfo> {
     const { email, fullname, type } = userInfo;
 
-    try {
       const existingUser = await User.exists({ email: { $eq: email } }).exec();
-      if (existingUser) return undefined;
+      if (existingUser) throw new AlreadyExistsError('User with this email already exists');
 
       // Hash the password before storing
       const hashedPassword = await this.hashPassword(password);
@@ -126,21 +105,12 @@ export class AuthController {
         type,
       });
 
-      if (!newUser._id) {
-        return undefined;
-      }
-
       return {
         _id: newUser._id.toString(),
         email: newUser.email,
         fullname: newUser.fullname,
-        type: newUser.type,
+        type: newUser.type as UserType,
       };
-    } catch (error) {
-      Sentry.captureException(error, { tags: { operation: 'registerUser' } });
-      console.error('[AuthController] Registration error');
-      return undefined;
-    }
   }
 
   /**
@@ -149,7 +119,6 @@ export class AuthController {
   async forgotPassword(
     email: string,
   ): Promise<{ message: string; resetLink?: string }> {
-    try {
       const user = await User.findOne({ email: { $eq: email } }).exec();
       if (!user) {
         // Mocro : Always return generic message to prevent user enumeration
@@ -176,11 +145,6 @@ export class AuthController {
       await mailService.sendPasswordReset(user.email, resetLink);
 
       return { message: 'If the email exists, a reset link has been sent.'};
-    } catch (error) {
-      Sentry.captureException(error, { tags: { operation: 'forgotPassword' } });
-      console.error('[AuthController] Password reset error', error);
-      return { message: 'An error occurred. Please try again later.' };
-    }
   }
 
   /**
@@ -189,14 +153,13 @@ export class AuthController {
   async resetPassword(
     resetToken: string,
     newPassword: string,
-  ): Promise<boolean> {
-    try {
+  ): Promise<void> {
       // Mocro : Get email from Redis
       const email = await redisClient.get(`reset:${resetToken}`);
-      if (!email) return false; // invalid or expired token
+      if (!email) throw new UnauthorizedError('Invalid or expired reset link');
 
       const user = await User.findOne({ email }).exec();
-      if (!user) return false;
+      if (!user) throw new NotFoundError('User no longer exists');
 
       // Hash and update to new password
       user.password = await this.hashPassword(newPassword);
@@ -204,13 +167,6 @@ export class AuthController {
 
       // Delete the token from Redis
       await redisClient.del(`reset:${resetToken}`);
-
-      return true;
-    } catch (error) {
-      Sentry.captureException(error, { tags: { operation: 'resetPassword' } });
-      console.error('[AuthController] Password reset error', error);
-      return false;
-    }
   }
 
   /**
@@ -220,40 +176,23 @@ export class AuthController {
     userId: string,
     oldPassword: string,
     newPassword: string,
-  ): Promise<boolean> {
-    try {
+  ): Promise<void> {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user?.password) return false;
+      if (!user?.password) throw new NotFoundError('User not found');
 
       const match = await bcrypt.compare(oldPassword, user.password);
-      if (!match) return false;
+      if (!match) throw new UnauthorizedError('Current password is incorrect');
       // Hash and update to new password
       user.password = await this.hashPassword(newPassword);
       await user.save();
-
-      return true;
-    } catch (error) {
-      Sentry.captureException(error, { tags: { operation: 'changePassword' } });
-      console.error('[AuthController] Password change error', error);
-      return false;
-    }
   }
 
   /*
     Checks if a user is an admin
    */
   async isAdmin(userId: string): Promise<boolean> {
-    try {
       const user = await User.findById(userId).exec();
       return user?.type === UserType.ADMIN;
-    } catch (error) {
-      Sentry.captureException(error, {
-        tags: { operation: 'isAdmin' },
-        level: 'error',
-      });
-      console.error('[AuthController] isAdmin check error');
-      return false;
-    }
   }
   /*
    * helper to hash passwords - keeps SALT_ROUNDS consistent

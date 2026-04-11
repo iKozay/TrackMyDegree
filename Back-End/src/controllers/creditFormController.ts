@@ -1,12 +1,16 @@
+
 import { Types } from 'mongoose';
 import { CreditForm } from '@models';
 import { ICreditFormData, CreateCreditFormInput, UpdateCreditFormInput } from '@trackmydegree/shared';
 import path from 'node:path';
 import fs from 'node:fs';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 
 const DATA_DIR = process.env.DATA_DIR || path.resolve(__dirname, '../../data');
 const UPLOAD_DIR = path.join(DATA_DIR, 'credit-forms');
 const API_FILE_PREFIX = '/api/credit-forms/file/';
+const FORM_NOT_FOUND = 'Form not found';
+const FILE_NOT_FOUND = 'File not found';
 
 // Ensure upload directory exists
 if (!fs.existsSync(UPLOAD_DIR)) {
@@ -42,7 +46,7 @@ export async function getFormById(programId: string): Promise<ICreditFormData | 
     const form = await CreditForm.findOne({ programId, isActive: true });
 
     if (!form) {
-        return null;
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     return {
@@ -80,7 +84,7 @@ export async function createForm(
             if (fs.existsSync(filePath)) {
                 fs.unlinkSync(filePath);
             }
-            throw new Error('CONFLICT: A form with this program ID already exists. Use the edit function instead.');
+            throw new AlreadyExistsError('A form with this program ID already exists. Use the edit function instead.');
         }
 
         // Form exists but was soft-deleted — reactivate it with new data
@@ -151,7 +155,7 @@ export async function updateForm(
                 fs.unlinkSync(filePath);
             }
         }
-        throw new Error('NOT_FOUND: Form not found');
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     if (input.title) form.title = input.title;
@@ -186,7 +190,7 @@ export async function updateForm(
 export async function deleteForm(programId: string): Promise<void> {
     const form = await CreditForm.findOne({ programId });
     if (!form) {
-        throw new Error('NOT_FOUND: Form not found');
+        throw new NotFoundError(FORM_NOT_FOUND);
     }
 
     form.isActive = false;
@@ -197,16 +201,21 @@ export async function deleteForm(programId: string): Promise<void> {
  * Resolve the absolute path for a given PDF filename.
  * Returns null if the file does not exist on disk.
  */
-export function resolveFilePath(filename: string): string | null {
+export function resolveFilePath(filename: string): string {
     const rawFilename = Array.isArray(filename) ? filename[0] : filename;
     // Strip directory components to prevent path traversal (CWE-22)
     const safeFilename = path.basename(rawFilename);
     const filePath = path.resolve(UPLOAD_DIR, safeFilename);
     // Verify the resolved path is strictly within UPLOAD_DIR
-    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) {
-        return null;
+    if (!filePath.startsWith(UPLOAD_DIR + path.sep)) { 
+        throw new NotFoundError(FILE_NOT_FOUND);
     }
-    return fs.existsSync(filePath) ? filePath : null;
+
+    if (!fs.existsSync(filePath)) {
+        throw new NotFoundError(FILE_NOT_FOUND);
+    }
+
+    return filePath;
 }
 
 export const creditFormController = {

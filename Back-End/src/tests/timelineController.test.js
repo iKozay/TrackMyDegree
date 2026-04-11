@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const { TimelineController } = require('../controllers/timelineController');
 const { Timeline } = require('../models/timeline');
+const { NotFoundError } = require('@utils/errors');
 
 describe('TimelineController', () => {
   let mongoServer;
@@ -105,11 +106,10 @@ describe('TimelineController', () => {
 
     it('throws when DB create fails', async () => {
       const originalCreate = timelineController.create;
-      timelineController.create = jest.fn().mockResolvedValue({ success: false });
-
+      timelineController.create = jest.fn().mockRejectedValue(new Error('DB error'));
       await expect(
         timelineController.saveTimeline(userId, name, baseTimeline),
-      ).rejects.toThrow('Failed to save timeline');
+      ).rejects.toThrow('DB error');
 
       timelineController.create = originalCreate;
     });
@@ -130,7 +130,7 @@ describe('TimelineController', () => {
     it('deletes a timeline successfully', async () => {
       const result = await timelineController.deleteTimeline(timelineId);
 
-      expect(result).toContain('deleted successfully');
+      expect(result).toContain('has been successfully deleted.');
 
       const found = await Timeline.findById(timelineId);
       expect(found).toBeNull();
@@ -141,7 +141,7 @@ describe('TimelineController', () => {
 
       await expect(
         timelineController.deleteTimeline(fakeId)
-      ).rejects.toThrow('Timeline with this id does not exist');
+      ).rejects.toThrow('Timeline not found');
     });
 
 
@@ -179,22 +179,18 @@ describe('TimelineController', () => {
       expect(await Timeline.find({ userId: 'user456' })).toHaveLength(1);
     });
 
-    it('returns 0 when user has no timelines', async () => {
-      const count =
-        await timelineController.deleteAllUserTimelines('missing');
-
-      expect(count).toBe(0);
+    it('returns throws not found when user has no timelines', async () => {
+      await expect(
+        timelineController.deleteAllUserTimelines('missing'),
+      ).rejects.toThrow('Timeline not found');
     });
 
     it('throws when deleteMany fails', async () => {
       const originalDeleteMany = timelineController.deleteMany;
-      timelineController.deleteMany = jest
-        .fn()
-        .mockResolvedValue({ success: false });
-
+      timelineController.deleteMany = jest.fn().mockRejectedValue(new NotFoundError('Timeline not found'));
       await expect(
         timelineController.deleteAllUserTimelines('user123'),
-      ).rejects.toThrow('Failed to delete timelines');
+      ).rejects.toThrow('Timeline not found');
 
       timelineController.deleteMany = originalDeleteMany;
     });

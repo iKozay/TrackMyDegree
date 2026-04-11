@@ -1,7 +1,6 @@
 import mongoose from 'mongoose';
 import { BaseMongoController } from './baseMongoController';
-import * as Sentry from '@sentry/node';
-import { DATABASE_CONNECTION_NOT_AVAILABLE } from '@utils/constants';
+import { DATABASE_CONNECTION_NOT_AVAILABLE, DatabaseConnectionError } from '@utils/errors';
 import * as BackupService from '@services/backup';
 
 export class AdminController extends BaseMongoController<any> {
@@ -14,24 +13,13 @@ export class AdminController extends BaseMongoController<any> {
    * Get all collections in the database
    */
   async getCollections(): Promise<string[]> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const collections = await db.listCollections().toArray();
       return collections.map((col) => col.name);
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error fetching collections');
-    }
   }
 
   /**
@@ -47,10 +35,9 @@ export class AdminController extends BaseMongoController<any> {
       select?: string[];
     } = {},
   ): Promise<any[]> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const collection = db.collection(collectionName);
@@ -94,40 +81,19 @@ export class AdminController extends BaseMongoController<any> {
         .toArray();
 
       return documents as any[];
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error fetching documents from collection');
-    }
   }
 
   /**
    * Clear all documents from a collection (dangerous - use with caution)
    */
   async clearCollection(collectionName: string): Promise<number> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError();
       }
 
       const result = await db.collection(collectionName).deleteMany({});
       return result.deletedCount || 0;
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error clearing collection');
-    }
   }
 
   /**
@@ -147,76 +113,31 @@ export class AdminController extends BaseMongoController<any> {
 
   // Return all the available backups from the backup directory
   async listBackups(): Promise<string[]> {
-    try {
-      const backupFiles = await BackupService.listBackups();
-      return backupFiles
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error fetching backups');
-    }
+      return await BackupService.listBackups();
   }
 
   // Create a backup in the backup directory
   async createBackup(): Promise<string> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
         throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
       const backupFileName = await BackupService.createBackup(); 
       return backupFileName;
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error creating a new backup file');
-    }
   }
 
   // Delete the backup file from the backup directory
   async deleteBackup(backupFileName: string): Promise<void> {
-    try {
       await BackupService.deleteBackup(backupFileName);
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error(`Error deleting ${backupFileName}!`);
-    }
   }
 
   // Restore the backup file from the backup directory
   async restoreBackup(backupFileName: string): Promise<void> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
         throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
       await BackupService.restoreBackup(backupFileName);
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error(`Error restoring ${backupFileName}!`);
-    }
   }
 
 }
