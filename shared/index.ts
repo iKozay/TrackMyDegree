@@ -231,3 +231,66 @@ export interface TimelineDocument {
   exemptions: string[];
   deficiencies: string[];
 }
+
+export interface AdminStats {
+  totalUsers: number;
+  totalTimelines: number;
+  totalDegrees: number;
+  totalCourses: number;
+  usersByRole: {
+    student: number;
+    admin: number;
+  };
+}
+
+export interface SeedResult {
+  success: boolean;
+  message: string;
+  degreesSeeded?: number;
+  coursesSeeded?: number;
+}
+
+export interface DbConnectionStatus {
+  connected: boolean;
+  message?: string;
+}
+
+export interface CreateDegreeInput {
+  name: string;
+  totalCredits: number;
+  degreeType?: string;
+}
+
+export type UpdateDegreeInput = Partial<CreateDegreeInput>;
+
+export interface CreateCoursePoolInput {
+  name: string;
+  creditsRequired: number;
+  degreeId: string;
+  courses: string[];
+}
+
+export type UpdateCoursePoolInput = Partial<Omit<CreateCoursePoolInput, 'degreeId'>>;
+export type UserRole = 'student' | 'admin';
+
+export interface UserDocument {
+  _id: string;
+  email: string;
+  fullname: string;
+  type: UserRole;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateUserInput {
+  email: string;
+  fullname: string;
+  password: string;
+  type: UserRole;
+}
+
+export interface UpdateUserInput {
+  email?: string;
+  fullname?: string;
+  type?: UserRole;
+}

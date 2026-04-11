@@ -115,7 +115,12 @@ describe("BackupManagementTab", () => {
     const select = await screen.findByRole("combobox");
     fireEvent.change(select, { target: { value: "backup1.sql" } });
 
-    fireEvent.click(screen.getByRole("button", { name: "Delete Backup" }));
+    const deleteButton = screen.getByRole("button", { name: "Delete Backup" });
+    await waitFor(() => {
+      expect(deleteButton).toBeEnabled();
+    });
+
+    fireEvent.click(deleteButton);
 
     await waitFor(() => {
       expect(api.post).toHaveBeenCalledWith(

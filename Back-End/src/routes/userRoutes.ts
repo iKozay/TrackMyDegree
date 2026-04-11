@@ -2,9 +2,14 @@ import HTTP from '@utils/httpCodes';
 import express, { Request, Response } from 'express';
 import { userController } from '@controllers/userController';
 import { authController } from '@controllers/authController';
-import { authMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
+import { authMiddleware, adminCheckMiddleware, userCheckMiddleware } from '@middleware/authMiddleware';
 import mongoose from 'mongoose';
-import { userRateLimiter } from '@middleware/rateLimiter';
+import { User } from '@models';
+import { mailServicePromise } from '@services/mailService';
+import { v4 as uuidv4 } from 'uuid';
+import redisClient from '@lib/redisClient';
+import { RESET_EXPIRY_MINUTES } from '@utils/constants';
+import { inviteAdminLimiter, userRateLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -291,6 +296,52 @@ router.get('/:userId/data', userCheckMiddleware, async (req: Request, res: Respo
     } else {
       res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
     }
+  }
+});
+
+/**
+ * POST /users/invite-admin - Invite a new admin by email
+ * Creates an admin account with no usable password and sends a setup link.
+ */
+router.post('/invite-admin', inviteAdminLimiter, authMiddleware, adminCheckMiddleware, async (req: Request, res: Response) => {
+  try {
+    const { email, name } = req.body;
+
+    if (!email || !name) {
+      res.status(HTTP.BAD_REQUEST).json({ error: 'Email and name are required' });
+      return;
+    }
+
+    if (typeof email !== 'string' || !email.trim()) {
+      res.status(HTTP.BAD_REQUEST).json({ error: 'Invalid email format' });
+      return;
+    }
+
+    // Check if email is already in use
+    const existing = await User.exists({ email: { $eq: email } }).exec();
+    if (existing) {
+      res.status(HTTP.CONFLICT).json({ error: 'A user with this email already exists' });
+      return;
+    }
+
+    // Create the admin user without a usable password (they will set it via the invite link)
+    await User.create({ email, fullname: name, type: 'admin', password: null });
+
+    // Generate a password-setup token using the same reset flow
+    const token = uuidv4();
+    const expireSeconds = RESET_EXPIRY_MINUTES * 60;
+    await redisClient.set(`reset:${token}`, email, { EX: expireSeconds });
+
+    const frontendUrl = process.env.FRONTEND_URL || process.env.CLIENT || '';
+    const setupLink = `${frontendUrl.replace(/\/$/, '')}/reset-password/${token}`;
+
+    const mailService = await mailServicePromise;
+    await mailService.sendAdminInvitation(email, name, setupLink);
+
+    res.status(HTTP.CREATED).json({ message: 'Invitation sent successfully' });
+  } catch (error) {
+    console.error('Error in POST /users/invite-admin', error);
+    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
   }
 });
 

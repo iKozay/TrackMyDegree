@@ -1,12 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Alert, Button, Form, Spinner, Stack } from "react-bootstrap";
 import { api } from "../../api/http-api-client";
-
-type ApiResult = {
-  success: boolean;
-  message?: string;
-  data?: string[];
-};
+import type { ApiResponse } from "../../types/response.types";
 
 const BackupManagementTab: React.FC = () => {
   const [backups, setBackups] = useState<string[]>([]);
@@ -19,7 +14,7 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = await api.get<ApiResult>(
+      const data = await api.get<ApiResponse<string[]>>(
         "/admin/fetch-backups",
         { credentials: "include" },
       );
@@ -39,7 +34,7 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = await api.post<ApiResult>(
+      const data = await api.post<ApiResponse<string[]>>(
         "/admin/create-backup",
         {},
         { credentials: "include" },
@@ -63,7 +58,7 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = await api.post<ApiResult>(
+      const data = await api.post<ApiResponse<string[]>>(
         "/admin/restore-backup",
         { backupName: selectedBackup },
         { credentials: "include" },
@@ -86,7 +81,7 @@ const BackupManagementTab: React.FC = () => {
     setError(null);
 
     try {
-      const data = await api.post<ApiResult>(
+      const data = await api.post<ApiResponse<string[]>>(
         "/admin/delete-backup",
         { backupName: selectedBackup },
         { credentials: "include" },

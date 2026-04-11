@@ -106,6 +106,47 @@ export class AdminController extends BaseMongoController<any> {
     }
   }
 
+  async getCollectionDocumentsCount(
+    collectionName: string,
+    options: {
+      field?: string;
+      value?: string;
+      keyword?: string;
+    } = {},
+  ): Promise<number> {
+    try {
+      const db = mongoose.connection.db;
+      if (!db) {
+        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+      }
+
+      const collection = db.collection(collectionName);
+      const { field, value, keyword } = options;
+
+      let query: Record<string, unknown> = {};
+
+      // Exact match when a specific field value is provided
+      if (field && typeof value === 'string') {
+        query[field] = value;
+      } else if (field && keyword) {
+        // Backward-compatible partial match path
+        query[field] = { $regex: keyword, $options: 'i' };
+      }
+
+      const count = await collection.countDocuments(query);
+      return count;
+    } catch (error) {
+      Sentry.captureException(error);
+      if (
+        error instanceof Error &&
+        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
+      ) {
+        throw error;
+      }
+      throw new Error('Error counting documents in collection');
+    }
+  }
+
   /**
    * Clear all documents from a collection (dangerous - use with caution)
    */
