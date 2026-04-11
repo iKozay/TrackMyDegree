@@ -16,6 +16,12 @@ const STATUS_NOT_STARTED = 'Not Started';
 const STATUS_MISSING = 'Missing';
 const STATUS_IN_PROGRESS = 'In Progress';
 const DEGREE_NAME = 'Bachelor of Computer Science';
+const TERM_WINTER_2024 = 'Winter 2024';
+const TERM_WINTER_2025 = 'Winter 2025';
+const TERM_WINTER_2026 = 'Winter 2026';
+const TERM_WINTER_2027 = 'Winter 2027';
+const ENGR_490_TITLE = 'Capstone Design Project';
+const ENGR_490_DESC = 'General engineering capstone';
 
 // eslint-disable-next-line sonarjs/no-duplicate-string
 jest.mock('@utils/misc', () => {
@@ -178,7 +184,7 @@ describe('DegreeAuditService', () => {
       ['COMP 352', { status: 'planned', semester: 'Fall 2023' }],
       ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
       ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
-      ['COMP 346', { status: 'planned', semester: 'Winter 2024' }],
+      ['COMP 346', { status: 'planned', semester: TERM_WINTER_2024 }],
     ]);
 
     const timeline = await Timeline.create({
@@ -605,7 +611,7 @@ describe('DegreeAuditService', () => {
 
       await Timeline.findByIdAndUpdate(testTimelineId, {
         courseStatusMap: new Map([
-          ['COMP 248', { status: 'planned', semester: 'Winter 2024' }],
+          ['COMP 248', { status: 'planned', semester: TERM_WINTER_2024 }],
           ['COMP 249', { status: 'completed', semester: 'Fall 2022' }],
         ]),
       });
@@ -1100,7 +1106,7 @@ describe('DegreeAuditService', () => {
   describe('estimateGraduation (unit)', () => {
     it('should return current Winter term when no credits remain and date is in Winter', () => {
       const result = estimateGraduation(0, new Date('2026-02-15'));
-      expect(result).toBe('Winter 2026');
+      expect(result).toBe(TERM_WINTER_2026);
     });
 
     it('should return Fall when no credits remain and date is in Summer', () => {
@@ -1117,13 +1123,13 @@ describe('DegreeAuditService', () => {
       // 45 credits = 3 terms at 15 credits/term
       // Starting Winter 2026: Winter 2026 → Fall 2026 → Winter 2027
       const result = estimateGraduation(45, new Date('2026-01-15'));
-      expect(result).toBe('Winter 2027');
+      expect(result).toBe(TERM_WINTER_2027);
     });
 
     it('should skip summer and start from Fall when date is in Summer', () => {
       // 30 credits = 2 terms: Fall 2026 → Winter 2027
       const result = estimateGraduation(30, new Date('2026-06-15'));
-      expect(result).toBe('Winter 2027');
+      expect(result).toBe(TERM_WINTER_2027);
     });
 
     it('should handle a single remaining term from Fall', () => {
@@ -1134,7 +1140,7 @@ describe('DegreeAuditService', () => {
 
     it('should handle a single remaining term from Winter', () => {
       const result = estimateGraduation(15, new Date('2026-02-15'));
-      expect(result).toBe('Winter 2026');
+      expect(result).toBe(TERM_WINTER_2026);
     });
 
     it('should handle 30 credits per year exactly', () => {
@@ -1146,7 +1152,7 @@ describe('DegreeAuditService', () => {
     it('should round up partial terms', () => {
       // 16 credits from Fall → ceil(16/15) = 2 terms: Fall 2026 → Winter 2027
       const result = estimateGraduation(16, new Date('2026-09-01'));
-      expect(result).toBe('Winter 2027');
+      expect(result).toBe(TERM_WINTER_2027);
     });
 
     it('should never produce a Summer term', () => {
@@ -1162,7 +1168,7 @@ describe('DegreeAuditService', () => {
 
   describe('graduationTermToAcademicYear', () => {
     it('should map Winter 2026 to 2025-2026', () => {
-      expect(graduationTermToAcademicYear('Winter 2026')).toBe('2025-2026');
+      expect(graduationTermToAcademicYear(TERM_WINTER_2026)).toBe('2025-2026');
     });
 
     it('should map Fall 2026 to 2026-2027', () => {
@@ -1170,7 +1176,7 @@ describe('DegreeAuditService', () => {
     });
 
     it('should map Winter 2027 to 2026-2027', () => {
-      expect(graduationTermToAcademicYear('Winter 2027')).toBe('2026-2027');
+      expect(graduationTermToAcademicYear(TERM_WINTER_2027)).toBe('2026-2027');
     });
 
     it('should map Fall 2025 to 2025-2026', () => {
@@ -1212,12 +1218,12 @@ describe('DegreeAuditService', () => {
           ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
           ['COMP 249', { status: 'completed', semester: 'Winter 2023' }],
           ['COMP 352', { status: 'completed', semester: 'Fall 2023' }],
-          ['COMP 346', { status: 'completed', semester: 'Winter 2024' }],
+          ['COMP 346', { status: 'completed', semester: TERM_WINTER_2024 }],
           ['COMP 371', { status: 'completed', semester: 'Fall 2024' }],
           ['COMP 445', { status: 'completed', semester: 'Fall 2024' }],
           ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
           ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
-          ['COMP 490', { status: 'completed', semester: 'Winter 2024' }],
+          ['COMP 490', { status: 'completed', semester: TERM_WINTER_2024 }],
           ['ENGL 101', { status: 'completed', semester: 'Fall 2022' }],
         ]),
       });
@@ -1241,13 +1247,13 @@ describe('DegreeAuditService', () => {
           ['COMP 248', { status: 'completed', semester: 'Fall 2022' }],
           ['COMP 249', { status: 'completed', semester: 'Winter 2023' }],
           ['COMP 352', { status: 'completed', semester: 'Fall 2023' }],
-          ['COMP 346', { status: 'completed', semester: 'Winter 2024' }],
+          ['COMP 346', { status: 'completed', semester: TERM_WINTER_2024 }],
           ['COMP 371', { status: 'completed', semester: 'Fall 2024' }],
           ['COMP 445', { status: 'completed', semester: 'Fall 2024' }],
           ['MATH 203', { status: 'completed', semester: 'Fall 2022' }],
           ['MATH 204', { status: 'completed', semester: 'Winter 2023' }],
-          ['COMP 490', { status: 'planned', semester: 'Winter 2025' }],
-          ['ENGL 101', { status: 'planned', semester: 'Winter 2025' }],
+          ['COMP 490', { status: 'planned', semester: TERM_WINTER_2025 }],
+          ['ENGL 101', { status: 'planned', semester: TERM_WINTER_2025 }],
         ]),
       });
 
