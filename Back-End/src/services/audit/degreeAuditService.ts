@@ -273,13 +273,14 @@ export function estimateGraduation(
  * that governs the curriculum (e.g. "2025-2026").
  *
  *   Fall  YYYY  → YYYY-(YYYY+1)
+ *   Summer YYYY → YYYY-(YYYY+1)
  *   Winter YYYY → (YYYY-1)-YYYY
  */
 export function graduationTermToAcademicYear(graduationTerm: string): string {
   const [term, yearStr] = graduationTerm.split(' ');
   const year = Number.parseInt(yearStr, 10);
 
-  if (term === 'Fall') {
+  if (term === 'Fall' || term === 'Summer') {
     return `${year}-${year + 1}`;
   }
   // Winter
@@ -292,15 +293,18 @@ export function graduationTermToAcademicYear(graduationTerm: string): string {
  * course credits for completed/in-progress courses).
  */
 async function estimateAcademicYearForTimeline(
-  timeline: TimelineWithUser,
+  degreeId: string,
+  courseStatusMap: Record<
+    string,
+    { status: CourseStatus; semester: string | null }
+  >,
 ): Promise<string> {
-  const degree = await Degree.findById(timeline.degreeId)
+  const degree = await Degree.findById(degreeId)
     .select('totalCredits')
     .lean<{ totalCredits?: number }>()
     .exec();
   const totalCredits = degree?.totalCredits || 120;
 
-  const courseStatusMap = timeline.courseStatusMap ?? {};
   const activeCourseIds = Object.entries(courseStatusMap)
     .filter(([, info]) => {
       if (info.status === 'completed' || info.status === 'inprogress') return true;
@@ -335,7 +339,7 @@ async function estimateAcademicYearForTimeline(
 function buildCourseStatusMap(
   courses: Record<string, TimelineCourse>,
 ): Record<string, { status: CourseStatus; semester: string | null }> {
-  
+
   return Object.fromEntries(
         Object.entries( courses || {})
           .filter(([, course]) => course.status.status !== 'incomplete')
@@ -590,7 +594,10 @@ export async function generateDegreeAudit(
   const timeline = await fetchAndValidateTimeline(timelineId, userId);
   const user = await fetchAndValidateUser(userId);
 
-  const academicYear = await estimateAcademicYearForTimeline(timeline);
+  const academicYear = await estimateAcademicYearForTimeline(
+    timeline.degreeId,
+    timeline.courseStatusMap,
+  );
 
   const [degreeData, coursePools, courseArr] = await Promise.all([
     degreeController.readDegree(timeline.degreeId, academicYear),
@@ -691,38 +698,34 @@ export async function generateDegreeAuditForUser(
   });
 }
 
-export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
-  if(!timeline.degree || !timeline.pools || !timeline.semesters)
+export async function generateDegreeAuditFromTimeline(timeline:TimelineResult){
+  if (!timeline.degree || !timeline.pools || !timeline.semesters)
     throw new Error('degree, coursePools and semesters are required to generate the degree audit');
 
-  const allCourses: Record<string, CourseData> = Object.fromEntries(
-    Object.entries(timeline.courses).map(([code, course]) => {
-      return [code, {
-      _id: course.id,
-      code: course.id,
-      title: course.title,
-      description: course.description,
-      credits: course.credits,
-      offeredIn: course.offeredIn,
-      rules: [],
-    }];
-    }),
-  );
   const courseStatusMap = buildCourseStatusMap(timeline.courses)
-  const coursePools = timeline.pools || []
+  const academicYear = await estimateAcademicYearForTimeline(
+    timeline.degree._id,
+    courseStatusMap,
+  );
+
+  const [degreeData, coursePools, courseArr] = await Promise.all([
+    degreeController.readDegree(timeline.degree._id, academicYear),
+    degreeController.getCoursePoolsForDegree(timeline.degree._id, academicYear),
+    degreeController.getCoursesForDegree(timeline.degree._id, academicYear),
+  ]);
+
+  const allCourses = buildCoursesDictionary(courseArr);
+
+
   const exemptionPool = coursePools.find(p => p._id === 'exemptions');
   const deficiencyPool = coursePools.find(p => p._id === 'deficiencies');
-  const exemptions  = exemptionPool?.courses ?? [];
+  const exemptions = exemptionPool?.courses ?? [];
   const deficiencies = deficiencyPool?.courses ?? [];
-  // REMOVE exemptions & deficiencies from pools
-  const filteredPools = coursePools.filter(
-    p => p._id !== 'exemptions' && p._id !== 'deficiencies'
-  );
 
 
   return buildDegreeAudit({
-    degreeData: timeline.degree,
-    coursePools: filteredPools,
+    degreeData,
+    coursePools,
     allCourses,
     courseStatusMap,
     deficiencies,
