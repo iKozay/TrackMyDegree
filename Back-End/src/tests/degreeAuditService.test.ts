@@ -22,6 +22,8 @@ const TERM_WINTER_2026 = 'Winter 2026';
 const TERM_WINTER_2027 = 'Winter 2027';
 const ENGR_490_TITLE = 'Capstone Design Project';
 const ENGR_490_DESC = 'General engineering capstone';
+const NULL_TO_LOWERCASE_ERROR =
+  "Cannot read properties of null (reading 'toLowerCase')";
 
 // eslint-disable-next-line sonarjs/no-duplicate-string
 jest.mock('@utils/misc', () => {
@@ -529,7 +531,7 @@ describe('DegreeAuditService', () => {
       };
 
       await expect(generateDegreeAudit(params)).rejects.toThrow(
-        "Cannot read properties of null (reading 'toLowerCase')",
+        NULL_TO_LOWERCASE_ERROR,
       );
     });
 
@@ -546,7 +548,7 @@ describe('DegreeAuditService', () => {
       };
 
       await expect(generateDegreeAudit(params)).rejects.toThrow(
-        "Cannot read properties of null (reading 'toLowerCase')",
+        NULL_TO_LOWERCASE_ERROR,
       );
     });
 
@@ -829,7 +831,7 @@ describe('DegreeAuditService', () => {
       };
 
       await expect(generateDegreeAudit(params)).rejects.toThrow(
-        "Cannot read properties of null (reading 'toLowerCase')",
+        NULL_TO_LOWERCASE_ERROR,
       );
     });
   });
