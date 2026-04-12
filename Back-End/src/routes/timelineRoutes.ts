@@ -87,6 +87,15 @@ router.post('/', async (req: Request, res: Response) => {
       timelineName,
       cachedTimeline,
     );
+
+    await cacheJobResult(jobId, { 
+      payload:{
+        status:  cached?.payload?.status ?? "done",
+        data: {
+          ...cachedTimeline,
+          _id: timeline._id, // inject DB id into cache
+        },
+      }});
     res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     console.error('Error in POST /timeline', error);
