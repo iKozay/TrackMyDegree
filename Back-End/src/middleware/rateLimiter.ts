@@ -15,6 +15,8 @@ const createLimiter = (config: {
   max: number;
   message: any;
 }) =>
+  process.env.NODE_ENV === 'test'? 
+  (req: any, res: any, next: any) => next():
   rateLimit({
     ...config,
     store: buildStore(),
