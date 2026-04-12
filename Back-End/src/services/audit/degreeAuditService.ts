@@ -1,4 +1,4 @@
-import { Timeline, User, Degree, Course } from '@models';
+import { Timeline, User, Course } from '@models';
 import { degreeController } from '@controllers/degreeController';
 import { normalizeAcademicYear } from '@services/catalogVersionService';
 import {
@@ -17,6 +17,26 @@ import { getTermRanges, isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
   userId: string;
+}
+
+const ACTIVE_COURSE_STATUSES = new Set<CourseStatus>([
+  'completed',
+  'inprogress',
+  'planned',
+]);
+
+function getTermBoundary(
+  term: string,
+  boundary: 'start' | 'end',
+): Date | null {
+  try {
+    return getTermRanges(term)[boundary];
+  } catch (error) {
+    if (error instanceof Error) {
+      return null;
+    }
+    return null;
+  }
 }
 
 /**
@@ -309,18 +329,13 @@ function getFirstActiveTerm(
 
   let earliestTermDate: Date | null = null;
   let earliestTermString: string | null = null;
-  const activeStatuses = ['completed', 'inprogress', 'planned'];
 
   for (const info of Object.values(courseStatusMap)) {
-    if (info.semester && activeStatuses.includes(info.status)) {
-      try {
-        const { start } = getTermRanges(info.semester);
-        if (!earliestTermDate || start < earliestTermDate) {
-          earliestTermDate = start;
-          earliestTermString = info.semester;
-        }
-      } catch (e) {
-        // Ignore invalid terms
+    if (info.semester && ACTIVE_COURSE_STATUSES.has(info.status)) {
+      const start = getTermBoundary(info.semester, 'start');
+      if (start && (!earliestTermDate || start < earliestTermDate)) {
+        earliestTermDate = start;
+        earliestTermString = info.semester;
       }
     }
   }
@@ -339,18 +354,13 @@ function getLatestActiveTermInfo(
 ): { termDate: Date | null; termString: string | null } {
   let latestTermDate: Date | null = null;
   let latestTermString: string | null = null;
-  const activeStatuses = ['completed', 'inprogress', 'planned'];
 
   for (const info of Object.values(courseStatusMap)) {
-    if (info.semester && activeStatuses.includes(info.status)) {
-      try {
-        const { end } = getTermRanges(info.semester);
-        if (!latestTermDate || end > latestTermDate) {
-          latestTermDate = end;
-          latestTermString = info.semester;
-        }
-      } catch (e) {
-        // Ignore invalid terms
+    if (info.semester && ACTIVE_COURSE_STATUSES.has(info.status)) {
+      const end = getTermBoundary(info.semester, 'end');
+      if (end && (!latestTermDate || end > latestTermDate)) {
+        latestTermDate = end;
+        latestTermString = info.semester;
       }
     }
   }
@@ -370,9 +380,8 @@ async function calculateMissingCredits(
     { status: CourseStatus; semester: string | null }
   >,
 ): Promise<number> {
-  const activeStatuses = ['completed', 'inprogress', 'planned'];
   const activeCourseRefs = Object.entries(courseStatusMap)
-    .filter(([, info]) => activeStatuses.includes(info.status))
+    .filter(([, info]) => ACTIVE_COURSE_STATUSES.has(info.status))
     .map(([id]) => id);
 
   const courseIdsToFetch = new Set<string>();
@@ -402,7 +411,7 @@ async function calculateMissingCredits(
     if (pool.courses) {
       for (const courseId of pool.courses) {
         const info = courseStatusMap[courseId];
-        if (info && activeStatuses.includes(info.status)) {
+        if (info && ACTIVE_COURSE_STATUSES.has(info.status)) {
           activeCreditsInPool += courseCreditsMap[courseId] || 3;
         }
       }
