@@ -4,6 +4,7 @@ import { authController, UserType } from '@controllers/authController';
 import { jwtService } from '@services/jwtService';
 import { BadRequestError, UnauthorizedError } from '@utils/errors';
 import { authMiddleware } from '@middleware/authMiddleware';
+import { forgotPasswordLimiter, loginLimiter, resetPasswordLimiter, signupLimiter, userRateLimiter } from '@middleware/rateLimiter';
 
 const router = express.Router();
 
@@ -12,7 +13,7 @@ const EMPTY_REQUEST_BODY = 'Request body cannot be empty';
 /**
  * POST /auth/login - User login
  */
-router.post('/login', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/login', loginLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { email, password } = req.body;
 
@@ -59,7 +60,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
 /**
  * POST /auth/refresh - User login automatically via refresh token
  */
-router.post('/refresh', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/refresh', userRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies?.refresh_token;
     if (!token) throw new UnauthorizedError('Missing refresh token');
@@ -107,7 +108,7 @@ router.post('/refresh', async (req: Request, res: Response, next: NextFunction) 
 /**
  * POST /auth/logout - User logout and clear all cookies
  */
-router.post('/logout', (req: Request, res: Response, next: NextFunction) => {
+router.post('/logout', userRateLimiter, (req: Request, res: Response, next: NextFunction) => {
   try {
     const secure = process.env.NODE_ENV !== 'development';
     res.clearCookie('access_token', { path: '/', httpOnly: true, secure, sameSite: 'strict', domain: secure ? process.env.COOKIE_DOMAIN : undefined });
@@ -121,7 +122,7 @@ router.post('/logout', (req: Request, res: Response, next: NextFunction) => {
 /**
  * POST /auth/me - Authenticate user via access token
  */
-router.get('/me', authMiddleware, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', authMiddleware, userRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies?.access_token;  
     const payload = (req as any).user;
@@ -146,7 +147,7 @@ router.get('/me', authMiddleware, async (req: Request, res: Response, next: Next
 /**
  * POST /auth/signup - User registration
  */
-router.post('/signup', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/signup', signupLimiter, async (req: Request, res: Response, next: NextFunction) => {
   try{
     if (!req.body || Object.keys(req.body).length === 0) {
       throw new BadRequestError(EMPTY_REQUEST_BODY);
@@ -212,7 +213,7 @@ router.post('/signup', async (req: Request, res: Response, next: NextFunction) =
 /**
  * POST /auth/forgot-password - Initiate password reset
  */
-router.post('/forgot-password', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/forgot-password', forgotPasswordLimiter ,async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.body?.email) {
       throw new BadRequestError(EMPTY_REQUEST_BODY); 
@@ -230,7 +231,7 @@ router.post('/forgot-password', async (req: Request, res: Response, next: NextFu
 /**
  * POST /auth/reset-password - Reset password with URL token
  */
-router.post('/reset-password', async (req: Request, res: Response, next: NextFunction) => {
+router.post('/reset-password', resetPasswordLimiter,async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.body) {
       throw new BadRequestError(EMPTY_REQUEST_BODY);
