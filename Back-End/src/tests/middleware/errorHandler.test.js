@@ -123,7 +123,9 @@ describe('Error Handler Middleware', () => {
       errorHandler(error, mockReq, mockRes, mockNext);
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        `[${mockReq.method}] ${mockReq.originalUrl} →`,
+       '[%s] %s →',
+        mockReq.method,
+        mockReq.originalUrl,
         error
       );
 

@@ -184,7 +184,9 @@ describe('Sections Routes', () => {
       });
       expect(mockGetCourseSchedule).toHaveBeenCalledWith('COMP', '490');
       expect(consoleSpy).toHaveBeenCalledWith(
-        '[GET] /section/schedule?subject=COMP&catalog=490 →',
+        "[%s] %s →", 
+        "GET", 
+        "/section/schedule?subject=COMP&catalog=490",
         mockError,
       );
       expect(Sentry.captureException).toHaveBeenCalledWith(mockError);

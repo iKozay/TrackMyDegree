@@ -66,10 +66,10 @@ describe('AuthController', () => {
       });
     });
 
-    it('throws NotFoundError if user does not exist', async () => {
+    it('throws Unauthorized if user does not exist', async () => {
       User.findById.mockReturnValue({ lean: () => ({ exec: () => Promise.resolve(null) }) });
 
-      await expect(authController.getUserById('wrong')).rejects.toThrow(NotFoundError);
+      await expect(authController.getUserById('wrong')).rejects.toThrow(UnauthorizedError);
     });
   });
 

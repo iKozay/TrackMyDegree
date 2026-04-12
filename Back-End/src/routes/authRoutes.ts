@@ -122,7 +122,7 @@ router.post('/logout', userRateLimiter, (req: Request, res: Response, next: Next
 /**
  * POST /auth/me - Authenticate user via access token
  */
-router.get('/me', authMiddleware, userRateLimiter, async (req: Request, res: Response, next: NextFunction) => {
+router.get('/me', userRateLimiter, authMiddleware,  async (req: Request, res: Response, next: NextFunction) => {
   try {
     const token = req.cookies?.access_token;  
     const payload = (req as any).user;

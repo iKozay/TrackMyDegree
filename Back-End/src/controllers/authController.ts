@@ -43,8 +43,9 @@ export class AuthController extends BaseMongoController<any> {
   async getUserById(userId: string): Promise<UserInfo> {
       const user = await User.findById(userId).lean().exec();
       
+      // If the user no longer exists, treat it as an authentication failure.
       if (!user) {
-        throw new NotFoundError('User no longer exists');
+        throw new UnauthorizedError('Invalid or expired token');//generic error message
       }
 
       return {

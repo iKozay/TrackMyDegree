@@ -50,7 +50,7 @@ jest.mock('../services/jwtService', () => ({
 
 const { jwtService } = require('../services/jwtService');
 const { errorHandler } = require('@middleware/errorHandler');
-const { NotFoundError } = require('@utils/errors');
+const { NotFoundError, UnauthorizedError } = require('@utils/errors');
 
 const app = express();
 app.use(express.json());
@@ -93,11 +93,11 @@ describe('Auth Routes (MongoDB)', () => {
       expect(res.body.message).toBe('Invalid or expired refresh token');
     });
 
-    it('should return 404 if user does not exist', async () => {
+    it('should return 401 if user does not exist', async () => {
       jwtService.verifyRefreshToken.mockReturnValueOnce({ userId: 'fakeId' });
       jest
         .spyOn(authController, 'getUserById')
-        .mockRejectedValueOnce(new NotFoundError('User does not exist'));
+        .mockRejectedValueOnce(new UnauthorizedError('Invalid or expired token'));
 
       const res = await request(app)
         .post('/auth/refresh')
@@ -105,8 +105,8 @@ describe('Auth Routes (MongoDB)', () => {
 
       console.log(res.body);
         
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe('User does not exist');
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Invalid or expired token');
     });
 
     it('should refresh tokens and return user successfully', async () => {
@@ -169,18 +169,18 @@ describe('Auth Routes (MongoDB)', () => {
       expect(res.body.message).toBe('Invalid or expired token');
     });
 
-    it('should return 404 if user does not exist', async () => {
+    it('should return 401 if user does not exist', async () => {
       jwtService.verifyAccessToken.mockReturnValueOnce({ userId: 'fakeId' });
       jest
         .spyOn(authController, 'getUserById')
-        .mockRejectedValueOnce(new NotFoundError('User does not exist'));
+        .mockRejectedValueOnce(new UnauthorizedError('Invalid or expired token'));
 
       const res = await request(app)
         .get('/auth/me')
         .set('Cookie', ['access_token=valid']);
 
-      expect(res.status).toBe(404);
-      expect(res.body.message).toBe('User does not exist');
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe('Invalid or expired token');
     });
 
     it('should return user data successfully with valid access token', async () => {
