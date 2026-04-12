@@ -87,15 +87,20 @@ router.post('/', async (req: Request, res: Response) => {
       timelineName,
       cachedTimeline,
     );
+    
+    // Inject _id into cached timeline after first save 
+    // to ensure that subsequent saves update the same DB record instead of creating duplicates.
+    if (!cachedTimeline._id){
+      await cacheJobResult(jobId, { 
+        payload:{
+          status:  cached?.payload?.status ?? "done",
+          data: {
+            ...cachedTimeline,
+            _id: timeline._id,
+          },
+        }});
+    }
 
-    await cacheJobResult(jobId, { 
-      payload:{
-        status:  cached?.payload?.status ?? "done",
-        data: {
-          ...cachedTimeline,
-          _id: timeline._id, // inject DB id into cache
-        },
-      }});
     res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     console.error('Error in POST /timeline', error);
