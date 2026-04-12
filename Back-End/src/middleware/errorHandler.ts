@@ -28,7 +28,7 @@ export const errorHandler = (
   
   //Log all errors to the console for debugging, 
   //but only send details to Sentry for 500+ errors which are likely to be unexpected and need investigation.
-  console.error(`[${req.method}] ${req.originalUrl} →`, err);
+  console.error('[%s] %s →', req.method, req.originalUrl, err);
   if (status>= 500) {
     Sentry.captureException(err);
   }
