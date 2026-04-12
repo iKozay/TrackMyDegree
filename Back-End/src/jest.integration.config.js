@@ -1,7 +1,6 @@
 module.exports = {
   rootDir: '.',
   testEnvironment: 'node',
-  setupFiles: ['<rootDir>/tests/integration/setup/mockSetup.js'],
   testMatch: ['<rootDir>/tests/integration/**/*.test.js'],
   testPathIgnorePatterns: ['<rootDir>/dist/', '<rootDir>/node_modules/'],
   preset: 'ts-jest',

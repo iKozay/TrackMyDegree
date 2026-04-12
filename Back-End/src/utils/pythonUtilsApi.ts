@@ -3,6 +3,7 @@ import { ParsedData } from '../types/transcript';
 import { PYTHON_SERVICE_BASE_URL } from '@utils/constants';
 import axios from 'axios';
 import FormData from 'form-data';
+import redisClient from '@lib/redisClient'; // import the Redis client instance
 
 export interface ParseDegreeResponse {
   degree: DegreeData;
@@ -88,19 +89,14 @@ export async function getAllCourses(): Promise<CourseData[]> {
 }
 
 export async function getCourseSchedule(subject: string, catalog: string): Promise<CourseData[]> {
-  try {
-    const response = await axios.get(`${PYTHON_SERVICE_BASE_URL}/get-course-schedule`, {
-      params: { subject, catalog }
-    });
-    return response.data;
-  } catch (error: any) {
-    if (error.response) {
-      const status = error.response?.status;
-      const data = error.response?.data;
-      throw new Error(`Failed to get course schedule: status=${status}, data=${JSON.stringify(data)}, message=${error.message}`);
-    }
-    throw new Error(`Failed to get course schedule: ${error.message || error}`);
+  const courseCode = `${subject}${catalog}`;
+
+  const cached = await redisClient.get(courseCode);
+  if (!cached) {
+    throw new Error(`No schedule found for course ${courseCode}`);
   }
+
+  return JSON.parse(cached.toString()) as CourseData[];
 }
 
 

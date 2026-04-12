@@ -8,6 +8,12 @@ jest.mock('axios', () => ({
   post: jest.fn(),
 }));
 
+jest.mock('../lib/redisClient', () => ({
+  get: jest.fn(),
+}));
+
+const redisClient = require('../lib/redisClient');
+
 describe('pythonUtilsApi', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -63,25 +69,25 @@ describe('pythonUtilsApi', () => {
 
   describe('getCourseSchedule', () => {
     test('Get course schedule successfully', async () => {
-      const mockResponse = {
-        data: {
-          courseID: '049701',
-          termCode: '2244',
-          session: '13W',
-          subject: 'COMP',
-          catalog: '432',
-        },
-      };
-      axios.get.mockResolvedValue(mockResponse);
+      const mockCourseData = [{
+        courseID: '049701',
+        termCode: '2244',
+        session: '13W',
+        subject: 'COMP',
+        catalog: '432',
+      }];
+
+      redisClient.get.mockResolvedValue(JSON.stringify(mockCourseData));
+
       const result = await pythonUtilsApi.getCourseSchedule('COMP', '432');
-      expect(result).toEqual(mockResponse.data);
+      expect(result).toEqual(mockCourseData);
     });
 
-    test('Fail to get course schedule', async () => {
-      const mockError = new Error('Network Error');
-      axios.get.mockRejectedValue(mockError);
+    test('Fail to get course schedule when not cached', async () => {
+      redisClient.get.mockResolvedValue(null);
+
       await expect(pythonUtilsApi.getCourseSchedule('COMP', '432')).rejects.toThrow(
-        'Failed to get course schedule: Network Error',
+        'No schedule found for course COMP432',
       );
     });
   });
