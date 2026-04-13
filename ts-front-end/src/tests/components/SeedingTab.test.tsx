@@ -7,10 +7,20 @@ vi.mock('../../api/http-api-client', () => ({
   api: { get: vi.fn() },
 }));
 
+// Component initial load uses Promise.allSettled with 2 calls:
+// 1. /admin/collections/degrees/documents  → ApiResponse<DegreeData[]> (access .data)
+// 2. /admin/connection-status              → DbConnectionStatus (direct)
+
 const mockDegrees = [
   { _id: 'd1', name: 'BEng Software Engineering', totalCredits: 120 },
   { _id: 'd2', name: 'BCompSc Computer Science', totalCredits: 90 },
 ];
+
+function setupInitialMocks(connected = true) {
+  vi.mocked(api.get)
+    .mockResolvedValueOnce({ data: mockDegrees } as any)  // degrees (ApiResponse wrapped)
+    .mockResolvedValueOnce({ connected } as any);          // db status
+}
 
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
@@ -22,10 +32,7 @@ describe('SeedingTab', () => {
   });
 
   it('renders DB connection status when connected', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any);
-
+    setupInitialMocks(true);
     render(<SeedingTab />);
     await waitFor(() => {
       expect(screen.getByText(/Connected/i)).toBeInTheDocument();
@@ -33,10 +40,7 @@ describe('SeedingTab', () => {
   });
 
   it('shows disconnected status when DB is down', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: false } as any);
-
+    setupInitialMocks(false);
     render(<SeedingTab />);
     await waitFor(() => {
       expect(screen.getByText(/Disconnected/i)).toBeInTheDocument();
@@ -44,10 +48,7 @@ describe('SeedingTab', () => {
   });
 
   it('renders Seed All Degrees button', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any);
-
+    setupInitialMocks();
     render(<SeedingTab />);
     await waitFor(() => {
       expect(screen.getByText('Seed All Degrees')).toBeInTheDocument();
@@ -55,10 +56,7 @@ describe('SeedingTab', () => {
   });
 
   it('renders the degree selector with options', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any);
-
+    setupInitialMocks();
     render(<SeedingTab />);
     await waitFor(() => {
       expect(screen.getByText('BEng Software Engineering')).toBeInTheDocument();
@@ -67,10 +65,8 @@ describe('SeedingTab', () => {
   });
 
   it('calls seed-data endpoint when Seed All is clicked', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any)
-      .mockResolvedValueOnce({ success: true, message: 'All seeded' } as any);
+    setupInitialMocks();
+    vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'All seeded' } as any);
 
     render(<SeedingTab />);
     await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
@@ -83,10 +79,8 @@ describe('SeedingTab', () => {
   });
 
   it('shows success result after seeding', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any)
-      .mockResolvedValueOnce({ success: true, message: 'Seeding complete' } as any);
+    setupInitialMocks();
+    vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'Seeding complete' } as any);
 
     render(<SeedingTab />);
     await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
@@ -99,10 +93,8 @@ describe('SeedingTab', () => {
   });
 
   it('shows error result when seeding fails', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any)
-      .mockRejectedValueOnce(new Error('Seed failed'));
+    setupInitialMocks();
+    vi.mocked(api.get).mockRejectedValueOnce(new Error('Seed failed'));
 
     render(<SeedingTab />);
     await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
@@ -115,10 +107,8 @@ describe('SeedingTab', () => {
   });
 
   it('calls seed-data/:degreeName when specific degree is seeded', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any)
-      .mockResolvedValueOnce({ success: true, message: 'Done' } as any);
+    setupInitialMocks();
+    vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'Done' } as any);
 
     render(<SeedingTab />);
     await waitFor(() => { expect(screen.getByText('BEng Software Engineering')).toBeInTheDocument(); });
@@ -133,10 +123,8 @@ describe('SeedingTab', () => {
   });
 
   it('dismisses result alert on close', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce(mockDegrees as any)
-      .mockResolvedValueOnce({ connected: true } as any)
-      .mockResolvedValueOnce({ success: true, message: 'All done' } as any);
+    setupInitialMocks();
+    vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'All done' } as any);
 
     render(<SeedingTab />);
     await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });

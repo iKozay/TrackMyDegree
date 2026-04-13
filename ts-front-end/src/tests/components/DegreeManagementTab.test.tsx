@@ -64,25 +64,25 @@ describe('DegreeManagementTab — Degrees sub-tab', () => {
     });
   });
 
-  it('renders Manage Pools button for each degree', async () => {
+  it('renders View Pools button for each degree', async () => {
     vi.mocked(api.get).mockResolvedValueOnce(mockDegrees as any);
     render(<DegreeManagementTab />);
     await waitFor(() => {
-      const buttons = screen.getAllByText('Manage Pools');
+      const buttons = screen.getAllByText('View Pools');
       expect(buttons).toHaveLength(2);
     });
   });
 
-  it('navigates to pools tab when Manage Pools is clicked', async () => {
+  it('navigates to pools tab when View Pools is clicked', async () => {
     vi.mocked(api.get)
       .mockResolvedValueOnce(mockDegrees as any)  // degrees panel initial load
       .mockResolvedValueOnce(mockDegrees as any)  // pools panel degrees load
       .mockResolvedValueOnce(mockPools as any);   // pools load
 
     render(<DegreeManagementTab />);
-    await waitFor(() => { expect(screen.getAllByText('Manage Pools')).toHaveLength(2); });
+    await waitFor(() => { expect(screen.getAllByText('View Pools')).toHaveLength(2); });
 
-    fireEvent.click(screen.getAllByText('Manage Pools')[0]);
+    fireEvent.click(screen.getAllByText('View Pools')[0]);
     await waitFor(() => {
       expect(screen.getByText('Course Pools')).toBeInTheDocument();
     });

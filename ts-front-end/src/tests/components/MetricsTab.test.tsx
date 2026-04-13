@@ -7,22 +7,24 @@ vi.mock('../../api/http-api-client', () => ({
   api: { get: vi.fn() },
 }));
 
-const mockUsers = [
-  { _id: '1', email: 'a@test.com', fullname: 'Alice', type: 'student' },
-  { _id: '2', email: 'b@test.com', fullname: 'Bob', type: 'student' },
-  { _id: '3', email: 'c@test.com', fullname: 'Charlie', type: 'admin' },
-];
+// Component makes 7 simultaneous calls via Promise.allSettled:
+// 1. /admin/collections/users/documents-count         → ApiResponse<{ count }>
+// 2. /admin/collections/users/documents-count?...student → ApiResponse<{ count }>
+// 3. /admin/collections/users/documents-count?...admin   → ApiResponse<{ count }>
+// 4. /admin/collections/degrees/documents-count       → ApiResponse<{ count }>
+// 5. /admin/collections/courses/documents-count       → ApiResponse<{ count }>
+// 6. /admin/collections/timelines/documents-count     → ApiResponse<{ count }>
+// 7. /admin/connection-status                         → DbConnectionStatus (direct)
 
-const mockDbStatus = { connected: true };
-const mockCollectionData = { total: 42 };
-
-function setupApiMocks() {
+function setupApiMocks(overrides?: { connected?: boolean; students?: number }) {
   vi.mocked(api.get)
-    .mockResolvedValueOnce(mockUsers as any)           // /users
-    .mockResolvedValueOnce(mockCollectionData as any)  // degrees
-    .mockResolvedValueOnce(mockCollectionData as any)  // courses
-    .mockResolvedValueOnce({ total: 10 } as any)       // timelines
-    .mockResolvedValueOnce(mockDbStatus as any);       // connection-status
+    .mockResolvedValueOnce({ data: { count: 3 } } as any)                              // total users
+    .mockResolvedValueOnce({ data: { count: overrides?.students ?? 2 } } as any)      // students
+    .mockResolvedValueOnce({ data: { count: 1 } } as any)                              // admins
+    .mockResolvedValueOnce({ data: { count: 42 } } as any)                             // degrees
+    .mockResolvedValueOnce({ data: { count: 42 } } as any)                             // courses
+    .mockResolvedValueOnce({ data: { count: 10 } } as any)                             // timelines
+    .mockResolvedValueOnce({ connected: overrides?.connected ?? true } as any);        // db status
 }
 
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
@@ -45,17 +47,16 @@ describe('MetricsTab', () => {
     expect(screen.getByText('Courses')).toBeInTheDocument();
   });
 
-  it('displays student count from user list', async () => {
-    setupApiMocks();
+  it('displays student count', async () => {
+    setupApiMocks({ students: 2 });
     render(<MetricsTab />);
     await waitFor(() => {
-      // 2 students in mock data
       expect(screen.getByText('Number of Students').closest('.card')).toHaveTextContent('2');
     });
   });
 
   it('shows DB connected status', async () => {
-    setupApiMocks();
+    setupApiMocks({ connected: true });
     render(<MetricsTab />);
     await waitFor(() => {
       expect(screen.getByText(/Connected/i)).toBeInTheDocument();
@@ -63,19 +64,14 @@ describe('MetricsTab', () => {
   });
 
   it('shows DB disconnected alert when not connected', async () => {
-    vi.mocked(api.get)
-      .mockResolvedValueOnce([] as any)
-      .mockResolvedValueOnce({ total: 0 } as any)
-      .mockResolvedValueOnce({ total: 0 } as any)
-      .mockResolvedValueOnce({ total: 0 } as any)
-      .mockResolvedValueOnce({ connected: false } as any);
+    setupApiMocks({ connected: false });
     render(<MetricsTab />);
     await waitFor(() => {
       expect(screen.getByText(/Disconnected/i)).toBeInTheDocument();
     });
   });
 
-  it('shows error alert when fetch fails', async () => {
+  it('shows error alert when all fetches fail', async () => {
     vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
     render(<MetricsTab />);
     await waitFor(() => {
@@ -91,19 +87,14 @@ describe('MetricsTab', () => {
 
   it('re-fetches data when Refresh is clicked', async () => {
     setupApiMocks();
-    // second call sequence for refresh
-    vi.mocked(api.get)
-      .mockResolvedValueOnce([] as any)
-      .mockResolvedValueOnce({ total: 5 } as any)
-      .mockResolvedValueOnce({ total: 5 } as any)
-      .mockResolvedValueOnce({ total: 5 } as any)
-      .mockResolvedValueOnce(mockDbStatus as any);
+    // second batch for refresh
+    setupApiMocks({ students: 5 });
 
     render(<MetricsTab />);
     await waitFor(() => { expect(screen.getByText('Refresh')).toBeInTheDocument(); });
     fireEvent.click(screen.getByText('Refresh'));
-    // api.get called again (second batch of 5 calls)
-    await waitFor(() => { expect(vi.mocked(api.get).mock.calls.length).toBeGreaterThanOrEqual(6); });
+    // 7 initial + 7 refresh = 14 calls total
+    await waitFor(() => { expect(vi.mocked(api.get).mock.calls.length).toBeGreaterThanOrEqual(8); });
   });
 
   it('shows last refreshed timestamp after load', async () => {

@@ -198,7 +198,9 @@ const UserManagementTab: React.FC = () => {
           </Form.Select>
         </Col>
         <Col xs="auto">
-          <Button size="sm" variant="warning" className="me-2" onClick={() => setShowInviteModal(true)}>Invite Admin</Button>
+          <Button size="sm" variant="warning" onClick={() => setShowInviteModal(true)}>Invite Admin</Button>
+        </Col>
+        <Col xs="auto">
           <Button size="sm" onClick={() => { setEditingUser(null); setShowUserModal(true); }}>+ Create User</Button>
         </Col>
       </Row>

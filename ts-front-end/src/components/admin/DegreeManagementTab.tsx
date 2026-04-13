@@ -62,7 +62,7 @@ const DegreesPanel: React.FC<DegreesPanelProps> = ({ onManagePools }) => {
               <td><Badge bg="secondary">{d.coursePools?.length ?? 0}</Badge></td>
               <td className="text-end">
                 <Button size="sm" variant="outline-primary" onClick={() => onManagePools(d._id)}>
-                  Manage Pools
+                  View Pools
                 </Button>
               </td>
             </tr>
