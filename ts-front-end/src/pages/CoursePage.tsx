@@ -368,11 +368,13 @@ const CoursePage: React.FC = () => {
     String(value).toLowerCase().replaceAll(/\s+/g, "");
   
   const filteredCourseList = useMemo(() => {
+    const normalizedSearchTerm = normalize(searchTerm);
     return courseList
       .map((group: CourseGroup) => ({
         ...group,
         courses: group.courses.filter((course: CourseData) =>
-          normalize(course._id).includes(normalize(searchTerm))
+          normalize(course._id).includes(normalizedSearchTerm) ||
+          normalize(course.title).includes(normalizedSearchTerm)
         ),
       }))
       .filter((group: CourseGroup) => group.courses.length > 0);

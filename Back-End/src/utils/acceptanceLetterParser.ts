@@ -112,12 +112,14 @@ export class AcceptanceLetterParser {
   }): string[] {
     // Regex for matching courses (e.g., COMM A, ECON 201)
     const courseRegex = /[A-Z]{3,4}\s+\d{3}/g;
-    const sectionText = this.getSectionBetweenLabels(
+    let sectionText = this.getSectionBetweenLabels(
       text,
       startLabel,
       endLabel,
     );
     if (!sectionText) return [];
+    // Remove NOTE section
+    sectionText = sectionText.replace(/NOTE[\s\S]*$/i, '');
     const courses = [];
     let match;
     while ((match = courseRegex.exec(sectionText)) !== null) {

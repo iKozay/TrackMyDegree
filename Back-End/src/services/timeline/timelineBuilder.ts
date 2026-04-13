@@ -85,6 +85,7 @@ export async function buildTimelineFromDB(
   });
 
   if (result) {
+      result._id = timeline._id
       result.timelineName = timeline.name;
   }
 
