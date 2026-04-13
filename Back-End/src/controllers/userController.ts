@@ -7,15 +7,8 @@ export interface UserData {
   email: string;
   password?: string;
   fullname: string;
-  type: 'student' | 'advisor' | 'admin';
+  type: 'student' | 'admin';
 }
-export interface CreateUserData {
-  email: string;
-  password?: string;
-  fullname: string;
-  type: 'student';
-}
-
 
 
 export interface UserDataResponse {
@@ -47,14 +40,14 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Create a new user
    */
-  async createUser(userData: CreateUserData): Promise<UserData> {
+  async createUser(userData: UserData): Promise<UserData> {
       // Check if user already exists
       const exists = await this.exists({ email: userData.email });
       if (exists) {
         throw new AlreadyExistsError('User with this email already exists.');
       }
 
-      if (userData.type !== 'student') {
+      if (userData.type !== 'student' && userData.type !== 'admin') {
         throw new BadRequestError(`User type (${userData.type}) is not supported`);
       }
 

@@ -268,14 +268,8 @@ router.post('/invite-admin', inviteAdminLimiter, authMiddleware, adminCheckMiddl
       throw new BadRequestError('Invalid email format');
     }
 
-    // Check if email is already in use
-    const existing = await User.exists({ email: { $eq: email } }).exec();
-    if (existing) {
-      throw new AlreadyExistsError('A user with this email already exists');
-    }
-
     // Create the admin user without a usable password (they will set it via the invite link)
-    await User.create({ email, fullname: name, type: 'admin', password: null });
+    await userController.createUser({ email, fullname: name, type: 'admin', password: null });
 
     // Generate a password-setup token using the same reset flow
     const token = uuidv4();

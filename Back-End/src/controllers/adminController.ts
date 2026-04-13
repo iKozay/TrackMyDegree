@@ -91,10 +91,9 @@ export class AdminController extends BaseMongoController<any> {
       keyword?: string;
     } = {},
   ): Promise<number> {
-    try {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
 
       const collection = db.collection(collectionName);
@@ -112,16 +111,7 @@ export class AdminController extends BaseMongoController<any> {
 
       const count = await collection.countDocuments(query);
       return count;
-    } catch (error) {
-      Sentry.captureException(error);
-      if (
-        error instanceof Error &&
-        error.message === DATABASE_CONNECTION_NOT_AVAILABLE
-      ) {
-        throw error;
-      }
-      throw new Error('Error counting documents in collection');
-    }
+   
   }
 
   /**
@@ -161,7 +151,7 @@ export class AdminController extends BaseMongoController<any> {
   async createBackup(): Promise<string> {
       const db = mongoose.connection.db;
       if (!db) {
-        throw new Error(DATABASE_CONNECTION_NOT_AVAILABLE);
+        throw new DatabaseConnectionError(DATABASE_CONNECTION_NOT_AVAILABLE);
       }
       const backupFileName = await BackupService.createBackup(); 
       return backupFileName;
