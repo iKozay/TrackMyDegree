@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import EulaPage from "../../../src/pages/EulaPage";
+import EulaPage from "../../pages/EulaPage";
 
 describe("EulaPage", () => {
   it("renders key EULA content and controls", () => {
