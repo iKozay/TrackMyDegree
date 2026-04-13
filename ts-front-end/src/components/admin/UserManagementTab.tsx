@@ -43,11 +43,11 @@ const InviteAdminModal: React.FC<InviteAdminModalProps> = ({ show, onHide, onSav
         {error && <Alert variant="danger">{error}</Alert>}
         <p className="text-muted small">An invitation email will be sent with a link to set their password.</p>
         <Form>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="invite-modal-name">
             <Form.Label>Name</Form.Label>
             <Form.Control value={name} onChange={(e) => setName(e.target.value)} />
           </Form.Group>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="invite-modal-email">
             <Form.Label>Email</Form.Label>
             <Form.Control type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
           </Form.Group>

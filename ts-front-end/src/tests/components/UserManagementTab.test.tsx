@@ -162,4 +162,58 @@ describe('UserManagementTab', () => {
       expect(api.post).toHaveBeenCalledWith('/users', expect.objectContaining({ email: 'new@test.com' }));
     });
   });
+
+  it('submits edit user form with PUT and reloads', async () => {
+    vi.mocked(api.get)
+      .mockResolvedValueOnce(mockUsersResponse as any)
+      .mockResolvedValueOnce(mockUsersResponse as any);
+    vi.mocked(api.put).mockResolvedValueOnce({} as any);
+
+    render(<UserManagementTab />);
+    await waitFor(() => { expect(screen.getAllByText('Edit')).toHaveLength(3); });
+
+    fireEvent.click(screen.getAllByText('Edit')[0]);
+    await waitFor(() => { expect(screen.getByText('Edit User')).toBeInTheDocument(); });
+
+    fireEvent.change(screen.getByLabelText('Full Name'), { target: { value: 'Alice Updated' } });
+    fireEvent.click(screen.getByText('Save'));
+
+    await waitFor(() => {
+      expect(api.put).toHaveBeenCalledWith('/users/1', expect.objectContaining({ fullname: 'Alice Updated' }));
+    });
+  });
+
+  it('shows error in create modal when save fails', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Save error'));
+
+    render(<UserManagementTab />);
+    await waitFor(() => { expect(screen.getByText('+ Create User')).toBeInTheDocument(); });
+
+    fireEvent.click(screen.getByText('+ Create User'));
+    fireEvent.click(screen.getByText('Save'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Save error')).toBeInTheDocument();
+    });
+  });
+
+  it('shows error in invite modal when invite fails', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
+    vi.mocked(api.post).mockRejectedValueOnce(new Error('Invite error'));
+
+    render(<UserManagementTab />);
+    await waitFor(() => { expect(screen.getByText('Invite Admin')).toBeInTheDocument(); });
+
+    fireEvent.click(screen.getByText('Invite Admin'));
+    await waitFor(() => { expect(screen.getByText('Invite Admin User')).toBeInTheDocument(); });
+
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Admin Name' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'admin@test.com' } });
+    fireEvent.click(screen.getByText('Send Invite'));
+
+    await waitFor(() => {
+      expect(screen.getByText('Invite error')).toBeInTheDocument();
+    });
+  });
 });

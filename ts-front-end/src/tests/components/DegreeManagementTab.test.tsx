@@ -136,6 +136,22 @@ describe('DegreeManagementTab — Course Pools sub-tab', () => {
   });
 });
 
+describe('DegreeManagementTab — Course Pools error path', () => {
+  it('shows error when pools fetch fails', async () => {
+    vi.mocked(api.get)
+      .mockResolvedValueOnce(mockDegrees as any)        // degrees panel initial load
+      .mockResolvedValueOnce(mockDegrees as any)        // pools panel degrees load
+      .mockRejectedValueOnce(new Error('Pools error')); // pools fetch fails
+
+    render(<DegreeManagementTab />);
+    fireEvent.click(screen.getByText('Course Pools'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Pools error/i)).toBeInTheDocument();
+    });
+  });
+});
+
 describe('DegreeManagementTab — Courses sub-tab', () => {
   it('renders courses after fetch', async () => {
     vi.mocked(api.get)
@@ -191,5 +207,30 @@ describe('DegreeManagementTab — Courses sub-tab', () => {
       expect(screen.getByText(/‹ Prev/)).toBeInTheDocument();
       expect(screen.getByText(/Next ›/)).toBeInTheDocument();
     });
+  });
+
+  it('shows courses error on fetch failure', async () => {
+    vi.mocked(api.get)
+      .mockResolvedValueOnce(mockDegrees as any)          // degrees panel initial load
+      .mockRejectedValueOnce(new Error('Courses error')); // courses fetch fails
+
+    render(<DegreeManagementTab />);
+    fireEvent.click(screen.getByText('Courses'));
+
+    await waitFor(() => {
+      expect(screen.getByText(/Courses error/i)).toBeInTheDocument();
+    });
+  });
+
+  it('Prev button is disabled on page 1', async () => {
+    vi.mocked(api.get)
+      .mockResolvedValueOnce(mockDegrees as any)
+      .mockResolvedValueOnce(mockCourses as any);
+
+    render(<DegreeManagementTab />);
+    fireEvent.click(screen.getByText('Courses'));
+
+    await waitFor(() => { expect(screen.getByText(/‹ Prev/)).toBeInTheDocument(); });
+    expect(screen.getByText(/‹ Prev/).closest('button')).toBeDisabled();
   });
 });
