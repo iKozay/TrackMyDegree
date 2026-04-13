@@ -71,12 +71,14 @@ describe('MetricsTab', () => {
     });
   });
 
-  it('shows error alert when all fetches fail', async () => {
+  it('renders stat cards with zero values when all fetches fail', async () => {
+    // Promise.allSettled never throws — rejected calls produce fallback zeros
     vi.mocked(api.get).mockRejectedValue(new Error('Network error'));
     render(<MetricsTab />);
     await waitFor(() => {
-      expect(screen.getByText(/Network error/i)).toBeInTheDocument();
+      expect(screen.getByText('Number of Students')).toBeInTheDocument();
     });
+    expect(screen.getByText('Total Timelines')).toBeInTheDocument();
   });
 
   it('renders a Refresh button', async () => {

@@ -115,8 +115,9 @@ describe('DegreeManagementTab — Course Pools sub-tab', () => {
     fireEvent.click(screen.getByText('Course Pools'));
 
     await waitFor(() => {
-      expect(screen.getByText('2')).toBeInTheDocument(); // 2 courses in Core
-      expect(screen.getByText('1')).toBeInTheDocument(); // 1 in Electives
+      // Use getAllByText since badge numbers may appear in both visible and hidden panels
+      expect(screen.getAllByText('2').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('1').length).toBeGreaterThanOrEqual(1);
     });
   });
 
