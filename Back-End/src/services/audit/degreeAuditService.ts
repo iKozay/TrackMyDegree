@@ -31,10 +31,7 @@ function getTermBoundary(
 ): Date | null {
   try {
     return getTermRanges(term)[boundary];
-  } catch (error) {
-    if (error instanceof Error) {
-      return null;
-    }
+  } catch {
     return null;
   }
 }
