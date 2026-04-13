@@ -1,6 +1,6 @@
 import sys
 import os
-import json
+from typing import Optional
 
 # Add the root folder (parent of scraper) to Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -178,7 +178,7 @@ class CourseDataScraper:
             course.rules = parse_course_rules(course.prereqCoreqText, course.notes)
             self.all_courses[course._id] = course
 
-course_scraper_instance: CourseDataScraper = None
+course_scraper_instance: Optional[CourseDataScraper] = None
 def init_course_scraper_instance() -> None:
     global course_scraper_instance
     course_scraper_instance = CourseDataScraper()

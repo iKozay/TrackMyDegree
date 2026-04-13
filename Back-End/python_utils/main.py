@@ -24,6 +24,11 @@ course_scraper_instance = None
 degree_data_scraper_instance = None
 concordia_api_instance = None
 
+ERROR_DEGREE_SCRAPER_NOT_INITIALIZED = {"error": "Degree scraper not initialized yet"}
+ERROR_COURSE_SCRAPER_NOT_INITIALIZED = {"error": "Course scraper not initialized yet"}
+ERROR_CONCORDIA_API_NOT_INITIALIZED = {"error": "Concordia API Util not initialized yet"}
+ERROR_SCRAPING_DEGREE_DATA = {"error": "Error scraping degree data. Please try again later."}
+
 # Module status tracking
 module_status = {
     "concordia_api": "init",
@@ -107,19 +112,19 @@ def parse_transcript_api():
 @app.route('/degree-names', methods=['GET'])
 def get_degree_names():
     if degree_data_scraper_instance is None:
-        return jsonify({"error": "Degree scraper not initialized yet"}), 503
+        return ERROR_DEGREE_SCRAPER_NOT_INITIALIZED, 503
 
     try:
         degree_data = degree_data_scraper_instance.get_degree_names()
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error retrieving degree names: {str(e)}")
-        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
+        return ERROR_SCRAPING_DEGREE_DATA, 500
 
 @app.route('/scrape-degree', methods=['GET'])
 def scrape_degree_api():
     if degree_data_scraper_instance is None:
-        return jsonify({"error": "Degree scraper not initialized yet"}), 503
+        return ERROR_DEGREE_SCRAPER_NOT_INITIALIZED, 503
 
     name = request.args.get('name')
     if not name:
@@ -130,25 +135,25 @@ def scrape_degree_api():
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error scraping degree data for degree name {name}: {str(e)}")
-        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
+        return ERROR_SCRAPING_DEGREE_DATA, 500
 
 @app.route('/scrape-all-degrees', methods=['GET'])
 def scrape_all_degrees_api():
     if degree_data_scraper_instance is None:
-        return jsonify({"error": "Degree scraper not initialized yet"}), 503
-    
+        return ERROR_DEGREE_SCRAPER_NOT_INITIALIZED, 503
+
     try:
         degree_data = degree_data_scraper_instance.scrape_all_degrees()
         return jsonify(serialize(degree_data))
     except Exception as e:
         logger.error(f"Error scraping all degree data: {str(e)}")
-        return jsonify({"error": "Error scraping degree data. Please try again later."}), 500
+        return ERROR_SCRAPING_DEGREE_DATA, 500
 
 
 @app.route('/get-course', methods=['GET'])
 def get_course_api():
     if course_scraper_instance is None:
-        return jsonify({"error": "Course scraper not initialized yet"}), 503
+        return ERROR_COURSE_SCRAPER_NOT_INITIALIZED, 503
 
     code = request.args.get('code')
     if not code:
@@ -164,7 +169,7 @@ def get_course_api():
 @app.route('/get-all-courses', methods=['GET'])
 def get_all_courses_api():
     if course_scraper_instance is None:
-        return jsonify({"error": "Course scraper not initialized yet"}), 503
+        return ERROR_COURSE_SCRAPER_NOT_INITIALIZED, 503
         
     try:
         courses = course_scraper_instance.get_all_courses(return_full_object=True)
@@ -176,7 +181,7 @@ def get_all_courses_api():
 @app.route('/get-course-schedule', methods=['GET'])
 def get_course_schedule():
     if concordia_api_instance is None:
-        return jsonify({"error": "Concordia API Util not initialized yet"}), 503
+        return ERROR_CONCORDIA_API_NOT_INITIALIZED, 503
 
     subject = request.args.get('subject')
     catalog = request.args.get('catalog')

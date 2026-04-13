@@ -3,7 +3,6 @@ Python-based transcript parser using PyMuPDF for better PDF parsing.
 This script parses academic transcripts and outputs JSON.
 """
 
-import sys
 import re
 from collections import defaultdict
 import fitz  # PyMuPDF
@@ -12,6 +11,8 @@ import fitz  # PyMuPDF
 BIRTHDATE = 'Birthdate:'
 CO_OP = '(Co-op)'
 TRANSFER_CREDITS = 'Transfer Credits'
+YEAR_PATTERN = r'^\d{4}$'
+DECIMAL_TWO_PLACES_PATTERN = r'^\d+\.\d{2}$'
 
 def extract_term_from_text(text):
     """Extract term and year from text like 'Winter 2023' or 'Fall/Winter 2025-26'"""
@@ -106,13 +107,10 @@ def parse_transcript(pdf_bytes):
             first_page_text = first_page.get_text()
             first_page_lines = first_page_text.split('\n') if first_page_text else []
             
-            # Extract student information
-            student_name = None
+            # Extract student information. Only used to help identify patterns and sections of the transcript, not included in final output.
             student_id = None
             address_lines = []
             birthdate = None
-            permanent_code = None
-            telephone = None
             
             i = 0
             while i < len(first_page_lines):
@@ -120,7 +118,6 @@ def parse_transcript(pdf_bytes):
                 
                 # Student name (usually on line 1, after "Student Record")
                 if line == "Student Record" and i + 1 < len(first_page_lines):
-                    student_name = first_page_lines[i + 1].strip()
                     i += 2
                     continue
                 
@@ -159,13 +156,11 @@ def parse_transcript(pdf_bytes):
                 
                 # Permanent Code
                 if line.startswith("Permanent Code:"):
-                    permanent_code = line.replace("Permanent Code:", "").strip()
                     i += 1
                     continue
                 
                 # Telephone
                 if line.startswith("Telephone:"):
-                    telephone = line.replace("Telephone:", "").strip()
                     i += 1
                     continue
                 
@@ -344,8 +339,6 @@ def parse_transcript(pdf_bytes):
             if not text:
                 continue
             
-            lines = text.split('\n')
-            
             # First pass: find all term headers and their GPAs
             for i, word in enumerate(words):
                 word_text = word[4].strip()  # word[4] is the text
@@ -455,10 +448,10 @@ def parse_transcript(pdf_bytes):
                                 if w_text == 'NA':
                                     year_idx = j
                                     year_attended = None
-                                elif re.match(r'^\d{4}$', words[j][4].strip()):
+                                elif re.match(YEAR_PATTERN, words[j][4].strip()):
                                     year_idx = j
                                     year_attended = words[j][4].strip()
-                            elif re.match(r'^\d+\.\d{2}$', words[j][4].strip()) and year_idx is not None and credits_idx is None:
+                            elif re.match(DECIMAL_TWO_PLACES_PATTERN, words[j][4].strip()) and year_idx is not None and credits_idx is None:
                                 credits_idx = j
                                 break
                         
@@ -516,8 +509,8 @@ def parse_transcript(pdf_bytes):
                     elif (word_idx + 5 < len(words) and
                           words[word_idx][4].strip().upper() in ['EX', 'TRC'] and
                           (words[word_idx + 1][4].strip().upper() == 'NA' or 
-                           re.match(r'^\d{4}$', words[word_idx + 1][4].strip())) and
-                          re.match(r'^\d+\.\d{2}$', words[word_idx + 2][4].strip()) and
+                           re.match(YEAR_PATTERN, words[word_idx + 1][4].strip())) and
+                          re.match(DECIMAL_TWO_PLACES_PATTERN, words[word_idx + 2][4].strip()) and
                           is_course_code(words[word_idx + 3][4].strip()) and
                           is_course_number(words[word_idx + 4][4].strip())):
                         
@@ -599,7 +592,7 @@ def parse_transcript(pdf_bytes):
                             # Continue to find credits after grade
                         
                         # Check for credits (decimal numbers) - can be before or after grade
-                        if re.match(r'^\d+\.\d{2}$', words[j][4].strip()):
+                        if re.match(DECIMAL_TWO_PLACES_PATTERN, words[j][4].strip()):
                             val = float(words[j][4].strip())
                             # Use the credit value
                             credits_value = val
@@ -620,7 +613,7 @@ def parse_transcript(pdf_bytes):
                                     w_text not in seen_words and
                                     not is_course_code(w_text) and 
                                     not is_course_number(w_text) and
-                                    not re.match(r'^\d+\.\d{2}$', w_text) and
+                                    not re.match(DECIMAL_TWO_PLACES_PATTERN, w_text) and
                                     w_text.upper() not in ['EX', 'TRC', 'NA', 'PASS', 'DISC'] and
                                     not re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE)):
                                     course_title += w_text + ' '
@@ -742,21 +735,19 @@ def parse_transcript(pdf_bytes):
                         w_text = w[4].strip()
                         
                         # Check for credits first (decimal numbers like 3.00, 0.00)
-                        if course_credits is None and re.match(r'^\d+\.\d{2}$', w_text):
+                        if course_credits is None and re.match(DECIMAL_TWO_PLACES_PATTERN, w_text):
                             course_credits = float(w_text)
                             continue
                         
                         # Check for grade (after credits)
                         if not grade:
-                            # Prioritize letter grades
-                            if re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE):
-                                grade = w_text.upper()
-                            # Then special grades (PASS, EX, TRC, DISC)
-                            elif re.match(r'^PASS$|^EX$|^TRC$|^DISC$', w_text, re.IGNORECASE):
+                            # Accept letter grades and special transcript notations.
+                            if (re.match(r'^[A-F][+-]?$', w_text, re.IGNORECASE) or
+                                re.match(r'^PASS$|^EX$|^TRC$|^DISC$', w_text, re.IGNORECASE)):
                                 grade = w_text.upper()
                         
                         # Check for GPA (decimal number after grade, usually > 0)
-                        if grade and gpa is None and re.match(r'^\d+\.\d{2}$', w_text):
+                        if grade and gpa is None and re.match(DECIMAL_TWO_PLACES_PATTERN, w_text):
                             val = float(w_text)
                             if val > 0:  # GPA is usually > 0
                                 gpa = val
@@ -785,14 +776,12 @@ def parse_transcript(pdf_bytes):
                     # For CWTE courses with 0 credits and no grade, check for valid notations
                     if is_cwte and course['credits'] == 0 and not course['grade']:
                         # Look for notations like WKRT, RPT that indicate it's a valid course
-                        has_notation = False
                         for j in range(i + 3, min(i + 15, len(words))):
                             w_text = words[j][4].strip().upper()
                             # Check if on same line
                             if abs(words[j][1] - word1[1]) < 5:
                                 # Valid notations for CWTE courses
                                 if w_text in ['WKRT', 'RPT', 'PASS', 'EX']:
-                                    has_notation = True
                                     # Set notation as other field if available
                                     course['other'] = w_text
                                     break
@@ -815,7 +804,7 @@ def parse_transcript(pdf_bytes):
                         # Look for year in nearby words
                         for k in range(max(0, i - 5), min(i + 15, len(words))):
                             w_text = words[k][4].strip()
-                            if re.match(r'^\d{4}$', w_text):
+                            if re.match(YEAR_PATTERN, w_text):
                                 transfer_year = w_text
                                 break
 
@@ -840,7 +829,6 @@ def parse_transcript(pdf_bytes):
                     # Find the term header that comes immediately before this course
                     # and the next term header that comes after
                     best_term = None
-                    best_y = None
                     next_term_y = None
                     
                     # Get all term headers on this page, sorted by Y
@@ -851,7 +839,6 @@ def parse_transcript(pdf_bytes):
                     for term_y, th in reversed(page_terms):
                         if term_y < course_y:
                             best_term = th
-                            best_y = term_y
                             break
                     
                     # Find the next term header after this course (if any)
@@ -1040,13 +1027,13 @@ def parse_transcript(pdf_bytes):
         if latest_program.get('admitTerm'):
             program_info['firstTerm'] = latest_program['admitTerm']
         elif semesters_dict:
-            first_semester_term = sorted(semesters_dict.keys())[0] if semesters_dict else None
+            first_semester_term = min(semesters_dict.keys()) if semesters_dict else None
             if first_semester_term:
                 program_info['firstTerm'] = first_semester_term
         
         # Extract last term from last semester
         if semesters_dict:
-            last_semester_term = sorted(semesters_dict.keys())[-1] if semesters_dict else None
+            last_semester_term = max(semesters_dict.keys()) if semesters_dict else None
             if last_semester_term:
                 program_info['lastTerm'] = last_semester_term
         
