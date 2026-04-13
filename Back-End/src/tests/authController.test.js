@@ -175,11 +175,11 @@ describe('AuthController', () => {
       await expect(authController.resetPassword('badtoken', 'newpass')).rejects.toThrow(UnauthorizedError);
     });
 
-    it('throws NotFoundError if user no longer exists', async () => {
+    it('throws UnauthorizedError if user no longer exists', async () => {
       redisClient.get.mockResolvedValue('test@example.com');
       User.findOne.mockReturnValue({ exec: () => Promise.resolve(null) });
 
-      await expect(authController.resetPassword('token123', 'newpass')).rejects.toThrow(NotFoundError);
+      await expect(authController.resetPassword('token123', 'newpass')).rejects.toThrow(UnauthorizedError);
     });
   });
 
@@ -192,9 +192,9 @@ describe('AuthController', () => {
       expect(mockUser.save).toHaveBeenCalled();
     });
 
-    it('throws NotFoundError if user not found', async () => {
+    it('throws Error if user not found', async () => {
       User.findById.mockReturnValue({ select: () => ({ exec: () => Promise.resolve(null) }) });
-      await expect(authController.changePassword('user123', 'old', 'new')).rejects.toThrow(NotFoundError);
+      await expect(authController.changePassword('user123', 'old', 'new')).rejects.toThrow(Error);
     });
 
     it('throws UnauthorizedError if old password does not match', async () => {

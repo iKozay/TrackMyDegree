@@ -94,11 +94,11 @@ describe('UserController', () => {
     it('should reject unsupported user types', async () => {
       await expect(
         userController.createUser({
-          email: 'admin@example.com',
-          fullname: 'Admin',
-          type: 'admin',
+          email: 'user@example.com',
+          fullname: 'User',
+          type: 'badType',
         }),
-      ).rejects.toThrow('User type (admin) is not supported');
+      ).rejects.toThrow('User type (badType) is not supported');
     });
 
   });
