@@ -59,23 +59,30 @@ describe('catalogVersionService', () => {
     });
   });
 
-  it('throws when the requested year is earlier than the base year', () => {
-    expect(() =>
-      resolveEntityVersionFromDiffs({
-        entityType: 'Degree',
-        entityId: 'SOEN',
-        baseEntity: {
-          _id: 'SOEN',
-          name: 'Software Engineering',
-          totalCredits: 120,
-          coursePools: [],
-          ecpDegreeId: '',
-          baseAcademicYear: '2026-2027',
-        },
-        academicYear: '2025-2026',
-        diffs: [],
-      }),
-    ).toThrow('earlier than base academic year');
+  it('falls back to the base year when the requested year is earlier', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const resolved = resolveEntityVersionFromDiffs({
+      entityType: 'Degree',
+      entityId: 'SOEN',
+      baseEntity: {
+        _id: 'SOEN',
+        name: 'Software Engineering',
+        totalCredits: 120,
+        coursePools: [],
+        ecpDegreeId: '',
+        baseAcademicYear: '2026-2027',
+      },
+      academicYear: '2025-2026',
+      diffs: [],
+    });
+
+    expect(resolved.academicYear).toBe('2026-2027');
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('earlier than base academic year'),
+    );
+
+    warnSpy.mockRestore();
   });
 
   it('applies a standalone JSON patch document', () => {

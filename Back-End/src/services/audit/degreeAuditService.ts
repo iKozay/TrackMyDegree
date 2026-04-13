@@ -1,5 +1,6 @@
-import { Timeline, User } from '@models';
+import { Timeline, User, Course } from '@models';
 import { degreeController } from '@controllers/degreeController';
+import { normalizeAcademicYear } from '@services/catalogVersionService';
 import {
   DegreeAuditData,
   StudentInfo,
@@ -12,10 +13,27 @@ import {
   GenerateAuditParams,
   TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus,
   CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
-import { isTermInProgress } from '@utils/misc';
+import { getTermRanges, isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
   userId: string;
+}
+
+const ACTIVE_COURSE_STATUSES = new Set<CourseStatus>([
+  'completed',
+  'inprogress',
+  'planned',
+]);
+
+function getTermBoundary(
+  term: string,
+  boundary: 'start' | 'end',
+): Date | null {
+  try {
+    return getTermRanges(term)[boundary];
+  } catch {
+    return null;
+  }
 }
 
 /**
@@ -226,58 +244,268 @@ function processPoolToRequirement(
   };
 }
 
-/**
- * Estimates expected graduation based on remaining credits
- */
-function estimateGraduation(remainingCredits: number): string {
-  const creditsPerSemester = 15; // Average credits per semester
-  const semestersRemaining = Math.ceil(remainingCredits / creditsPerSemester);
-
-  const today = new Date();
-  const currentMonth = today.getMonth();
-  let currentYear = today.getFullYear();
-
-  // Determine current term
-  const termIndex = getTermIndex(currentMonth);
-  const { term, year } = calculateFutureGraduation(
-    termIndex,
-    currentYear,
-    semestersRemaining,
-  );
-
-  return `${term} ${year}`;
-}
+const CREDITS_PER_TERM = 15;
 
 /**
- * Gets the term index based on month
+ * Estimates expected graduation assuming 30 credits per academic year
+ * (Fall + Winter only, no summer enrolment).
  */
-function getTermIndex(month: number): number {
-  if (month >= 0 && month <= 3) return 0; // Winter
-  if (month >= 4 && month <= 7) return 1; // Summer
-  return 2; // Fall
-}
+export function estimateGraduation(
+  remainingCredits: number,
+  referenceDate: Date = new Date(),
+): string {
+  const month = referenceDate.getMonth();
+  let year = referenceDate.getFullYear();
 
-/**
- * Calculates the future graduation term and year
- */
-function calculateFutureGraduation(
-  startTermIndex: number,
-  startYear: number,
-  semestersRemaining: number,
-): { term: string; year: number } {
-  const terms = ['Winter', 'Summer', 'Fall'];
-  let termIndex = startTermIndex;
-  let year = startYear;
+  // Start from the current or next active term (skip summer)
+  let isFall: boolean;
+  if (month <= 4) {
+    isFall = false; // Winter term (Jan–May)
+  } else if (month <= 7) {
+    isFall = true; // Summer → next active is Fall
+  } else {
+    isFall = true; // Fall term (Sep–Dec)
+  }
 
-  for (let i = 0; i < semestersRemaining; i++) {
-    termIndex++;
-    if (termIndex >= 3) {
-      termIndex = 0;
+  if (remainingCredits <= 0) {
+    return `${isFall ? 'Fall' : 'Winter'} ${year}`;
+  }
+
+  const termsRemaining = Math.ceil(remainingCredits / CREDITS_PER_TERM);
+
+  for (let i = 1; i < termsRemaining; i++) {
+    if (isFall) {
       year++;
+      isFall = false; // Fall → Winter of next calendar year
+    } else {
+      isFall = true; // Winter → Fall of same calendar year
     }
   }
 
-  return { term: terms[termIndex], year };
+  return `${isFall ? 'Fall' : 'Winter'} ${year}`;
+}
+
+/**
+ * Maps a graduation term string (e.g. "Winter 2026") to the academic year
+ * that governs the curriculum (e.g. "2025-2026").
+ *
+ *   Fall  YYYY  → YYYY-(YYYY+1)
+ *   Summer YYYY → YYYY-(YYYY+1)
+ *   Winter YYYY → (YYYY-1)-YYYY
+ */
+export function graduationTermToAcademicYear(graduationTerm: string): string {
+  const [term, yearStr] = graduationTerm.toLowerCase().split(' ');
+  const year = Number.parseInt(yearStr, 10);
+
+  if (term === 'fall' || term === 'summer') {
+    return `${year}-${year + 1}`;
+  }
+  // Winter
+  return `${year - 1}-${year}`;
+}
+
+interface TimelineEstimation {
+  academicYear: string;
+  expectedGraduation: string;
+}
+
+/**
+ * Finds the first active semester from the timeline or course status map.
+ * Used to determine the starting academic year for degree requirements.
+ */
+function getFirstActiveTerm(
+  courseStatusMap: Record<
+    string,
+    { status: CourseStatus; semester: string | null }
+  >,
+  semesters?: TimelineSemester[],
+): string | null {
+  if (semesters && semesters.length > 0) {
+    return semesters[0].term;
+  }
+
+  let earliestTermDate: Date | null = null;
+  let earliestTermString: string | null = null;
+
+  for (const info of Object.values(courseStatusMap)) {
+    if (info.semester && ACTIVE_COURSE_STATUSES.has(info.status)) {
+      const start = getTermBoundary(info.semester, 'start');
+      if (start && (!earliestTermDate || start < earliestTermDate)) {
+        earliestTermDate = start;
+        earliestTermString = info.semester;
+      }
+    }
+  }
+  return earliestTermString;
+}
+
+/**
+ * Finds the latest active semester from the course status map.
+ * Used as a reference point for calculating the expected graduation date.
+ */
+function getLatestActiveTermInfo(
+  courseStatusMap: Record<
+    string,
+    { status: CourseStatus; semester: string | null }
+  >,
+): { termDate: Date | null; termString: string | null } {
+  let latestTermDate: Date | null = null;
+  let latestTermString: string | null = null;
+
+  for (const info of Object.values(courseStatusMap)) {
+    if (info.semester && ACTIVE_COURSE_STATUSES.has(info.status)) {
+      const end = getTermBoundary(info.semester, 'end');
+      if (end && (!latestTermDate || end > latestTermDate)) {
+        latestTermDate = end;
+        latestTermString = info.semester;
+      }
+    }
+  }
+
+  return { termDate: latestTermDate, termString: latestTermString };
+}
+
+/**
+ * Calculates the number of missing credits required to complete the degree,
+ * based on the remaining required credits in all course pools.
+ */
+// eslint-disable-next-line sonarjs/cognitive-complexity
+async function calculateMissingCredits(
+  pools: CoursePoolData[],
+  courseStatusMap: Record<
+    string,
+    { status: CourseStatus; semester: string | null }
+  >,
+): Promise<number> {
+  const activeCourseRefs = Object.entries(courseStatusMap)
+    .filter(([, info]) => ACTIVE_COURSE_STATUSES.has(info.status))
+    .map(([id]) => id);
+
+  const courseIdsToFetch = new Set<string>();
+  for (const pool of pools) {
+    if (pool.courses) {
+      pool.courses.forEach((c) => courseIdsToFetch.add(c));
+    }
+  }
+  activeCourseRefs.forEach((c) => courseIdsToFetch.add(c));
+
+  let courseCreditsMap: Record<string, number> = {};
+  if (courseIdsToFetch.size > 0) {
+    const courses = await Course.find({
+      _id: { $in: Array.from(courseIdsToFetch) },
+    })
+      .select('credits')
+      .lean<{ _id: string; credits?: number }[]>()
+      .exec();
+    courseCreditsMap = Object.fromEntries(
+      courses.map((c) => [c._id.toString(), c.credits!]),
+    );
+  }
+
+  let missingCredits = 0;
+  for (const pool of pools) {
+    let activeCreditsInPool = 0;
+    if (pool.courses) {
+      for (const courseId of pool.courses) {
+        const info = courseStatusMap[courseId];
+        if (info && ACTIVE_COURSE_STATUSES.has(info.status)) {
+          activeCreditsInPool += courseCreditsMap[courseId] || 3;
+        }
+      }
+    }
+    const poolRequired = pool.creditsRequired || 0;
+    if (poolRequired > activeCreditsInPool) {
+      missingCredits += poolRequired - activeCreditsInPool;
+    }
+  }
+
+  return missingCredits;
+}
+
+/**
+ * Determines the expected graduation term based on missing credits and
+ * the latest enrolled term.
+ */
+function calculateExpectedGraduationTerm(
+  missingCredits: number,
+  latestTermDate: Date | null,
+  latestTermString: string | null,
+): string {
+  let referenceDate = new Date();
+
+  if (latestTermDate && latestTermString) {
+    if (missingCredits <= 0) {
+      return latestTermString;
+    }
+    if (latestTermDate > new Date()) {
+      referenceDate = new Date(
+        latestTermDate.getTime() + 30 * 24 * 60 * 60 * 1000,
+      );
+    }
+  }
+
+  return estimateGraduation(missingCredits, referenceDate);
+}
+
+/**
+ * Determines the curriculum academic year and expected graduation term
+ * for a timeline based on its course status map.
+ */
+async function estimateTimelineGraduation(
+  degreeId: string,
+  courseStatusMap:
+    | Record<string, { status: CourseStatus; semester: string | null }>
+    | undefined
+    | null,
+  semesters?: TimelineSemester[],
+): Promise<TimelineEstimation> {
+  const map = courseStatusMap ?? {};
+
+  // 1. Identify First Term to determine the Academic Year Context
+  const firstTerm = getFirstActiveTerm(map, semesters);
+  let academicYear: string | undefined;
+
+  if (firstTerm) {
+    const rawAcademicYear = graduationTermToAcademicYear(firstTerm);
+    academicYear = normalizeAcademicYear(rawAcademicYear) as string;
+  }
+
+  // Normally from here we should apply transition measures up to
+  // the latest active academic year to get the course pools, but since we dont support that yet
+  // we will simply use the latest active academic year as the context for fetching the degree and course pool data,
+  // which will be used to calculate missing credits and expected graduation term.
+
+  const { termString } = getLatestActiveTermInfo(map);
+  academicYear = normalizeAcademicYear(
+    graduationTermToAcademicYear(termString!),
+  );
+
+  // 2. Fetch Course Pools
+  const pools = await degreeController.getCoursePoolsForDegree(
+    degreeId,
+    academicYear,
+  );
+
+  // 3. Calculate Missing Credits
+  const missingCredits = await calculateMissingCredits(pools, map);
+
+  // 4. Identify Latest Enrolled Term
+  const { termDate: latestTermDate, termString: latestTermString } =
+    getLatestActiveTermInfo(map);
+
+  // 5. Calculate expected graduation
+  const expectedGraduation = calculateExpectedGraduationTerm(
+    missingCredits,
+    latestTermDate,
+    latestTermString,
+  );
+
+  if (!academicYear) {
+    const rawAcademicYear = graduationTermToAcademicYear(expectedGraduation);
+    academicYear = normalizeAcademicYear(rawAcademicYear) as string;
+  }
+
+  return { academicYear, expectedGraduation };
 }
 
 /**
@@ -286,18 +514,17 @@ function calculateFutureGraduation(
 function buildCourseStatusMap(
   courses: Record<string, TimelineCourse>,
 ): Record<string, { status: CourseStatus; semester: string | null }> {
-  
   return Object.fromEntries(
-        Object.entries( courses || {})
-          .filter(([, course]) => course.status.status !== 'incomplete')
-          .map(([courseId, course]) => [
-            courseId,
-            {
-              status: course.status.status,
-              semester: course.status.semester,
-            },
-          ])
-      );
+    Object.entries(courses || {})
+      .filter(([, course]) => course.status.status !== 'incomplete')
+      .map(([courseId, course]) => [
+        courseId,
+        {
+          status: course.status.status,
+          semester: course.status.semester,
+        },
+      ]),
+  );
 }
 
 /**
@@ -435,14 +662,14 @@ function calculateProgressStats(
 function buildStudentInfo(
   degreeData: { name: string },
   firstSemester: string | undefined,
-  remainingCredits: number,
+  expectedGraduation: string,
   user?: { _id: string; fullname: string; email: string },
 ): StudentInfo {
   return {
     name: user?.fullname,
     program: degreeData.name,
     admissionTerm: firstSemester,
-    expectedGraduation: estimateGraduation(remainingCredits),
+    expectedGraduation,
   };
 }
 
@@ -541,10 +768,16 @@ export async function generateDegreeAudit(
   const timeline = await fetchAndValidateTimeline(timelineId, userId);
   const user = await fetchAndValidateUser(userId);
 
+  const { academicYear, expectedGraduation } = await estimateTimelineGraduation(
+    timeline.degreeId,
+    timeline.courseStatusMap,
+    timeline.semesters,
+  );
+
   const [degreeData, coursePools, courseArr] = await Promise.all([
-    degreeController.readDegree(timeline.degreeId),
-    degreeController.getCoursePoolsForDegree(timeline.degreeId),
-    degreeController.getCoursesForDegree(timeline.degreeId),
+    degreeController.readDegree(timeline.degreeId, academicYear),
+    degreeController.getCoursePoolsForDegree(timeline.degreeId, academicYear),
+    degreeController.getCoursesForDegree(timeline.degreeId, academicYear),
   ]);
 
   const allCourses = buildCoursesDictionary(courseArr);
@@ -559,6 +792,7 @@ export async function generateDegreeAudit(
     exemptions: timeline.exemptions,
     semesters: timeline.semesters,
     user,
+    expectedGraduation,
   });
 }
 
@@ -571,6 +805,7 @@ interface BuildAuditOptions {
     exemptions: string[];
     semesters: TimelineSemester[];
     user?: { _id: string; fullname: string; email: string };
+    expectedGraduation?: string;
 }
 
 function buildDegreeAudit({
@@ -582,6 +817,7 @@ function buildDegreeAudit({
   exemptions,
   semesters,
   user,
+  expectedGraduation,
 }: BuildAuditOptions) {
   const requirements = processCoursePools(
     coursePools,
@@ -606,7 +842,7 @@ function buildDegreeAudit({
   const student = buildStudentInfo(
     degreeData,
     firstSemester,
-    progress.remaining,
+    expectedGraduation || '',
     user,
   );
 
@@ -640,42 +876,40 @@ export async function generateDegreeAuditForUser(
   });
 }
 
-export function generateDegreeAuditFromTimeline(timeline:TimelineResult){
-  if(!timeline.degree || !timeline.pools || !timeline.semesters)
+export async function generateDegreeAuditFromTimeline(timeline:TimelineResult){
+  if (!timeline.degree || !timeline.pools || !timeline.semesters)
     throw new Error('degree, coursePools and semesters are required to generate the degree audit');
 
-  const allCourses: Record<string, CourseData> = Object.fromEntries(
-    Object.entries(timeline.courses).map(([code, course]) => {
-      return [code, {
-      _id: course.id,
-      code: course.id,
-      title: course.title,
-      description: course.description,
-      credits: course.credits,
-      offeredIn: course.offeredIn,
-      rules: [],
-    }];
-    }),
-  );
   const courseStatusMap = buildCourseStatusMap(timeline.courses)
-  const coursePools = timeline.pools || []
+  const { academicYear, expectedGraduation } = await estimateTimelineGraduation(
+    timeline.degree._id,
+    courseStatusMap,
+    timeline.semesters,
+  );
+
+  const [degreeData, coursePools, courseArr] = await Promise.all([
+    degreeController.readDegree(timeline.degree._id, academicYear),
+    degreeController.getCoursePoolsForDegree(timeline.degree._id, academicYear),
+    degreeController.getCoursesForDegree(timeline.degree._id, academicYear),
+  ]);
+
+  const allCourses = buildCoursesDictionary(courseArr);
+
+
   const exemptionPool = coursePools.find(p => p._id === 'exemptions');
   const deficiencyPool = coursePools.find(p => p._id === 'deficiencies');
-  const exemptions  = exemptionPool?.courses ?? [];
+  const exemptions = exemptionPool?.courses ?? [];
   const deficiencies = deficiencyPool?.courses ?? [];
-  // REMOVE exemptions & deficiencies from pools
-  const filteredPools = coursePools.filter(
-    p => p._id !== 'exemptions' && p._id !== 'deficiencies'
-  );
 
 
   return buildDegreeAudit({
-    degreeData: timeline.degree,
-    coursePools: filteredPools,
+    degreeData,
+    coursePools,
     allCourses,
     courseStatusMap,
     deficiencies,
     exemptions,
     semesters: timeline.semesters,
+    expectedGraduation,
   });
 }

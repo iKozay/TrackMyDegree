@@ -139,23 +139,30 @@ describe('catalogVersionService async helpers', () => {
     expect(resolved.entity.title).toBe('Second year');
   });
 
-  it('throws when resolving to a year earlier than the base academic year', () => {
-    expect(() =>
-      resolveEntityVersionFromDiffs({
-        entityType: 'Course',
-        entityId: 'COMP 248',
-        baseEntity: {
-          _id: 'COMP 248',
-          title: 'Intro',
-          description: '',
-          credits: 3,
-          offeredIn: [],
-          baseAcademicYear: '2026-2027',
-        },
-        academicYear: '2025-2026',
-        diffs: [],
-      }),
-    ).toThrow('earlier than base academic year');
+  it('falls back to the base academic year when the target year is earlier', () => {
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const resolved = resolveEntityVersionFromDiffs({
+      entityType: 'Course',
+      entityId: 'COMP 248',
+      baseEntity: {
+        _id: 'COMP 248',
+        title: 'Intro',
+        description: '',
+        credits: 3,
+        offeredIn: [],
+        baseAcademicYear: '2026-2027',
+      },
+      academicYear: '2025-2026',
+      diffs: [],
+    });
+
+    expect(resolved.academicYear).toBe('2026-2027');
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('earlier than base academic year'),
+    );
+
+    warnSpy.mockRestore();
   });
 
   it('returns an empty list immediately when there are no entities to resolve', async () => {
