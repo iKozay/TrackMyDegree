@@ -109,21 +109,21 @@ const UserModal: React.FC<UserModalProps> = ({ show, onHide, onSaved, editing })
       <Modal.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         <Form>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="user-modal-fullname">
             <Form.Label>Full Name</Form.Label>
             <Form.Control value={form.fullname} onChange={(e) => setForm((f) => ({ ...f, fullname: e.target.value }))} />
           </Form.Group>
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="user-modal-email">
             <Form.Label>Email</Form.Label>
             <Form.Control type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
           </Form.Group>
           {!isEdit && (
-            <Form.Group className="mb-3">
+            <Form.Group className="mb-3" controlId="user-modal-password">
               <Form.Label>Password</Form.Label>
               <Form.Control type="password" value={form.password} onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))} />
             </Form.Group>
           )}
-          <Form.Group className="mb-3">
+          <Form.Group className="mb-3" controlId="user-modal-role">
             <Form.Label>Role</Form.Label>
             <Form.Select value={form.type} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as UserRole }))}>
               {ROLES.map((r) => <option key={r} value={r}>{r.charAt(0).toUpperCase() + r.slice(1)}</option>)}

@@ -51,7 +51,8 @@ describe('SeedingTab', () => {
     setupInitialMocks();
     render(<SeedingTab />);
     await waitFor(() => {
-      expect(screen.getByText('Seed All Degrees')).toBeInTheDocument();
+      // Use getByRole to target the button specifically (the card header also has this text in a <strong>)
+      expect(screen.getByRole('button', { name: 'Seed All Degrees' })).toBeInTheDocument();
     });
   });
 
@@ -69,9 +70,8 @@ describe('SeedingTab', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'All seeded' } as any);
 
     render(<SeedingTab />);
-    await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
-
-    fireEvent.click(screen.getByText('Seed All Degrees'));
+    const seedBtn = await screen.findByRole('button', { name: 'Seed All Degrees' });
+    fireEvent.click(seedBtn);
 
     await waitFor(() => {
       expect(api.get).toHaveBeenCalledWith('/admin/seed-data');
@@ -83,9 +83,8 @@ describe('SeedingTab', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'Seeding complete' } as any);
 
     render(<SeedingTab />);
-    await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
-
-    fireEvent.click(screen.getByText('Seed All Degrees'));
+    const seedBtn = await screen.findByRole('button', { name: 'Seed All Degrees' });
+    fireEvent.click(seedBtn);
 
     await waitFor(() => {
       expect(screen.getByText(/Seeding complete/i)).toBeInTheDocument();
@@ -97,9 +96,8 @@ describe('SeedingTab', () => {
     vi.mocked(api.get).mockRejectedValueOnce(new Error('Seed failed'));
 
     render(<SeedingTab />);
-    await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
-
-    fireEvent.click(screen.getByText('Seed All Degrees'));
+    const seedBtn = await screen.findByRole('button', { name: 'Seed All Degrees' });
+    fireEvent.click(seedBtn);
 
     await waitFor(() => {
       expect(screen.getByText(/Seed failed/i)).toBeInTheDocument();
@@ -127,8 +125,8 @@ describe('SeedingTab', () => {
     vi.mocked(api.get).mockResolvedValueOnce({ success: true, message: 'All done' } as any);
 
     render(<SeedingTab />);
-    await waitFor(() => { expect(screen.getByText('Seed All Degrees')).toBeInTheDocument(); });
-    fireEvent.click(screen.getByText('Seed All Degrees'));
+    const seedBtn = await screen.findByRole('button', { name: 'Seed All Degrees' });
+    fireEvent.click(seedBtn);
 
     await waitFor(() => { expect(screen.getByText(/All done/i)).toBeInTheDocument(); });
 
