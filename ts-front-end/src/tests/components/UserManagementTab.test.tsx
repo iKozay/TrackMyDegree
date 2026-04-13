@@ -198,6 +198,30 @@ describe('UserManagementTab', () => {
     });
   });
 
+  it('shows alert when delete api call fails', async () => {
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
+    vi.mocked(api.delete).mockRejectedValueOnce(new Error('Delete failed'));
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(window, 'alert').mockImplementation(() => {});
+
+    render(<UserManagementTab />);
+    await waitFor(() => { expect(screen.getAllByText('Delete')).toHaveLength(3); });
+    fireEvent.click(screen.getAllByText('Delete')[0]);
+
+    await waitFor(() => {
+      expect(window.alert).toHaveBeenCalledWith('Delete failed');
+    });
+  });
+
+  it('shows singular "user" when only one user', async () => {
+    const singleUser = { data: [mockUsers[0]] };
+    vi.mocked(api.get).mockResolvedValueOnce(singleUser as any);
+    render(<UserManagementTab />);
+    await waitFor(() => {
+      expect(screen.getByText(/1 of 1 user$/i)).toBeInTheDocument();
+    });
+  });
+
   it('shows error in invite modal when invite fails', async () => {
     vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     vi.mocked(api.post).mockRejectedValueOnce(new Error('Invite error'));

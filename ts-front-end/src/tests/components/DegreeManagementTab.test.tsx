@@ -64,6 +64,25 @@ describe('DegreeManagementTab — Degrees sub-tab', () => {
     });
   });
 
+  it('shows — when degreeType is missing', async () => {
+    const degreesNoType = [{ _id: 'd1', name: 'Test Degree', totalCredits: 90, coursePools: [] }];
+    vi.mocked(api.get).mockResolvedValueOnce(degreesNoType as any);
+    render(<DegreeManagementTab />);
+    await waitFor(() => {
+      expect(screen.getByText('Test Degree')).toBeInTheDocument();
+      expect(screen.getByText('—')).toBeInTheDocument();
+    });
+  });
+
+  it('shows 1 degree (singular) count', async () => {
+    const oneDegree = [{ _id: 'd1', name: 'Solo Degree', totalCredits: 60, degreeType: 'BEng', coursePools: [] }];
+    vi.mocked(api.get).mockResolvedValueOnce(oneDegree as any);
+    render(<DegreeManagementTab />);
+    await waitFor(() => {
+      expect(screen.getByText(/1 degree$/i)).toBeInTheDocument();
+    });
+  });
+
   it('renders View Pools button for each degree', async () => {
     vi.mocked(api.get).mockResolvedValueOnce(mockDegrees as any);
     render(<DegreeManagementTab />);
