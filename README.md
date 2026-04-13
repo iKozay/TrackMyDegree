@@ -54,7 +54,7 @@ Current UI/features' designs: [Here](https://dimly-recap-91212251.figma.site/)
 | Sadee Mohammad Shadman           | 40236919   | [sadeeshadman](https://github.com/sadeeshadman)             | sadeeshadman@gmail.com         |
 | Syed Ayaan Jilani                | 40209519   | [CS-ION](https://github.com/CS-ION)                         | asadrubina.ra@gmail.com        |
 | Yassine Ibhir                    | 40251116   | [Yibhir0](https://github.com/Yibhir0)                       | yibhir101@gmail.com            |
-| Zeiad Badawy                     | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiadbadawy@gmail.com |
+| Zeiad Badawy (Team Lead)         | 40247477   | [iKozay](https://github.com/iKozay)                         | zeiadbadawy@gmail.com          |
 
 ## Developer Setup Guide
 
@@ -67,8 +67,10 @@ Ensure you have the following installed on your machine:
 - **Git**: For cloning the repository.
 - **Docker**: For containerization.
 - **Docker Compose**: To manage multi-container applications.
-- **Yarn** and **npm**: This project requires both package managers.
-- **Python 3.11**: For the python utils (Transcript parser and Scraper) in the backend
+- **Node** and **npm**: This project requires both package managers.
+
+If you plan to run the Python Utils outside Docker (local development), you also need:
+- **Python 3.11**: Required for the backend transcript parser and scraper.
 
 ### Setup Instructions
 
@@ -87,24 +89,25 @@ Ensure you have the following installed on your machine:
     cp local-dev.env ./secrets/.env
     ```
 
-3. **Install dependencies**:
+3. **Install dependencies** (from the root folder):
    ```bash
    npm i
    ```
    
 4. **Build and Run the Application**:
+
    Run the following command to start all components:
 
    ```bash
-   docker compose up -d
+   docker compose up -d --build
    npm run dev
    ```
 
    This will:
 
-    - Run MongoDB and Redis in docker
+    - Run MongoDB, Redis and Python Utils in docker
     - Start the frontend, backend concurrently.
-    - The application should now be running locally at localhost:3000.
+    - The application should now be running locally at [localhost:5173](http://localhost:5173/).
 
 ## Deployment
 
@@ -117,7 +120,18 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
 ### Production Setup Instructions
 
-1. **Download `docker-compose.prd.yml`, `frontend.env.example`, `backend.env.example`, `mongo.env.example`, `watchtower-notification.tmpl` and `traefik/dynamic.yml`**
+> **Note (Watchtower is optional):**
+> - You can comment out the `watchtower` service in `docker-compose.prd.yml` if you do not want to deploy it.
+> - If Watchtower is deployed, containers can be automatically upgraded when newer production images are promoted by the GitHub workflow [**Promote Docker Image To Production**](https://github.com/iKozay/TrackMyDegree/actions/workflows/promote_to_production.yml).
+> - If Watchtower is not deployed, the app is deployed using the latest images tagged `production` (where the `production` tag means production-ready).
+> - You can also setup the notification webhook to get notifications whenever an update happens
+
+
+> **Note (Certificates):**
+> - The current setup assumes Cloudflare is used in front of the app (reverse proxy style) with end-to-end encryption between Cloudflare and your server.
+> - The setup also works with dedicated TLS certificates; place your cert and key in `traefik/certs` (or update `traefik/dynamic.yml` to match your file names).
+
+1. **Download `docker-compose.prd.yml`, `backend.env.example`, `mongo.env.example`, and `traefik/dynamic.yml`**. `watchtower-notification.tmpl` is also needed if Watchtower is deployed.
 
 2. **Configure Environment Variables**:
    - **Rename `docker.env.example` to `.env` and replace yourdomain.com with your actual domain name:**
@@ -130,9 +144,8 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
      mkdir ./traefik
      mkdir ./traefik/certs
      ```
-   - **Move `frontend.env.example`, `backend.env.example` and `mongo.env.example` inside the secrets folder and replace placeholders with actual values for each:**
+   - **Move `backend.env.example` and `mongo.env.example` inside the secrets folder and replace placeholders with actual values for each:**
      ```bash
-     mv frontend.env.example ./secrets/frontend.env
      mv backend.env.example ./secrets/backend.env
      mv mongo.env.example ./secrets/mongo.env
      ```
@@ -151,7 +164,6 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
      │       └── origin.pem
      ├── secrets
      │   ├── backend.env
-     │   ├── frontend.env
      │   └── mongo.env
      ├── .env
      ├── docker-compose.prd.yml
@@ -167,7 +179,6 @@ For production deployment with SSL/HTTPS support, follow these additional steps:
 
    This will:
    - Build and start all services in detached mode
-   - Set up the reverse proxy with SSL termination
 
 4. **Verify deployment**:
    - Your application should be accessible at `https://yourdomain.com`
@@ -225,5 +236,5 @@ We do not collect or store any personal data unless you explicitly save your cou
 - You have full control over your saved data.
 - You may delete your course history at any time, after which the data will be permanently removed from our system.
 
-If you have any questions, please contact us at trackmydegree@gmail.com
+If you have any questions, please contact us at admin@trackmydegree.ca
 

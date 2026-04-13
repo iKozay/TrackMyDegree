@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Mail, MessageCircle, Info, Shield } from 'react-feather';
+import { Mail, MessageCircle, Info, Shield, FileText } from 'react-feather';
+import { Link } from 'react-router-dom';
 import DisclaimerPopup from './DisclaimerPopup';
 import '../styles/components/Footer.css';
 import { posthog } from 'posthog-js';
@@ -36,6 +37,12 @@ export const Footer: React.FC<FooterProps> = ({deployment_version}) => {
             <div className="footer-section">
               <h4>Resources</h4>
               <ul className="footer-links">
+                <li>
+                  <Link to="/eula" className="footer-link">
+                    <FileText size={16} />
+                    EULA
+                  </Link>
+                </li>
                 <li>
                   <button 
                     className="footer-link-button" 

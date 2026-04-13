@@ -18,6 +18,7 @@ import ForgetPasswordPage from "./pages/ForgetPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import DegreeAuditPage from "./pages/DegreeAuditPage.tsx";
 import CreditFormsManagementPage from "./pages/CreditFormsManagementPage";
+import EulaPage from "./pages/EulaPage";
 
 import { Navbar } from "./components/NavBar";
 import { Footer } from "./components/Footer";
@@ -66,6 +67,7 @@ const App: React.FC = () => {
         <Route path="/requirements" element={<RequirementsFormPage />} />
         <Route path="/requirements/:programId" element={<RequirementSelectPage />} />
         <Route path="/degree-audit/:timelineId?" element={<DegreeAuditPage />} />
+        <Route path="/eula" element={<EulaPage />} />
         <Route element={<ProtectedRoute allowedRoles={["student"]} />}>
           <Route path="/profile/student" element={<StudentPage />} />
         </Route>

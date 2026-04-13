@@ -3,6 +3,7 @@ import pandas as pd
 import os
 import redis
 import json
+from typing import Optional
 from dotenv import load_dotenv
 
 env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../../secrets/.env"))
@@ -23,19 +24,15 @@ from utils.logging_utils import get_logger
 
 
 TERM = ["0", "Summer", "Fall", "Fall/Winter", "Winter", "Spring (for CCCE career only)", "Summer (for CCCE career only)"]
-
+CATALOG_NBR="Catalog Nbr"
 CSV_SOURCES = {
     "course_schedule": {
         "url": "https://opendata.concordia.ca/datasets/sis/CU_SR_OPEN_DATA_SCHED.csv",
         "cache": None,
-        "subject_col": "Subject",
-        "catalog_col": "Catalog Nbr"
     },
     "course_section": {
         "url": "https://opendata.concordia.ca/datasets/sis/CU_SR_OPEN_DATA_COMB_SECTIONS.csv",
         "cache": None,
-        "subject_col": "Subject",
-        "catalog_col": "Catalog Nbr"
     },
 }
 
@@ -60,7 +57,7 @@ class ConcordiaAPIUtils:
 
             if csv_name == "course_schedule":
                 self.logger.info(f"Storing {csv_name} in Redis by course code...")
-                df["course_code"] = df["Subject"].str.strip() + df["Catalog Nbr"].astype(str).str.strip()
+                df["course_code"] = df["Subject"].str.strip() + df[CATALOG_NBR].astype(str).str.strip()
 
                 for course_code, group in df.groupby("course_code"):
                     raw_sections = group.drop(columns=["course_code"]).fillna("").to_dict(orient="records")
@@ -85,7 +82,7 @@ class ConcordiaAPIUtils:
                 "termCode": course.get("Term Code", ""),
                 "session": course.get("Session", ""),
                 "subject": course.get("Subject", ""),
-                "catalog": course.get("Catalog Nbr", ""),
+                "catalog": course.get(CATALOG_NBR, ""),
                 "section": course.get("Section", ""),
                 "componentCode": course.get("Component Code", ""),
                 "componentDescription": course.get("Component Descr", ""),
@@ -174,8 +171,8 @@ class ConcordiaAPIUtils:
         df = self.data_cache.get(csv_name)
 
         if subject is not None and catalog is not None:
-            matches = df[(df[CSV_SOURCES[csv_name]["subject_col"]] == subject) & 
-                        (df[CSV_SOURCES[csv_name]["catalog_col"]] == catalog)]
+            matches = df[(df["Subject"] == subject) & 
+                        (df[CATALOG_NBR] == catalog)]
         else:
             matches = pd.DataFrame()
 
@@ -185,7 +182,7 @@ class ConcordiaAPIUtils:
         records = matches.to_dict('records')
         return self._sanitize_data(records)
 
-concordia_api_instance: ConcordiaAPIUtils = None
+concordia_api_instance: Optional[ConcordiaAPIUtils] = None
 def init_concordia_api_instance(cache_dir: str) -> None:
     global concordia_api_instance
     concordia_api_instance = ConcordiaAPIUtils(cache_dir=cache_dir)
