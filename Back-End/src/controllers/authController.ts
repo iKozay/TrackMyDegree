@@ -160,7 +160,7 @@ export class AuthController extends BaseMongoController<any> {
       if (!email) throw new UnauthorizedError('Invalid or expired reset link');
 
       const user = await User.findOne({ email }).exec();
-      if (!user) throw new NotFoundError('User no longer exists');
+      if (!user) throw new UnauthorizedError('Invalid or expired reset link');
 
       // Hash and update to new password
       user.password = await this.hashPassword(newPassword);
@@ -179,7 +179,7 @@ export class AuthController extends BaseMongoController<any> {
     newPassword: string,
   ): Promise<void> {
       const user = await User.findById(userId).select('+password').exec();
-      if (!user?.password) throw new NotFoundError('User not found');
+      if (!user?.password) throw new Error('User not found');
 
       const match = await bcrypt.compare(oldPassword, user.password);
       if (!match) throw new UnauthorizedError('Current password is incorrect');

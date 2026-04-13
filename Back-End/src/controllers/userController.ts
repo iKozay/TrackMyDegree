@@ -9,6 +9,13 @@ export interface UserData {
   fullname: string;
   type: 'student' | 'admin';
 }
+export interface CreateUserData {
+  email: string;
+  password?: string;
+  fullname: string;
+  type: 'student' | 'admin';
+}
+
 
 
 export interface UserDataResponse {
@@ -40,7 +47,7 @@ export class UserController extends BaseMongoController<any> {
   /**
    * Create a new user
    */
-  async createUser(userData: UserData): Promise<UserData> {
+  async createUser(userData: CreateUserData): Promise<UserData> {
       // Check if user already exists
       const exists = await this.exists({ email: userData.email });
       if (exists) {

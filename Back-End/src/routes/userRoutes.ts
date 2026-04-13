@@ -269,7 +269,7 @@ router.post('/invite-admin', inviteAdminLimiter, authMiddleware, adminCheckMiddl
     }
 
     // Create the admin user without a usable password (they will set it via the invite link)
-    await userController.createUser({ email, fullname: name, type: 'admin', password: null });
+    await userController.createUser({ email, fullname: name, type: 'admin'});
 
     // Generate a password-setup token using the same reset flow
     const token = uuidv4();
