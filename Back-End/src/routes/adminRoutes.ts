@@ -10,6 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
+import { cacheDelPattern } from '@lib/cache';
 import path from 'node:path';
 import { adminRateLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
@@ -170,6 +171,46 @@ router.get(
       res.status(HTTP.OK).json({
         success: true,
         data: documents,
+      });
+    } catch (error) {
+      console.error(
+        'Error in GET /admin/collections/:collectionName/documents',
+        error,
+      );
+      res
+        .status(HTTP.SERVER_ERR)
+        .json({ success: false, message: INTERNAL_SERVER_ERROR });
+    }
+  },
+);
+
+router.get(
+  '/collections/:collectionName/documents-count',
+  async (req: Request, res: Response) => {
+    try {
+      const { collectionName } = req.params;
+      const { field, value, keyword } = req.query;
+
+      if (!collectionName) {
+        res.status(HTTP.BAD_REQUEST).json({
+          success: false,
+          message: COLLECTION_NAME_REQUIRED,
+        });
+        return;
+      }
+
+      const count = await adminController.getCollectionDocumentsCount(
+        collectionName as string,
+        {
+          field: field as string,
+          value: value as string,
+          keyword: keyword as string,
+        }
+      );
+
+      res.status(HTTP.OK).json({
+        success: true,
+        data: { count },
       });
     } catch (error) {
       console.error(
@@ -396,12 +437,14 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
 router.get('/seed-data', async (req: Request, res: Response) => {
   try {
     const result = await seedAllDegreeData();
-    res.status(HTTP.OK).json({
-      message: result,
-    });
+    await Promise.allSettled([
+      cacheDelPattern('GET:/degree*'),
+      cacheDelPattern('GET:/courses*'),
+    ]);
+    res.status(HTTP.OK).json({ message: result });
   } catch (error) {
     console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
   }
 });
 
@@ -411,19 +454,19 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
     const { degreeName } = req.params;
 
     if (!degreeName) {
-      res.status(HTTP.BAD_REQUEST).json({
-        error: 'Degree name is required',
-      });
+      res.status(HTTP.BAD_REQUEST).json({ success: false, message: 'Degree name is required' });
       return;
     }
 
     const result = await seedDegreeData(degreeName as string);
-    res.status(HTTP.OK).json({
-      message: result,
-    });
+    await Promise.allSettled([
+      cacheDelPattern('GET:/degree*'),
+      cacheDelPattern('GET:/courses*'),
+    ]);
+    res.status(HTTP.OK).json({ message: result });
   } catch (error) {
-    console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    console.error('Error in GET /admin/seed-data/:degreeName', error);
+    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
   }
 });
 
