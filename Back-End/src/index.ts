@@ -121,8 +121,10 @@ app.use(cookieParser());
 app.use(csrfMiddleware);
 
 // Swagger (docs)
-app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.get('/api/openapi.json', (_req, res) => res.json(swaggerSpec));
+if (process.env.NODE_ENV === 'development') {
+  app.use('/api/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  app.get('/api/openapi.json', (_req, res) => res.json(swaggerSpec));
+}
 
 // Apply rate limiters of forgot-password and reset-password routes
 app.use('/api/auth/forgot-password', forgotPasswordLimiter);

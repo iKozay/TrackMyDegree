@@ -1,5 +1,6 @@
 const { stopMongoTestContainer } = require('../utils/database/testContainer');
 const { stopPythonUtilsContainer } = require('../utils/python/testContainer');
+const { stopRedisTestContainer } = require('../utils/redis/testContainer');
 
 async function globalTeardown() {
   console.log('Stopping global test container...');
@@ -15,6 +16,10 @@ async function globalTeardown() {
     // Stop Python utils container
     await stopPythonUtilsContainer();
     console.log('Python utils container stopped');
+
+    // Stop Redis container
+    await stopRedisTestContainer();
+    console.log('Redis container stopped');
 
     // Mock server cleanup (no real server in tests)
     if (globalThis.__SERVER__) {

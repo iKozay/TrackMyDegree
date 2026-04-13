@@ -80,6 +80,13 @@ const adminRateLimiter = createLimiter({
   message: { error: 'Too many admin requests. Try again later.' },
 });
 
+// Rate limiter for admin invitation (tightly restricted — triggers DB write + email)
+const inviteAdminLimiter = createLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 10, // 10 invitations per hour per IP
+  message: { error: 'Too many admin invitation attempts. Try again later.' },
+});
+  
 const userRateLimiter = createLimiter({
   windowMs: 15 * 60 * 1000, // 15 minute window
   max: 100, // 100 requests per 15 minutes per IP
@@ -95,5 +102,6 @@ export {
   creditFormUploadLimiter,
   creditFormDeleteLimiter,
   adminRateLimiter,
+  inviteAdminLimiter,
   userRateLimiter
 };

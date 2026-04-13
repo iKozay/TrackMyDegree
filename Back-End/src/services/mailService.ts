@@ -1,6 +1,7 @@
 import nodemailer from 'nodemailer';
 import * as Sentry from '@sentry/node';
 import { requiredEnv } from '@utils/requiredEnv';
+import { RESET_EXPIRY_MINUTES } from '@utils/constants';
 /*
  * MailService module for sending emails such as password reset links.
  * Supports Ethereal for testing and real SMTP for production.
@@ -86,6 +87,31 @@ class MailService {
       return {};
     } catch (err) {
       Sentry.captureException(err, { tags: { mail: 'passwordReset' } });
+      throw err;
+    }
+  }
+
+  async sendAdminInvitation(
+    recipientEmail: string,
+    recipientName: string,
+    setupLink: string,
+  ): Promise<{ previewUrl?: string }> {
+    try {
+      const info = await this.transporter.sendMail({
+        from: this.senderEmail,
+        to: recipientEmail,
+        subject: 'You have been invited as an Admin — TrackMyDegree',
+        text: `Hi ${recipientName},\n\nYou have been invited to join TrackMyDegree as an administrator.\n\nClick the link below to set your password and activate your account:\n${setupLink}\n\nThis link will expire in ${RESET_EXPIRY_MINUTES} minutes.`,
+        html: `<p>Hi ${recipientName},</p><p>You have been invited to join TrackMyDegree as an administrator.</p><p>Click the link below to set your password and activate your account:</p><p><a href="${setupLink}">${setupLink}</a></p><p>This link will expire in ${RESET_EXPIRY_MINUTES} minutes.</p>`,
+      });
+      if (this.isEthereal) {
+        const preview = nodemailer.getTestMessageUrl(info);
+        console.log('Invite preview URL:', preview);
+        return { previewUrl: preview || undefined };
+      }
+      return {};
+    } catch (err) {
+      Sentry.captureException(err, { tags: { mail: 'adminInvite' } });
       throw err;
     }
   }

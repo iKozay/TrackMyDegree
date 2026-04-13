@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { Container, Tab, Tabs } from "react-bootstrap";
 import { useAuth } from "../hooks/useAuth";
+import MetricsTab from "../components/admin/MetricsTab";
+import DegreeManagementTab from "../components/admin/DegreeManagementTab";
+import UserManagementTab from "../components/admin/UserManagementTab";
+import SeedingTab from "../components/admin/SeedingTab";
 import BackupManagementTab from "../components/admin/BackupManagementTab";
 
 type AdminTab =
@@ -13,6 +17,7 @@ type AdminTab =
 const AdminPage: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>("metrics");
+  // Increment this key each time the degrees tab is activated to force a fresh fetch.
   const [degreeTabKey, setDegreeTabKey] = useState(0);
 
   if (!isAuthenticated) {
@@ -21,10 +26,7 @@ const AdminPage: React.FC = () => {
 
   const handleTabSelect = (k: string | null) => {
     const tab = (k ?? "metrics") as AdminTab;
-    if (tab === "degrees"){
-      setDegreeTabKey((n) => n + 1);
-      console.log(degreeTabKey);
-    }
+    if (tab === "degrees") setDegreeTabKey((n) => n + 1);
     setActiveTab(tab);
   };
 
@@ -32,11 +34,8 @@ const AdminPage: React.FC = () => {
     <Container fluid className="py-4">
       <div className="mb-4">
         <h2 className="mb-0">Admin Dashboard</h2>
-        <small className="text-muted">
-          Manage users, degrees, courses and database
-        </small>
+        <small className="text-muted">Manage users, degrees, courses and database</small>
       </div>
-
       <Tabs
         activeKey={activeTab}
         onSelect={handleTabSelect}
@@ -44,21 +43,17 @@ const AdminPage: React.FC = () => {
         mountOnEnter
       >
         <Tab eventKey="metrics" title="Metrics & Stats">
-          Metrics Tab
+          <MetricsTab />
         </Tab>
-
         <Tab eventKey="degrees" title="Degrees & Courses">
-          DegreeManagementTab
+          <DegreeManagementTab key={degreeTabKey} />
         </Tab>
-
         <Tab eventKey="users" title="Manage Users">
-          UserManagementTab
+          <UserManagementTab />
         </Tab>
-
         <Tab eventKey="seeding" title="Seed Database">
-          SeedingTab
+          <SeedingTab />
         </Tab>
-
         <Tab eventKey="backups" title="Backups">
           <BackupManagementTab />
         </Tab>

@@ -19,7 +19,6 @@ import type {
   SemesterId,
   SemesterList,
   TimelineState,
-  RequisiteGroup,
 } from "../../types/timeline.types";
 
 vi.mock("../../api/http-api-client", () => ({
@@ -716,7 +715,7 @@ describe("timelineUtils", () => {
   });
   describe("canAddCourse", () => {
     let courses: CourseMap;
-    let pools: Pool[];
+    let pools: CoursePoolData[];
 
     beforeEach(() => {
       courses = {
@@ -725,9 +724,8 @@ describe("timelineUtils", () => {
           title: "Object-Oriented Programming I",
           credits: 3,
           description: "Intro to programming",
-          offeredIN: ["FALL 2025" as SemesterId],
-          prerequisites: [] as RequisiteGroup[],
-          corequisites: [] as RequisiteGroup[],
+          offeredIn: ["FALL 2025" as SemesterId],
+          rules: [],
           status: { status: "incomplete", semester: null },
         },
         "COMP 249": {
@@ -735,9 +733,8 @@ describe("timelineUtils", () => {
           title: "Object-Oriented Programming II",
           credits: 3,
           description: "Advanced programming",
-          offeredIN: ["WINTER 2026"],
-          prerequisites: [] as RequisiteGroup[],
-          corequisites: [] as RequisiteGroup[],
+          offeredIn: ["WINTER 2026"],
+          rules: [],
           status: { status: "incomplete", semester: null },
         },
       };
@@ -748,12 +745,14 @@ describe("timelineUtils", () => {
           name: "exemptions",
           courses: ["COMP 248"], // course already in this pool
           creditsRequired: 3,
+          rules: [],
         },
         {
           _id: "pool2",
           name: "deficiencies",
           courses: [], // can be empty
           creditsRequired: 3,
+          rules: [],
         },
       ];
     });
@@ -779,8 +778,8 @@ describe("timelineUtils", () => {
     });
 
     it("returns 'invalid_type' if pool is missing", () => {
-      const brokenPools: Pool[] = [
-        { _id: "pool1", name: "exemptions", courses: [], creditsRequired: 3 },
+      const brokenPools: CoursePoolData[] = [
+        { _id: "pool1", name: "exemptions", courses: [], creditsRequired: 3, rules: [] },
       ];
       const result = canAddCourse(
         "COMP 249",

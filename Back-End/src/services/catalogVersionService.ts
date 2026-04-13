@@ -106,14 +106,15 @@ export function resolveEntityVersionFromDiffs<
     options.baseEntity.baseAcademicYear || DEFAULT_BASE_ACADEMIC_YEAR,
   ) as string;
   const normalizedDiffs = (options.diffs || []).map(normalizeDiff);
-  const targetAcademicYear =
+  let targetAcademicYear =
     normalizeAcademicYear(options.academicYear) ||
     getLatestAcademicYear(baseAcademicYear, normalizedDiffs);
 
   if (compareAcademicYears(targetAcademicYear, baseAcademicYear) < 0) {
-    throw new Error(
-      `Academic year ${targetAcademicYear} is earlier than base academic year ${baseAcademicYear}.`,
+    console.warn(
+      `Academic year ${targetAcademicYear} is earlier than base academic year ${baseAcademicYear}. Using base academic year instead.`
     );
+    targetAcademicYear = baseAcademicYear;
   }
 
   const applicableDiffs = normalizedDiffs

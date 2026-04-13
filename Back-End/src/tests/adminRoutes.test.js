@@ -202,6 +202,51 @@ describe('Admin Routes', () => {
     });
   });
 
+  describe('GET /admin/collections/:collectionName/documents-count', () => {
+    beforeEach(async () => {
+      await User.create([
+        {
+          email: 'student1@example.com',
+          fullname: 'Student One',
+          type: 'student',
+        },
+        {
+          email: 'admin1@example.com',
+          fullname: 'Admin One',
+          type: 'admin',
+        },
+      ]);
+    });
+
+    it('should return exact filtered count when field and value are provided', async () => {
+      const response = await request(app)
+        .get('/admin/collections/users/documents-count?field=type&value=admin')
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data).toEqual({ count: 1 });
+    });
+
+    it('should forward field/value/keyword to controller count method', async () => {
+      const controller = require('../controllers/adminController').adminController;
+      const original = controller.getCollectionDocumentsCount;
+      controller.getCollectionDocumentsCount = jest.fn().mockResolvedValue(7);
+
+      const response = await request(app)
+        .get('/admin/collections/users/documents-count?field=type&value=student&keyword=stud')
+        .expect(200);
+
+      expect(controller.getCollectionDocumentsCount).toHaveBeenCalledWith('users', {
+        field: 'type',
+        value: 'student',
+        keyword: 'stud',
+      });
+      expect(response.body).toEqual({ success: true, data: { count: 7 } });
+
+      controller.getCollectionDocumentsCount = original;
+    });
+  });
+
   describe('DELETE /admin/collections/:collectionName/clear', () => {
     beforeEach(async () => {
       await User.create([

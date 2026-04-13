@@ -14,9 +14,17 @@ async function startPythonUtilsContainer() {
   console.log('Building Python utils Docker image...');
 
   const build = await GenericContainer.fromDockerfile(pythonUtilsDir).build();
+  const redisUrl = process.env.REDIS_URL;
+
+  if (!redisUrl) {
+    throw new Error('REDIS_URL is required before starting Python utils container');
+  }
 
   console.log('Starting Python utils container...');
   container = await build
+    .withEnvironment({
+      REDIS_URL: redisUrl,
+    })
     .withExposedPorts(15001)
     .withWaitStrategy(Wait.forHttp('/health', 15001))
     .withStartupTimeout(300000)

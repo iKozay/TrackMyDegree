@@ -1,6 +1,21 @@
 import sys
 import pandas as pd
 import os
+import redis
+import json
+from dotenv import load_dotenv
+
+env_file = os.getenv("ENV_FILE", os.path.join(os.path.dirname(__file__), "../../../secrets/.env"))
+load_dotenv(env_file)
+
+_redis_client = None
+
+def get_redis_client():
+    global _redis_client
+    if _redis_client is None:
+        url = os.getenv("REDIS_URL")
+        _redis_client = redis.Redis.from_url(url)
+    return _redis_client
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from utils.web_utils import download_file
@@ -35,15 +50,23 @@ class ConcordiaAPIUtils:
     def download_datasets(self):
         for csv_name, csv_info in CSV_SOURCES.items():
             csv_file_path = os.path.join(self.cache_dir, f"{csv_name}.csv")
-            if os.path.exists(csv_file_path):
-                    self.logger.info(f"Loading {csv_name} from local cache: {csv_file_path}")
-                    self.data_cache[csv_name] = pd.read_csv(csv_file_path, engine="pyarrow", encoding="utf-16")
-                    continue
+            
             self.logger.info(f"Downloading CSV dataset: {csv_name} from {csv_info['url']}")
             download_file(csv_info["url"], csv_file_path)
             self.logger.info(f"Downloaded and saved {csv_name} to {csv_file_path}")
             self.logger.info(f"Loading {csv_name} into DataFrame...")
-            self.data_cache[csv_name] = pd.read_csv(csv_file_path, engine="pyarrow", encoding="utf-16")
+            df = pd.read_csv(csv_file_path, engine="pyarrow", encoding="utf-16")
+            self.data_cache[csv_name] = df
+
+            if csv_name == "course_schedule":
+                self.logger.info(f"Storing {csv_name} in Redis by course code...")
+                df["course_code"] = df["Subject"].str.strip() + df["Catalog Nbr"].astype(str).str.strip()
+
+                for course_code, group in df.groupby("course_code"):
+                    raw_sections = group.drop(columns=["course_code"]).fillna("").to_dict(orient="records")
+                    formatted_sections = self.format_course_schedule_response(raw_sections)  
+                    get_redis_client().set(course_code, json.dumps(formatted_sections))
+                
 
         self.logger.info("All datasets downloaded and cached successfully.")
 
@@ -58,7 +81,7 @@ class ConcordiaAPIUtils:
         formatted_courses = []
         for course in response:
             formatted_course = {
-                "courseID": course.get("Course ID", "").zfill(6),  # Pad with leading zeros to 6 digits
+                "courseID": str(course.get("Course ID", "")).zfill(6),  # Pad with leading zeros to 6 digits
                 "termCode": course.get("Term Code", ""),
                 "session": course.get("Session", ""),
                 "subject": course.get("Subject", ""),

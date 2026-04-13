@@ -11,6 +11,7 @@ import {
   seedDegreeData,
 } from '@controllers/seedingController';
 import { BadRequestError, CatalogError } from '@utils/errors';
+import { cacheDelPattern } from '@lib/cache';
 import path from 'node:path';
 import { adminRateLimiter } from '@middleware/rateLimiter';
 const router = express.Router();
@@ -159,6 +160,36 @@ router.get(
       }catch (error) {
     next(error);  
   }
+  },
+);
+
+router.get(
+  '/collections/:collectionName/documents-count',
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { collectionName } = req.params;
+      const { field, value, keyword } = req.query;
+
+      if (!collectionName) {
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED)
+      }
+
+      const count = await adminController.getCollectionDocumentsCount(
+        collectionName as string,
+        {
+          field: field as string,
+          value: value as string,
+          keyword: keyword as string,
+        }
+      );
+
+      res.status(HTTP.OK).json({
+        success: true,
+        data: { count },
+      });
+    } catch (error) {
+      next(error)
+    }
   },
 );
 
@@ -348,10 +379,12 @@ router.get('/seed-data', async (req: Request, res: Response, next: NextFunction)
    try{
 
     const result = await seedAllDegreeData();
-    res.status(HTTP.OK).json({
-      message: result,
-    });
-   } catch (error) {
+    await Promise.allSettled([
+      cacheDelPattern('GET:/degree*'),
+      cacheDelPattern('GET:/courses*'),
+    ]);
+    res.status(HTTP.OK).json({ message: result });
+  } catch (error) {
     next(error);
   }
 });
@@ -366,9 +399,11 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response, next: N
     }
 
     const result = await seedDegreeData(degreeName as string);
-    res.status(HTTP.OK).json({
-      message: result,
-    });
+    await Promise.allSettled([
+      cacheDelPattern('GET:/degree*'),
+      cacheDelPattern('GET:/courses*'),
+    ]);
+    res.status(HTTP.OK).json({ message: result });
   } catch (error) {
     next(error);
   }

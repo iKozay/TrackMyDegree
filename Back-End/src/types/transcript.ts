@@ -22,6 +22,7 @@ export interface ProgramInfo {
   isExtendedCreditProgram?: boolean;
   minimumProgramLength?: number;
   predefinedSequence?: PredefinedSequenceTerm[];
+  ewtSatisfied: boolean; // Indicates if the writing skills requirement is satisfied
 }
 
 export interface PredefinedSequenceTerm {

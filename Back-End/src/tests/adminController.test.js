@@ -115,6 +115,46 @@ describe('AdminController', () => {
     });
   });
 
+  describe('getCollectionDocumentsCount', () => {
+    beforeEach(async () => {
+      await User.create([
+        {
+          email: 'student1@example.com',
+          fullname: 'Student One',
+          type: 'student',
+        },
+        {
+          email: 'student2@example.com',
+          fullname: 'Student Two',
+          type: 'student',
+        },
+        {
+          email: 'admin1@example.com',
+          fullname: 'Admin One',
+          type: 'admin',
+        },
+      ]);
+    });
+
+    it('should count by exact field/value match', async () => {
+      const count = await adminController.getCollectionDocumentsCount('users', {
+        field: 'type',
+        value: 'student',
+      });
+
+      expect(count).toBe(2);
+    });
+
+    it('should support field/keyword regex fallback', async () => {
+      const count = await adminController.getCollectionDocumentsCount('users', {
+        field: 'email',
+        keyword: 'admin',
+      });
+
+      expect(count).toBe(1);
+    });
+  });
+
   describe('clearCollection', () => {
     beforeEach(async () => {
       await User.create([

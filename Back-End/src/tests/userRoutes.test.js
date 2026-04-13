@@ -11,6 +11,7 @@ const { UnauthorizedError, AlreadyExistsError, NotFoundError } = require('@utils
 
 jest.mock('../middleware/authMiddleware', () => ({
   authMiddleware: (req, _res, next) => next(),
+  adminCheckMiddleware: (req, _res, next) => next(),
   userCheckMiddleware: (req, _res, next) => next()
 }));
 

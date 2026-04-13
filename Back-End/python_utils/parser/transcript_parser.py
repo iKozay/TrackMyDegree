@@ -319,7 +319,8 @@ def parse_transcript(pdf_bytes):
                 # Writing Skills Requirement
                 if line.startswith("Writing Skills Requirement:"):
                     writing_req = line.replace("Writing Skills Requirement:", "").strip()
-                    current_program['writingSkillsRequirement'] = writing_req
+                    ewt_satisfied = 'Satisfied' in writing_req
+                    current_program['writingSkillsRequirement'] = ewt_satisfied
                     i += 1
                     continue
                 
@@ -1069,6 +1070,12 @@ def parse_transcript(pdf_bytes):
             except (ValueError, TypeError):
                 pass
         
+        # Extract writing skills requirement
+        if latest_program.get('writingSkillsRequirement'):
+            program_info['ewtSatisfied'] = latest_program['writingSkillsRequirement']
+        else:
+            program_info['ewtSatisfied'] = False
+
         if program_info:
             result['programInfo'] = program_info
     elif extended_credit_program:

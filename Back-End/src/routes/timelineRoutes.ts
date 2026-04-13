@@ -62,21 +62,40 @@ const router = express.Router();
 
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   try {
-  const { userId, timelineName, jobId } = req.body;
+    const { userId, timelineName, jobId } = req.body;
 
-  if (!userId || !timelineName || !jobId) {
-    throw new BadRequestError('User ID, timeline name, and job ID are required');
-  }
+    if (!userId || !timelineName || !jobId) {
+      throw new BadRequestError('User ID, timeline name, and job ID are required');
+    }
 
-  // get result from cache
-  const cached = await getJobResult<TimelineResult>(jobId);
-  if (!cached) {
-    throw new NotFoundError('Timeline data not found for the provided job ID');
-  }
+    // get result from cache
+    const cached = await getJobResult<TimelineResult>(jobId);
+    if (!cached) {
+      throw new NotFoundError('Timeline data not found for the provided job ID');
+    }
 
-  const cachedTimeline = cached.payload.data;
-  const timeline = await timelineController.saveTimeline(userId, timelineName, cachedTimeline);
-  res.status(HTTP.CREATED).json(timeline);
+    const cachedTimeline = cached.payload.data;
+
+    const timeline = await timelineController.saveTimeline(
+      userId,
+      timelineName,
+      cachedTimeline,
+    );
+    
+    // Inject _id into cached timeline after first save 
+    // to ensure that subsequent saves update the same DB record instead of creating duplicates.
+    if (!cachedTimeline._id){
+      await cacheJobResult(jobId, { 
+        payload:{
+          status:  cached?.payload?.status ?? "done",
+          data: {
+            ...cachedTimeline,
+            _id: timeline._id,
+          },
+        }});
+    }
+
+    res.status(HTTP.CREATED).json(timeline);
   } catch (error) {
     next(error);
   }
