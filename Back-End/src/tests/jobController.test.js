@@ -1,4 +1,5 @@
-// controllers/resultController.test.js
+// tests/jobController.test.js
+const { BadRequestError, NotFoundError } = require('@utils/errors');
 
 // Mock cache module
 const mockGetJobResult = jest.fn();
@@ -20,246 +21,158 @@ const createMockResponse = () => {
   return res;
 };
 
-describe('getByJobId', () => {
+describe('jobController', () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  test('returns 404 if jobId is missing', async () => {
-    const req = {
-      params: {}, // no jobId
-    };
-    const res = createMockResponse();
+  describe('getByJobId', () => {
+    it('throws BadRequestError if jobId is missing', async () => {
+      const req = { params: {} };
+      const res = createMockResponse();
 
-    await getByJobId(req, res, jest.fn());
-
-    expect(res.status).toHaveBeenCalledWith(404);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Job not passed',
+      await expect(getByJobId(req, res)).rejects.toThrow(BadRequestError);
+      await expect(getByJobId(req, res)).rejects.toThrow('Job ID not provided');
+      expect(mockGetJobResult).not.toHaveBeenCalled();
     });
-    expect(mockGetJobResult).not.toHaveBeenCalled();
-  });
 
-  test('returns 410 if cached result is missing/expired', async () => {
-    const req = {
-      params: { jobId: 'job-123' },
-    };
-    const res = createMockResponse();
+    it('throws NotFoundError if cached result is missing', async () => {
+      const req = { params: { jobId: 'job-123' } };
+      const res = createMockResponse();
+      mockGetJobResult.mockResolvedValueOnce(null);
 
-    mockGetJobResult.mockResolvedValueOnce(null);
-
-    await getByJobId(req, res, jest.fn());
-
-    expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
-    expect(res.status).toHaveBeenCalledWith(410);
-    expect(res.json).toHaveBeenCalledWith({
-      error: 'result expired',
+      await expect(getByJobId(req, res)).rejects.toThrow(NotFoundError);
+      await expect(getByJobId(req, res)).rejects.toThrow('Timeline not found');
+      expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
     });
-  });
 
-  test('returns 200 with jobId, status and result when cached data exists', async () => {
-    const req = {
-      params: { jobId: 'job-456' },
-    };
-    const res = createMockResponse();
+    it('returns 200 with jobId, status, and result when cached data exists', async () => {
+      const req = { params: { jobId: 'job-456' } };
+      const res = createMockResponse();
 
-    const cached = {
-      payload: {
+      const cached = {
+        payload: { status: 'done', data: { timeline: ['step1', 'step2'] } },
+      };
+
+      mockGetJobResult.mockResolvedValueOnce(cached);
+
+      await getByJobId(req, res);
+
+      expect(mockGetJobResult).toHaveBeenCalledWith('job-456');
+      expect(res.json).toHaveBeenCalledWith({
+        jobId: 'job-456',
         status: 'done',
-        data: { timeline: ['step1', 'step2'] },
-      },
-    };
+        result: { timeline: ['step1', 'step2'] },
+      });
+      expect(res.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
+    });
 
-    mockGetJobResult.mockResolvedValueOnce(cached);
+    it('throws error if getJobResult rejects', async () => {
+      const req = { params: { jobId: 'job-error' } };
+      const res = createMockResponse();
 
-    await getByJobId(req, res, jest.fn());
+      mockGetJobResult.mockRejectedValueOnce(new Error('redis failure'));
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(mockGetJobResult).toHaveBeenCalledWith('job-456');
-    expect(res.json).toHaveBeenCalledWith({
-      jobId: 'job-456',
-      status: 'done',
-      result: { timeline: ['step1', 'step2'] },
+      await expect(getByJobId(req, res)).rejects.toThrow('redis failure');
+      consoleSpy.mockRestore();
     });
   });
 
-  test('returns 500 if getJobResult throws', async () => {
-    const req = {
-      params: { jobId: 'job-error' },
-    };
-    const res = createMockResponse();
-
-    mockGetJobResult.mockRejectedValueOnce(new Error('redis failure'));
-
-    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
-    await getByJobId(req, res, jest.fn());
-
-    expect(mockGetJobResult).toHaveBeenCalledWith('job-error');
-    expect(res.status).toHaveBeenCalledWith(500);
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Error fetching result',
-    });
-
-    expect(errorSpy).toHaveBeenCalled();
-    errorSpy.mockRestore();
-  });
-  it('applies partial update and caches updated timeline', async () => {
+  describe('cacheTimelineByJobId', () => {
+    it('applies partial update and caches updated timeline', async () => {
       const req = {
-          params: { jobId: 'job-123' },
-          body: {
-              exemptions: ['COMP 248'],
-              deficiencies: ['MATH 203'],
-              courses: {
-                  'COMP 248': {
-                      status: { status: 'completed', semester: 'FALL 2025' },
-                  },
-              },
-              semesters: [{ term: 'FALL 2025', courses: [{ code: 'COMP 248' }] }],
-              timelineName: 'My timeline',
-          },
+        params: { jobId: 'job-123' },
+        body: {
+          exemptions: ['COMP 248'],
+          deficiencies: ['MATH 203'],
+          courses: { 'COMP 248': { status: { status: 'completed', semester: 'FALL 2025' } } },
+          semesters: [{ term: 'FALL 2025', courses: [{ code: 'COMP 248' }] }],
+          timelineName: 'My timeline',
+        },
       };
       const res = createMockResponse();
+
       const cachedTimeline = {
-          pools: [
-              { _id: 'exemptions', courses: [] },
-              { _id: 'deficiencies', courses: [] },
-          ],
-          courses: {
-              'COMP 248': {
-                  id: 'COMP 248',
-                  status: { status: 'incomplete', semester: null },
-              },
-          },
-          semesters: [],
-          timelineName: 'Old name',
+        pools: [
+          { _id: 'exemptions', courses: [] },
+          { _id: 'deficiencies', courses: [] },
+        ],
+        courses: { 'COMP 248': { id: 'COMP 248', status: { status: 'incomplete', semester: null } } },
+        semesters: [],
+        timelineName: 'Old name',
       };
 
-      mockGetJobResult.mockResolvedValueOnce({
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
+      mockGetJobResult.mockResolvedValueOnce({ payload: { status: 'done', data: cachedTimeline } });
 
-        await cacheTimelineByJobId(req, res);
+      await cacheTimelineByJobId(req, res);
 
-        expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
-
-        // Exemptions / Deficiencies pools updated
-        expect(cachedTimeline.pools.find(p => p._id === 'exemptions').courses)
-            .toEqual(['COMP 248']);
-        expect(cachedTimeline.pools.find(p => p._id === 'deficiencies').courses)
-            .toEqual(['MATH 203']);
-
-        // Courses merged
-        expect(cachedTimeline.courses['COMP 248'].status).toEqual({
-            status: 'completed',
-            semester: 'FALL 2025',
-        });
-
-        // Semesters and name updated
-        expect(cachedTimeline.semesters).toEqual(req.body.semesters);
-        expect(cachedTimeline.timelineName).toBe('My timeline');
-
-        expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', {
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
-
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Timeline updated successfully',
-        });
+      expect(cachedTimeline.pools.find(p => p._id === 'exemptions').courses).toEqual(['COMP 248']);
+      expect(cachedTimeline.pools.find(p => p._id === 'deficiencies').courses).toEqual(['MATH 203']);
+      expect(cachedTimeline.courses['COMP 248'].status).toEqual({ status: 'completed', semester: 'FALL 2025' });
+      expect(cachedTimeline.semesters).toEqual(req.body.semesters);
+      expect(cachedTimeline.timelineName).toBe('My timeline');
+      expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', { payload: { status: 'done', data: cachedTimeline } });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Timeline updated successfully' });
     });
+
     it('does not update timeline name when not provided', async () => {
-        const req = {
-            params: { jobId: 'job-123' },
-            body: {
-                exemptions: ['COMP 248'],
-                // timelineName is intentionally omitted
-            },
-        };
-        const res = createMockResponse();
+      const req = {
+        params: { jobId: 'job-123' },
+        body: { exemptions: ['COMP 248'] },
+      };
+      const res = createMockResponse();
 
-        const cachedTimeline = {
-            pools: [
-                { _id: 'exemptions', courses: [] },
-                { _id: 'deficiencies', courses: [] },
-            ],
-            courses: {},
-            semesters: [],
-            timelineName: 'Original timeline name',
-        };
+      const cachedTimeline = {
+        pools: [{ _id: 'exemptions', courses: [] }, { _id: 'deficiencies', courses: [] }],
+        courses: {},
+        semesters: [],
+        timelineName: 'Original timeline name',
+      };
 
-        mockGetJobResult.mockResolvedValueOnce({
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
+      mockGetJobResult.mockResolvedValueOnce({ payload: { status: 'done', data: cachedTimeline } });
 
-        await cacheTimelineByJobId(req, res);
+      await cacheTimelineByJobId(req, res);
 
-        expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
-
-        // Timeline name should remain unchanged
-        expect(cachedTimeline.timelineName).toBe('Original timeline name');
-
-        expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', {
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
-
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Timeline updated successfully',
-        });
+      expect(cachedTimeline.timelineName).toBe('Original timeline name');
+      expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', { payload: { status: 'done', data: cachedTimeline } });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Timeline updated successfully' });
     });
-    it('handles explicit null timelineName without updating', async () => {
-        const req = {
-            params: { jobId: 'job-123' },
-            body: {
-                exemptions: ['COMP 248'],
-                timelineName: null,
-            },
-        };
-        const res = createMockResponse();
 
-        const cachedTimeline = {
-            pools: [
-                { _id: 'exemptions', courses: [] },
-                { _id: 'deficiencies', courses: [] },
-            ],
-            courses: {},
-            semesters: [],
-            timelineName: 'Original timeline name',
-        };
+    it('handles explicit null timelineName', async () => {
+      const req = {
+        params: { jobId: 'job-123' },
+        body: { exemptions: ['COMP 248'], timelineName: null },
+      };
+      const res = createMockResponse();
 
-        mockGetJobResult.mockResolvedValueOnce({
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
+      const cachedTimeline = {
+        pools: [{ _id: 'exemptions', courses: [] }, { _id: 'deficiencies', courses: [] }],
+        courses: {},
+        semesters: [],
+        timelineName: 'Original timeline name',
+      };
 
-        await cacheTimelineByJobId(req, res);
+      mockGetJobResult.mockResolvedValueOnce({ payload: { status: 'done', data: cachedTimeline } });
 
-        expect(mockGetJobResult).toHaveBeenCalledWith('job-123');
+      await cacheTimelineByJobId(req, res);
 
-        // Timeline name should be set to null
-        expect(cachedTimeline.timelineName).toBeNull();
-
-        expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', {
-            payload: {
-                status: 'done',
-                data: cachedTimeline,
-            },
-        });
-
-        expect(res.json).toHaveBeenCalledWith({
-            message: 'Timeline updated successfully',
-        });
+      expect(cachedTimeline.timelineName).toBeNull();
+      expect(mockCacheJobResult).toHaveBeenCalledWith('job-123', { payload: { status: 'done', data: cachedTimeline } });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Timeline updated successfully' });
     });
+
+    it('throws BadRequestError if jobId is missing', async () => {
+      const req = { params: {}, body: {} };
+      const res = createMockResponse();
+      await expect(cacheTimelineByJobId(req, res)).rejects.toThrow(BadRequestError);
+    });
+
+    it('throws NotFoundError if cached timeline missing', async () => {
+      const req = { params: { jobId: 'job-404' }, body: {} };
+      const res = createMockResponse();
+      mockGetJobResult.mockResolvedValueOnce(null);
+      await expect(cacheTimelineByJobId(req, res)).rejects.toThrow(NotFoundError);
+    });
+  });
 });

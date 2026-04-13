@@ -10,6 +10,7 @@ import {
 import { Course, CoursePool, Degree, Timeline, User } from '@models';
 import { GenerateAuditParams, TimelineCourse, TimelineResult} from '@trackmydegree/shared';
 import * as misc from '@utils/misc';
+import { UnauthorizedError } from '@utils/errors';
 
 const STATUS_COMPLETED = 'Completed';
 const STATUS_NOT_STARTED = 'Not Started';
@@ -424,7 +425,7 @@ describe('DegreeAuditService', () => {
         userId: otherUserId,
       };
 
-      await expect(generateDegreeAudit(params)).rejects.toThrow('Unauthorized');
+      await expect(generateDegreeAudit(params)).rejects.toThrow(UnauthorizedError);
     });
 
     it('should throw error for non-existent user', async () => {

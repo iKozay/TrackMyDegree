@@ -4,10 +4,13 @@ const express = require('express');
 const { json } = express;
 const degreeAuditRoutes = require('../routes/degreeAuditRoutes').default;
 const { degreeAuditController } = require('@controllers/degreeAuditController');
+const { errorHandler } = require('../middleware/errorHandler');
+const { NotFoundError, UnauthorizedError } = require('@utils/errors');
 
 const app = express();
 app.use(json());
 app.use('/audit', degreeAuditRoutes);
+app.use(errorHandler);
 
 jest.mock('../controllers/degreeAuditController', () => ({
   degreeAuditController: {
@@ -76,8 +79,8 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(400);
 
-      expect(response.body.error).toContain('Invalid id format');
-      expect(response.body.error).toContain('timelineId');
+      expect(response.body.message).toContain('Invalid id format');
+      expect(response.body.message).toContain('timelineId');
     });
 
     it('should return 400 for missing user ID', async () => {
@@ -85,7 +88,7 @@ describe('Degree Audit Routes', () => {
         .get(`/audit/timeline/${validTimelineId}`)
         .expect(400);
 
-      expect(response.body.error).toBe(
+      expect(response.body.message).toBe(
         'User ID is required as a query parameter',
       );
     });
@@ -96,13 +99,13 @@ describe('Degree Audit Routes', () => {
         .query({ userId: 'invalid-user-id' })
         .expect(400);
 
-      expect(response.body.error).toContain('Invalid id format');
-      expect(response.body.error).toContain('userId');
+      expect(response.body.message).toContain('Invalid id format');
+      expect(response.body.message).toContain('userId');
     });
 
     it('should return 404 when timeline is not found', async () => {
       degreeAuditController.getAuditByTimeline.mockRejectedValue(
-        new Error('Timeline not found'),
+        new NotFoundError('Timeline not found'),
       );
 
       const response = await request(app)
@@ -110,12 +113,12 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(404);
 
-      expect(response.body.error).toBe('Timeline not found');
+      expect(response.body.message).toBe('Timeline not found');
     });
 
     it('should return 401 when user is not authorized', async () => {
       degreeAuditController.getAuditByTimeline.mockRejectedValue(
-        new Error('Unauthorized: Timeline does not belong to this user'),
+        new UnauthorizedError('Unauthorized: Timeline does not belong to this user'),
       );
 
       const response = await request(app)
@@ -123,7 +126,7 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(401);
 
-      expect(response.body.error).toBe(
+      expect(response.body.message).toBe(
         'Unauthorized: Timeline does not belong to this user',
       );
     });
@@ -138,7 +141,7 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
     });
 
     it('should return 500 for non-Error exceptions', async () => {
@@ -151,12 +154,12 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
     });
 
     it('should return 404 for user not found errors', async () => {
       degreeAuditController.getAuditByTimeline.mockRejectedValue(
-        new Error('User not found'),
+        new NotFoundError('User not found'),
       );
 
       const response = await request(app)
@@ -164,7 +167,7 @@ describe('Degree Audit Routes', () => {
         .query({ userId: validUserId })
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.message).toBe('User not found');
     });
   });
 
@@ -189,32 +192,32 @@ describe('Degree Audit Routes', () => {
         .get('/audit/user/invalid-id')
         .expect(400);
 
-      expect(response.body.error).toContain('Invalid id format');
-      expect(response.body.error).toContain('userId');
+      expect(response.body.message).toContain('Invalid id format');
+      expect(response.body.message).toContain('userId');
     });
 
     it('should return 404 when no timeline found for user', async () => {
       degreeAuditController.getAuditForUser.mockRejectedValue(
-        new Error('No timeline found for this user'),
+        new NotFoundError('No timeline found for this user'),
       );
 
       const response = await request(app)
         .get(`/audit/user/${validUserId}`)
         .expect(404);
 
-      expect(response.body.error).toBe('No timeline found for this user');
+      expect(response.body.message).toBe('No timeline found for this user');
     });
 
     it('should return 404 when user is not found', async () => {
       degreeAuditController.getAuditForUser.mockRejectedValue(
-        new Error('User not found'),
+        new NotFoundError('User not found'),
       );
 
       const response = await request(app)
         .get(`/audit/user/${validUserId}`)
         .expect(404);
 
-      expect(response.body.error).toBe('User not found');
+      expect(response.body.message).toBe('User not found');
     });
 
     it('should return 500 for internal server errors', async () => {
@@ -226,7 +229,7 @@ describe('Degree Audit Routes', () => {
         .get(`/audit/user/${validUserId}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
     });
 
     it('should return 500 for non-Error exceptions', async () => {
@@ -236,7 +239,7 @@ describe('Degree Audit Routes', () => {
         .get(`/audit/user/${validUserId}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
     });
 
     it('should handle empty user ID path parameter', async () => {
@@ -277,7 +280,7 @@ describe('Degree Audit Routes', () => {
       .get(`/audit/timeline/job/${validJobId}`)
       .expect(500);
 
-    expect(response.body.error).toBe('Internal server error');
+    expect(response.body.message).toBe('Internal server error');
   });
 
   it('should return 500 for non-Error exceptions', async () => {
@@ -289,7 +292,7 @@ describe('Degree Audit Routes', () => {
       .get(`/audit/timeline/job/${validJobId}`)
       .expect(500);
 
-    expect(response.body.error).toBe('Internal server error');
+    expect(response.body.message).toBe('Internal server error');
   });
 });
 
@@ -325,7 +328,7 @@ describe('Degree Audit Routes', () => {
         .get(`/audit/user/${validUserId}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
     });
   });
 });

@@ -4,6 +4,8 @@ const request = require('supertest');
 const express = require('express');
 const coursepoolRoutes = require('../routes/coursepoolRoutes').default;
 const { CoursePool } = require('../models/coursepool');
+const { errorHandler } = require('../middleware/errorHandler');
+const { INTERNAL_SERVER_ERROR} = require('../utils/errors');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
@@ -12,6 +14,7 @@ jest.setTimeout(60000);
 const app = express();
 app.use(express.json());
 app.use('/coursepool', coursepoolRoutes);
+app.use(errorHandler);
 
 describe('Coursepool Routes', () => {
   let mongoServer, mongoUri;
@@ -56,7 +59,7 @@ describe('Coursepool Routes', () => {
     it('should return 404 if course pool not found', async () => {
       const response = await request(app).get('/coursepool/NonExistentID');
       expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Course pool not found');
+      expect(response.body.message).toBe('CoursePool not found');
     });
 
     it('should handle server errors', async () => {
@@ -69,7 +72,8 @@ describe('Coursepool Routes', () => {
 
       const response = await request(app).get('/coursepool/CP101');
       expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       require('../controllers/coursepoolController').coursepoolController.getCoursePool =
         originalGetCoursePool;
@@ -132,7 +136,8 @@ describe('Coursepool Routes', () => {
 
       const response = await request(app).get('/coursepool');
       expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
+      expect(response.body.message).toBe(INTERNAL_SERVER_ERROR);
 
       require('../controllers/coursepoolController').coursepoolController.getAllCoursePools =
         originalGetAllCoursePools;

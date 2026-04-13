@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import createError from 'http-errors';
 import HTTP from '@utils/httpCodes';
 import * as Sentry from '@sentry/node';
+import { APIError, INTERNAL_SERVER_ERROR, NotFoundError } from '@utils/errors';
 
 // 404 Not Found Middleware
 export const notFoundHandler = (
@@ -9,12 +9,7 @@ export const notFoundHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  const error = createError(
-    HTTP.NOT_FOUND,
-    `Route ${req.originalUrl} not found`,
-  );
-  Sentry.captureException(error);
-  next(error);
+  next(new NotFoundError(`Route ${req.originalUrl} not found`));
 };
 
 // Global Error Handler
@@ -24,11 +19,25 @@ export const errorHandler = (
   res: Response,
   next: NextFunction,
 ) => {
-  const status = err.status || err.statusCode || HTTP.SERVER_ERR;
-  const message = err.message || 'Internal Server Error';
-  Sentry.captureException(err);
+  // Only send the message to the client if this is a known APIError.
+  // This prevents exposing internal error details for unexpected errors.
+  const isApiError = err instanceof APIError;
+  const status = isApiError ? err.status : HTTP.SERVER_ERR;
+  const errorName = isApiError ? err.name : 'InternalServerError';
+  const message = isApiError ? err.message : INTERNAL_SERVER_ERROR;
+  
+  //Log all errors to the console for debugging, 
+  //but only send details to Sentry for 500+ errors which are likely to be unexpected and need investigation.
+  console.error('[%s] %s →', req.method, req.originalUrl, err);
+  if (status>= 500) {
+    Sentry.captureException(err);
+  }
+  
+
   res.status(status).json({
-    error: message,
+    success: false,
+    error: errorName,
+    message,
     status,
   });
 };

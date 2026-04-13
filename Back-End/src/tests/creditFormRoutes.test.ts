@@ -1,14 +1,17 @@
+/* eslint-disable sonarjs/no-duplicate-string */
 import request from 'supertest';
 import express, { Request, Response, NextFunction } from 'express';
 import creditFormRoutes from '../routes/creditFormRoutes';
 import { creditFormController } from '@controllers/creditFormController';
 import HTTP from '../utils/httpCodes';
+import { errorHandler } from '@middleware/errorHandler';
+import { AlreadyExistsError, NotFoundError } from '@utils/errors';
 
 const MOCK_PDF = 'mock.pdf';
 const FILE_PDF = 'pdf';
 const FILE_BUFFER = 'mock';
 const PROG_ID = 'soen';
-const ERR_500 = 'Internal server error';
+const ERR_500 = 'InternalServerError';
 const ENDPOINT_BASE = '/credit-forms';
 const ENDPOINT_FILE = '/credit-forms/file/soen.pdf';
 const ENDPOINT_SOEN = '/credit-forms/soen';
@@ -67,10 +70,7 @@ jest.mock('multer', () => {
 const app = express();
 app.use(express.json());
 app.use(ENDPOINT_BASE, creditFormRoutes);
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.error('TEST CAUGHT EXPRESS ERROR:', err);
-    res.status(500).json({ error: 'Global error' });
-});
+app.use(errorHandler);
 
 describe('creditFormRoutes', () => {
     beforeEach(() => {
@@ -123,12 +123,15 @@ describe('creditFormRoutes', () => {
     });
 
     it('GET /credit-forms/file/:filename should return 404 if not found', async () => {
-        (creditFormController.resolveFilePath as jest.Mock).mockReturnValue(null);
+        (creditFormController.resolveFilePath as jest.Mock).mockImplementation(() => {
+            throw new NotFoundError('File not found');
+        });
+
 
         const res = await request(app).get(ENDPOINT_FILE);
-
+        console.log('Response:', res.status, res.body);
         expect(res.status).toBe(HTTP.NOT_FOUND);
-        expect(res.body.error).toBe('File not found');
+        expect(res.body.message).toBe('File not found');
     });
 
     it('GET /credit-forms/file/:filename should handle errors', async () => {
@@ -153,7 +156,7 @@ describe('creditFormRoutes', () => {
     });
 
     it('GET /credit-forms/:id should return 404 if not found', async () => {
-        (creditFormController.getFormById as jest.Mock).mockResolvedValue(null);
+        (creditFormController.getFormById as jest.Mock).mockRejectedValueOnce(new NotFoundError('File not found'));
 
         const res = await request(app).get(ENDPOINT_SOEN);
 
@@ -179,12 +182,12 @@ describe('creditFormRoutes', () => {
     });
 
     it('POST /credit-forms should handle CONFLICT errors', async () => {
-        (creditFormController.createForm as jest.Mock).mockRejectedValue(new Error('CONFLICT: Form exists'));
+        (creditFormController.createForm as jest.Mock).mockRejectedValue( new AlreadyExistsError('Form exists'));
 
         const res = await request(app).post(ENDPOINT_BASE).attach(FILE_PDF, Buffer.from(FILE_BUFFER), MOCK_PDF);
 
         expect(res.status).toBe(HTTP.CONFLICT);
-        expect(res.body.error).toBe('Form exists');
+        expect(res.body.message).toBe('Form exists');
     });
 
     it('POST /credit-forms should handle generic create errors', async () => {
@@ -206,7 +209,7 @@ describe('creditFormRoutes', () => {
     });
 
     it('PUT /credit-forms/:id should handle NOT FOUND errors', async () => {
-        (creditFormController.updateForm as jest.Mock).mockRejectedValue(new Error('NOT_FOUND: Form not found'));
+        (creditFormController.updateForm as jest.Mock).mockRejectedValue(new NotFoundError('Form not found'));
 
         const res = await request(app).put(ENDPOINT_123).send({ title: 'New' });
 
@@ -230,7 +233,7 @@ describe('creditFormRoutes', () => {
     });
 
     it('DELETE /credit-forms/:id should handle NOT FOUND errors', async () => {
-        (creditFormController.deleteForm as jest.Mock).mockRejectedValue(new Error('NOT_FOUND: Form not found'));
+        (creditFormController.deleteForm as jest.Mock).mockRejectedValue(new NotFoundError('Form not found'));
 
         const res = await request(app).delete(ENDPOINT_123);
 

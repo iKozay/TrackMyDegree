@@ -3,10 +3,8 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 const request = require('supertest');
 const express = require('express');
 const { Timeline } = require('../models/timeline');
-const { timelineController } = require('../controllers/timelineController');
-
-// Increase timeout for mongodb-memory-server binary download/startup
-jest.setTimeout(60000);
+const {timelineController} = require('../controllers/timelineController');
+const { errorHandler } = require('../middleware/errorHandler');
 
 jest.mock('../middleware/assignJobId', () => ({
   assignJobId: jest.fn((req, _res, next) => {
@@ -31,19 +29,11 @@ const { getJobResult } = cache;
 const { queue } = require('../workers/queue');
 
 const timelineRoutes = require('../routes/timelineRoutes').default;
-
 // Create test app
 const app = express();
 app.use(express.json());
 app.use('/timeline', timelineRoutes);
-
-jest.mock('../workers/queue', () => {
-  return {
-    queue: {
-      add: jest.fn().mockResolvedValue(undefined), // mock adding jobs
-    },
-  };
-});
+app.use(errorHandler);
 
 describe('Timeline Routes', () => {
   let mongoServer, mongoUri;
@@ -68,121 +58,125 @@ describe('Timeline Routes', () => {
   });
 
   describe('POST /timeline', () => {
-    const userId = new mongoose.Types.ObjectId().toString();
-    const timelineName = 'My Timeline';
-    const jobId = 'test-job-id';
-    const baseTimelineData = {
-      degree: { _id: 'COMP' },
-      semesters: [
-        {
-          term: "FALL 2023", courses: [
-            { code: 'COMP101' },
-            { code: 'MATH101' },
-          ]
-        },
-      ],
-      isExtendedCredit: false,
-      isCoop: false,
-      courses: {
-        COMP101: { status: { status: 'completed', semester: 'FALL 2023' } },
-        MATH101: { status: { status: 'planned', semester: 'FALL 2023' } },
-        HIST101: { status: { status: 'incomplete', semester: null } },
+  const userId = new mongoose.Types.ObjectId().toString();
+  const timelineName = 'My Timeline';
+  const jobId = 'test-job-id';
+  const baseTimelineData = {
+    degree: { _id: 'COMP' },
+    semesters: [
+      {
+        term: 'FALL 2023',
+        courses: [
+          { code: 'COMP101' },
+          { code: 'MATH101' },
+        ],
       },
-      coursePools: [
-        { _id: 'exemptions', courses: ['COMP100'] },
-        { _id: 'deficiencies', courses: ['MATH100'] },
-      ],
-    };
-    const cachedTimelineResult = {
-      payload: {
-        data: baseTimelineData,
-      },
-    };
+    ],
+    isExtendedCredit: false,
+    isCoop: false,
+    courses: {
+      COMP101: { status: { status: 'completed', semester: 'FALL 2023' } },
+      MATH101: { status: { status: 'planned', semester: 'FALL 2023' } },
+      HIST101: { status: { status: 'incomplete', semester: null } },
+    },
+    pools: [
+      { _id: 'exemptions', courses: ['COMP100'] },
+      { _id: 'deficiencies', courses: ['MATH100'] },
+    ],
+  };
 
+  const cachedTimelineResult = {
+    payload: { data: baseTimelineData },
+  };
 
-    it('should save a new timeline successfully', async () => {
-      getJobResult.mockResolvedValue(cachedTimelineResult);
+  it('should save a new timeline successfully', async () => {
+    getJobResult.mockResolvedValue(cachedTimelineResult);
 
-      const response = await request(app)
-        .post('/timeline')
-        .send({ userId, timelineName, jobId })
-        .expect(201);
-      console.log(response.body)
-      expect(response.body._id).toBeDefined();
-      expect(response.body.userId).toBe(userId);
-    });
+    const response = await request(app)
+      .post('/timeline')
+      .send({ userId, timelineName, jobId })
+      .expect(201);
 
-
-    it('should return 400 if userId, timelineName, or jobId are missing', async () => {
-      const invalidPayloads = [
-        { timelineName: 'Test', jobId: 'job' },
-        { userId, jobId: 'job' },
-        { userId, timelineName: 'Test' },
-      ];
-
-      for (const body of invalidPayloads) {
-        const response = await request(app).post('/timeline/').send(body).expect(400);
-        expect(response.body).toHaveProperty('error');
-      }
-    });
-
-    it('should return 410 if cached result expired', async () => {
-      getJobResult.mockResolvedValue(null);
-
-      const response = await request(app)
-        .post('/timeline')
-        .send({ userId, timelineName, jobId })
-        .expect(410);
-
-      expect(response.body.error).toBe('result expired');
-    });
-
-
-    it('should handle server errors gracefully', async () => {
-      getJobResult.mockResolvedValue(cachedTimelineResult);
-
-      const original = timelineController.saveTimeline;
-      timelineController.saveTimeline = jest
-        .fn()
-        .mockRejectedValue(new Error('DB error'));
-
-      const response = await request(app)
-        .post('/timeline')
-        .send({ userId, timelineName, jobId })
-        .expect(500);
-
-      expect(response.body.error).toBe('Internal server error');
-
-      timelineController.saveTimeline = original;
-    });
-
-
-    it('should create timeline with minimal required fields', async () => {
-      getJobResult.mockResolvedValue({
-        payload: {
-          data: {
-            degree: { _id: 'CS' },
-            semesters: [],
-            courses: {},
-            coursePools: [],
-          },
-        },
-      });
-
-      const response = await request(app)
-        .post('/timeline')
-        .send({
-          userId: 'user456',
-          timelineName: 'Minimal Timeline',
-          jobId: 'test-job-id',
-        })
-        .expect(201);
-
-      expect(response.body._id).toBeDefined();
-      expect(response.body.userId).toBe('user456');
-    });
-
+    expect(response.body._id).toBeDefined();
+    expect(response.body.userId).toBe(userId);
   });
+
+  it('should return 400 if userId, timelineName, or jobId are missing', async () => {
+    const invalidPayloads = [
+      { timelineName: 'Test', jobId: 'job' },
+      { userId, jobId: 'job' },
+      { userId, timelineName: 'Test' },
+    ];
+
+    for (const body of invalidPayloads) {
+      const response = await request(app)
+        .post('/timeline')
+        .send(body)
+        .expect(400);
+
+      expect(response.body).toHaveProperty('error');
+      expect(response.body.error).toBe('BadRequestError');
+    }
+  });
+
+  it('should return 404 if cached result not found or expired', async () => {
+    // Update router to throw GoneError (or custom error) for null cache
+    getJobResult.mockResolvedValue(null);
+
+    const response = await request(app)
+      .post('/timeline')
+      .send({ userId, timelineName, jobId })
+      .expect(404);
+
+    // If you have a GoneError, you can check:
+    // expect(response.body.error).toBe('ResultExpiredError');
+    expect(response.body.error).toBe('NotFoundError');
+  });
+
+  it('should handle server errors gracefully', async () => {
+    getJobResult.mockResolvedValue(cachedTimelineResult);
+
+    const original = timelineController.saveTimeline;
+    timelineController.saveTimeline = jest
+      .fn()
+      .mockRejectedValue(new Error('DB error'));
+
+    const response = await request(app)
+      .post('/timeline')
+      .send({ userId, timelineName, jobId })
+      .expect(500);
+
+    expect(response.body.error).toBe('InternalServerError');
+    expect(response.body.message).toBe('Internal server error');
+
+    timelineController.saveTimeline = original;
+  });
+
+  it('should create timeline with minimal required fields', async () => {
+    getJobResult.mockResolvedValue({
+      payload: {
+        data: {
+          degree: { _id: 'CS' },
+          semesters: [],
+          courses: {},
+          pools: [],
+        },
+      },
+    });
+
+    const response = await request(app)
+      .post('/timeline')
+      .send({
+        userId: 'user456',
+        timelineName: 'Minimal Timeline',
+        jobId: 'test-job-id',
+      })
+      .expect(201);
+
+    expect(response.body._id).toBeDefined();
+    expect(response.body.userId).toBe('user456');
+  });
+});
 
   describe('GET /timeline/:id', () => {
     let testTimeline;
@@ -230,8 +224,8 @@ describe('Timeline Routes', () => {
       const response = await request(app)
         .get(`/timeline/${testTimeline._id}`)
         .expect(500);
-
-      expect(response.body.error).toBe('Job ID missing');
+      expect(response.body.error).toBe('InternalServerError');
+      expect(response.body.message).toBe('Internal server error');
 
       jest.restoreAllMocks();
     });
@@ -244,7 +238,7 @@ describe('Timeline Routes', () => {
         .get(`/timeline/${testTimeline._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       jest.restoreAllMocks();
     });
@@ -306,8 +300,8 @@ describe('Timeline Routes', () => {
         .put(`/timeline/${fakeId}`)
         .send(updates)
         .expect(404);
-
-      expect(response.body.error).toBe('Timeline not found');
+      expect(response.body.error).toBe('NotFoundError');
+      expect(response.body.message).toBe('Timeline not found');
     });
 
     it('should return 404 for non-existent timeline (alternative)', async () => {
@@ -343,7 +337,7 @@ describe('Timeline Routes', () => {
         .send(updates)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       // Restore original method
       require('../controllers/timelineController').timelineController.updateTimeline =
@@ -393,7 +387,7 @@ describe('Timeline Routes', () => {
         .delete(`/timeline/${testTimeline._id}`)
         .expect(200);
 
-      expect(response.body).toContain('deleted successfully');
+      expect(response.body).toContain('successfully deleted');
 
       // Verify timeline is deleted
       const deletedTimeline = await Timeline.findById(testTimeline._id);
@@ -419,7 +413,7 @@ describe('Timeline Routes', () => {
       const response = await request(app).delete(`/timeline/${timelineId}`);
 
       expect(response.status).toBe(200);
-      expect(response.body).toContain('deleted successfully');
+      expect(response.body).toContain('successfully deleted');
       // Verify timeline is deleted
       const deletedTimeline = await Timeline.findById(timelineId);
       expect(deletedTimeline).toBeNull();
@@ -431,7 +425,8 @@ describe('Timeline Routes', () => {
         .delete(`/timeline/${fakeId}`)
         .expect(404);
 
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.error).toContain('NotFoundError');
+      expect(response.body.message).toBe('Timeline not found');
     });
 
     it('should return 400 if id is empty or whitespace', async () => {
@@ -451,7 +446,7 @@ describe('Timeline Routes', () => {
         .delete(`/timeline/${testTimeline._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       // Restore original method
       require('../controllers/timelineController').timelineController.deleteTimeline =
@@ -580,12 +575,12 @@ describe('Timeline Routes', () => {
       expect(response.body).toHaveProperty('message');
     });
 
-    it('should return 0 for user with no timelines', async () => {
+    it('should return not found for user with no timelines', async () => {
       const response = await request(app)
         .delete(`/timeline/user/${userWithNoTimeline}`)
-        .expect(200);
+        .expect(404);
 
-      expect(response.body.message).toContain('Deleted');
+      expect(response.body.message).toContain('Timeline not found');
     });
 
     it('should return 400 if userId is missing', async () => {
@@ -605,7 +600,7 @@ describe('Timeline Routes', () => {
         .delete(`/timeline/user/${userId}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       // Restore original method
       require('../controllers/timelineController').timelineController.deleteAllUserTimelines =
@@ -660,7 +655,7 @@ describe('Timeline Routes', () => {
         .get(`/timeline/${testTimeline._id}`)
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       require('../controllers/timelineController').timelineController.getTimelineById =
         originalGetTimelineById;
@@ -694,7 +689,7 @@ describe('Timeline Routes', () => {
         .send({ name: 'Updated' })
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.error).toBe('InternalServerError');
 
       require('../controllers/timelineController').timelineController.updateTimeline =
         originalUpdateTimeline;

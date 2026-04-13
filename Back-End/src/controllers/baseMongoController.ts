@@ -1,7 +1,6 @@
 import { Document, Model, FilterQuery, UpdateQuery } from 'mongoose';
-import * as Sentry from '@sentry/node';
 import { ObjectId } from 'bson';
-import { QUERY_FAILED, DELETE_FAILED } from '@utils/constants';
+import { NotFoundError } from '@utils/errors';
 
 export interface BaseDocument extends Document {
   _id: ObjectId;
@@ -47,21 +46,6 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   }
 
   /**
-   * Generic error handler with Sentry integration
-   */
-  protected handleError(error: unknown, operation: string): never {
-    Sentry.captureException(error, {
-      tags: {
-        model: this.modelName,
-        operation,
-      },
-    });
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`[${this.modelName}] Error in ${operation}:`, errorMessage);
-    throw error;
-  }
-
-  /**
    * Sanitize an update object by removing MongoDB operator keys and
    * dangerous prototype-pollution keys at any depth.
    * This helps ensure that user-controlled data is interpreted purely
@@ -70,9 +54,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   protected sanitizeUpdate(update: UpdateQuery<T>): UpdateQuery<T> {
     const unsafeKeys = new Set(['__proto__', 'constructor', 'prototype']);
 
-    const isPlainObject = (
-      value: unknown,
-    ): value is Record<string, unknown> => {
+    const isPlainObject = (value: unknown): value is Record<string, unknown> => {
       if (value === null || typeof value !== 'object') {
         return false;
       }
@@ -124,21 +106,9 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   /**
    * Create a new document
    */
-  async create(data: Partial<T>): Promise<ControllerResponse<T>> {
-    try {
+  async create(data: Partial<T>): Promise<T> {
       const document = await this.model.create(data);
-
-      return {
-        success: true,
-        data: document.toObject() as T,
-        message: `${this.modelName} created successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Creation failed',
-      };
-    }
+      return document.toObject() as T;
   }
 
   /**
@@ -147,8 +117,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async findById(
     id: string,
     select?: string | string[],
-  ): Promise<ControllerResponse<T>> {
-    try {
+  ): Promise<T> {
       let query = this.model.findById(id);
 
       if (select) {
@@ -158,16 +127,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       const document = await query.lean<T>().exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+         throw new NotFoundError(`${this.modelName} not found`) ;
       }
 
-      return { success: true, data: document };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : QUERY_FAILED,
-      };
-    }
+      return document ;
   }
 
   /**
@@ -176,8 +139,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async findOne(
     filter: FilterQuery<T>,
     select?: string | string[],
-  ): Promise<ControllerResponse<T>> {
-    try {
+  ): Promise<T> {
       let query = this.model.findOne(filter);
 
       if (select) {
@@ -187,16 +149,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
       const document = await query.lean<T>().exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+         throw new NotFoundError(`${this.modelName} not found`) ;
       }
 
-      return { success: true, data: document };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : QUERY_FAILED,
-      };
-    }
+      return document ;
   }
 
   /**
@@ -206,8 +162,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async findAll(
     filter: FilterQuery<T> = {},
     options: QueryOptions = {},
-  ): Promise<ControllerResponse<T[]>> {
-    try {
+  ): Promise<T[]> {
       let query = this.model.find(filter);
 
       // Apply search if provided
@@ -237,13 +192,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
 
       const documents = await query.lean<T[]>().exec();
 
-      return { success: true, data: documents };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : QUERY_FAILED,
-      };
-    }
+      return  documents ;
   }
 
   /**
@@ -252,8 +201,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async updateById(
     id: string,
     update: UpdateQuery<T>,
-  ): Promise<ControllerResponse<T>> {
-    try {
+  ): Promise<T> {
       const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
         .findByIdAndUpdate(id, sanitizedUpdate, {
@@ -264,20 +212,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         .exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+         throw new NotFoundError(`${this.modelName} not found`) ;
       }
 
-      return {
-        success: true,
-        data: document,
-        message: `${this.modelName} updated successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Update failed',
-      };
-    }
+      return document;
   }
 
   /**
@@ -286,8 +224,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async updateOne(
     filter: FilterQuery<T>,
     update: UpdateQuery<T>,
-  ): Promise<ControllerResponse<T>> {
-    try {
+  ): Promise<T> {
       const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
         .findOneAndUpdate(filter, sanitizedUpdate, {
@@ -299,20 +236,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         .exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+         throw new NotFoundError(`${this.modelName} not found`) ;
       }
 
-      return {
-        success: true,
-        data: document,
-        message: `${this.modelName} updated successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Update failed',
-      };
-    }
+      return document;
   }
 
   /**
@@ -321,8 +248,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
   async upsert(
     filter: FilterQuery<T>,
     update: UpdateQuery<T>,
-  ): Promise<ControllerResponse<T>> {
-    try {
+  ): Promise<T> {
       const sanitizedUpdate = this.sanitizeUpdate(update);
       const document = await this.model
         .findOneAndUpdate(filter, sanitizedUpdate, {
@@ -333,63 +259,30 @@ export abstract class BaseMongoController<T extends BaseDocument> {
         .lean<T>()
         .exec();
 
-      return {
-        success: true,
-        data: document,
-        message: `${this.modelName} saved successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Upsert failed',
-      };
-    }
+      return document;
   }
 
   /**
    * Delete document by ID
    */
-  async deleteById(id: string): Promise<ControllerResponse<string>> {
-    try {
+  async deleteById(id: string): Promise<string> {
       const document = await this.model.findByIdAndDelete(id).exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+        throw new NotFoundError(`${this.modelName} not found`);
       }
-
-      return {
-        success: true,
-        message: `${this.modelName} deleted successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : DELETE_FAILED,
-      };
-    }
+      return `${this.modelName} with id ${id} has been successfully deleted.`;
   }
 
   /**
    * Delete document by custom filter
    */
-  async deleteOne(filter: FilterQuery<T>): Promise<ControllerResponse<string>> {
-    try {
+  async deleteOne(filter: FilterQuery<T>): Promise<void> {
       const document = await this.model.findOneAndDelete(filter).exec();
 
       if (!document) {
-        return { success: false, error: `${this.modelName} not found` };
+        throw new NotFoundError(`${this.modelName} not found`);
       }
-
-      return {
-        success: true,
-        message: `${this.modelName} deleted successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : DELETE_FAILED,
-      };
-    }
   }
 
   /**
@@ -397,21 +290,12 @@ export abstract class BaseMongoController<T extends BaseDocument> {
    */
   async deleteMany(
     filter: FilterQuery<T>,
-  ): Promise<ControllerResponse<number>> {
-    try {
+  ): Promise<number> {
       const result = await this.model.deleteMany(filter).exec();
-
-      return {
-        success: true,
-        data: result.deletedCount,
-        message: `${result.deletedCount} ${this.modelName}(s) deleted successfully`,
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : DELETE_FAILED,
-      };
-    }
+      if (result.deletedCount === 0) {
+        throw new NotFoundError(`${this.modelName} not found`);
+      }
+      return  result.deletedCount;
   }
 
   /**
@@ -420,40 +304,22 @@ export abstract class BaseMongoController<T extends BaseDocument> {
    */
   async count(
     filter: FilterQuery<T> = {},
-  ): Promise<ControllerResponse<number>> {
-    try {
-      const count = await this.model.countDocuments(filter).exec();
-
-      return { success: true, data: count };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Count failed',
-      };
-    }
+  ): Promise<number> {
+      return await this.model.countDocuments(filter).exec();
   }
 
   /**
    * Check if document exists (optimized - only checks _id field)
    */
-  async exists(filter: FilterQuery<T>): Promise<ControllerResponse<boolean>> {
-    try {
+  async exists(filter: FilterQuery<T>): Promise<boolean> {
       const exists = await this.model.exists(filter).exec();
-
-      return { success: true, data: !!exists };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Exists check failed',
-      };
-    }
+      return !!exists;
   }
 
   /**
    * Bulk write documents
    */
-  async bulkWrite(documents: Partial<T>[]): Promise<ControllerResponse<T[]>> {
-    try {
+  async bulkWrite(documents: Partial<T>[]): Promise<void> {
       const operations = documents
         .filter((doc) => doc._id !== undefined)
         .map((doc) => ({
@@ -463,16 +329,7 @@ export abstract class BaseMongoController<T extends BaseDocument> {
             upsert: true,
           },
         }));
-
       await this.model.bulkWrite(operations as any, { ordered: false });
-
-      return { success: true };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Bulk write failed',
-      };
-    }
   }
 
   /**
@@ -480,17 +337,10 @@ export abstract class BaseMongoController<T extends BaseDocument> {
    */
   async aggregate<R = unknown>(
     pipeline: Record<string, unknown>[],
-  ): Promise<ControllerResponse<R[]>> {
-    try {
+  ): Promise<R[]> {
       // Type assertion needed for flexibility with aggregation pipelines
       const results = await this.model.aggregate<R>(pipeline as any[]).exec();
 
-      return { success: true, data: results };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Aggregation failed',
-      };
-    }
+      return  results ;
   }
 }

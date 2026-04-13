@@ -19,17 +19,8 @@ export class CourseController extends BaseMongoController<any> {
    * Create multiple courses in bulk
    */
   async bulkCreateCourses(courseData: CourseData[]): Promise<boolean> {
-    try {
-      const result = await this.bulkWrite(courseData);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to create courses');
-      }
-
+      await this.bulkWrite(courseData);
       return true;
-    } catch (error) {
-      this.handleError(error, 'bulkCreateCourse');
-    }
   }
 
   /**
@@ -38,17 +29,8 @@ export class CourseController extends BaseMongoController<any> {
   async updateCourse(
     _id: string,
     updateData: Partial<CourseData>,
-  ): Promise<CourseData | null> {
-    try {
-      const result = await this.updateById(_id, updateData);
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to update course');
-      }
-      return result.data;
-    } catch (error) {
-      this.handleError(error, 'updateCourse');
-      return null;
-    }
+  ): Promise<CourseData | null> { 
+      return await this.updateById(_id, updateData);
   }
 
   /**
@@ -64,7 +46,6 @@ export class CourseController extends BaseMongoController<any> {
       academicYear?: string;
     } = {},
   ) {
-    try {
       const { pool, search, page, limit, sort, academicYear } = params;
 
       const filter: Record<string, unknown> = {};
@@ -81,19 +62,15 @@ export class CourseController extends BaseMongoController<any> {
       };
 
       const result = await this.findAll(filter, options);
-      const courses = result.data || [];
+      const courses = result || [];
 
       return resolveEntityVersions('Course', courses, academicYear);
-    } catch (error) {
-      this.handleError(error, 'getAllCourses');
-    }
   }
 
   async getCoursesByCodes(
     courseCodes: string[],
     academicYear?: string,
   ): Promise<CourseData[]> {
-    try {
       const uniqueCodes = [...new Set(courseCodes)];
       if (uniqueCodes.length === 0) {
         return [];
@@ -104,80 +81,47 @@ export class CourseController extends BaseMongoController<any> {
         .exec();
 
       return resolveEntityVersions('Course', courses, academicYear);
-    } catch (error) {
-      this.handleError(error, 'getCoursesByCodes');
-    }
   }
 
   async getAllCourseCodes(): Promise<string[]> {
-    try {
       const result = await this.findAll({}, { fields: ['_id'] });
 
-      if (!result.success || !result.data) {
+      if (!result) {
         return [];
       }
-
-      return result.data.map((course: any) => course._id);
-    } catch (error) {
-      this.handleError(error, 'getAllCourseCodes');
-    }
+      return result.map((course: any) => course._id);
   }
 
   /**
    * Get course by code
    */
   async getCourseByCode(code: string, academicYear?: string) {
-    try {
       const result = await this.findById(code);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Course not found');
-      }
 
       const resolved = await resolveEntityVersion({
         entityType: 'Course',
         entityId: code,
-        baseEntity: result.data,
+        baseEntity: result,
         academicYear,
       });
 
       return resolved.entity;
-    } catch (error) {
-      this.handleError(error, 'getCourseByCode');
-    }
   }
 
   /**
    * Get courses by pool
    */
   async getCoursesByPool(poolName: string, academicYear?: string) {
-    try {
       const result = await this.findAll({ offeredIn: poolName });
 
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to fetch courses');
-      }
-
-      return resolveEntityVersions('Course', result.data || [], academicYear);
-    } catch (error) {
-      this.handleError(error, 'getCoursesByPool');
-    }
+      return resolveEntityVersions('Course', result|| [], academicYear);
   }
 
   /**
    * Delete a course by code
    */
   async deleteCourse(code: string): Promise<string> {
-    try {
-      const result = await this.deleteById(code);
-
-      if (!result.success) {
-        throw new Error(result.error || 'Failed to delete course');
-      }
-      return `Course '${code}' deleted successfully.`;
-    } catch (error) {
-      this.handleError(error, 'deleteCourse');
-    }
+      return await this.deleteById(code);
   }
 }
 

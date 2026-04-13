@@ -2,12 +2,7 @@ const mongoose = require('mongoose');
 const path = require('node:path');
 const fs = require('node:fs');
 const { MongoMemoryServer } = require('mongodb-memory-server');
-const Sentry = require('@sentry/node');
 const cron = require('node-cron');
-
-jest.mock('@sentry/node', () => ({
-  captureException: jest.fn(),
-}));
 
 jest.mock('node-cron', () => ({
   schedule: jest.fn(),
@@ -83,8 +78,6 @@ describe('BackupService', () => {
 
         await callback();
 
-        expect(Sentry.captureException).toHaveBeenCalled();
-
         mongoose.connection.db = originalDb;
     });
     });
@@ -130,8 +123,6 @@ describe('BackupService', () => {
       await expect(BackupService.createBackup()).rejects.toThrow(
         'No database connection available',
       );
-
-      expect(Sentry.captureException).toHaveBeenCalled();
       mongoose.connection.db = originalDb;
     });
   });
@@ -178,8 +169,6 @@ describe('BackupService', () => {
       await expect(
         BackupService.restoreBackup('missing.json'),
       ).rejects.toThrow('Backup file not found');
-
-      expect(Sentry.captureException).toHaveBeenCalled();
     });
 
     it('should throw when insertMany fails', async () => {
@@ -222,8 +211,6 @@ describe('BackupService', () => {
       await expect(BackupService.deleteBackup('missing.json')).rejects.toThrow(
         'Backup file not found: missing.json',
       );
-
-      expect(Sentry.captureException).toHaveBeenCalled();
     });
   });
 });

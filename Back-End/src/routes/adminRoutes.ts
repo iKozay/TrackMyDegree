@@ -1,7 +1,7 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { adminController } from '@controllers/adminController';
-import { CatalogError, runCatalog } from '@services/catalogService';
+import { runCatalog } from '@services/catalogService';
 import {
   adminCheckMiddleware,
   authMiddleware,
@@ -10,6 +10,7 @@ import {
   seedAllDegreeData,
   seedDegreeData,
 } from '@controllers/seedingController';
+import { BadRequestError, CatalogError } from '@utils/errors';
 import { cacheDelPattern } from '@lib/cache';
 import path from 'node:path';
 import { adminRateLimiter } from '@middleware/rateLimiter';
@@ -27,11 +28,8 @@ router.use(adminRateLimiter);
 // ADMIN ROUTES
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COLLECTION_NAME_REQUIRED = 'Collection name is required';
 const ACADEMIC_YEAR_REQUIRED = 'Academic year is required';
-const NOT_AVAILABLE = 'not available';
-
 /**
  * @openapi
  * tags:
@@ -66,24 +64,15 @@ const NOT_AVAILABLE = 'not available';
  *       500:
  *         description: Server error.
  */
-router.get('/collections', async (req: Request, res: Response) => {
-  try {
+router.get('/collections', async (req: Request, res: Response, next: NextFunction) => {
+  try{
     const collections = await adminController.getCollections();
     res.status(HTTP.OK).json({
       success: true,
       data: collections,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/collections', error);
-    if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: error.message });
-    } else {
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: INTERNAL_SERVER_ERROR });
-    }
+  }catch (error) {
+    next(error);  
   }
 });
 
@@ -146,17 +135,13 @@ router.get('/collections', async (req: Request, res: Response) => {
  */
 router.get(
   '/collections/:collectionName/documents',
-  async (req: Request, res: Response) => {
-    try {
+  async (req: Request, res: Response, next: NextFunction) => {
+    try{
       const { collectionName } = req.params;
       const { keyword, page, limit } = req.query;
 
       if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message: COLLECTION_NAME_REQUIRED,
-        });
-        return;
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED);
       }
 
       const documents = await adminController.getCollectionDocuments(
@@ -172,31 +157,21 @@ router.get(
         success: true,
         data: documents,
       });
-    } catch (error) {
-      console.error(
-        'Error in GET /admin/collections/:collectionName/documents',
-        error,
-      );
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: INTERNAL_SERVER_ERROR });
-    }
+      }catch (error) {
+    next(error);  
+  }
   },
 );
 
 router.get(
   '/collections/:collectionName/documents-count',
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { collectionName } = req.params;
       const { field, value, keyword } = req.query;
 
       if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message: COLLECTION_NAME_REQUIRED,
-        });
-        return;
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED)
       }
 
       const count = await adminController.getCollectionDocumentsCount(
@@ -213,13 +188,7 @@ router.get(
         data: { count },
       });
     } catch (error) {
-      console.error(
-        'Error in GET /admin/collections/:collectionName/documents',
-        error,
-      );
-      res
-        .status(HTTP.SERVER_ERR)
-        .json({ success: false, message: INTERNAL_SERVER_ERROR });
+      next(error)
     }
   },
 );
@@ -256,19 +225,15 @@ router.get(
  *         description: Collection name is missing.
  *       500:
  *         description: Server error.
- */
+ */ 
 router.delete(
   '/collections/:collectionName/clear',
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { collectionName } = req.params;
 
       if (!collectionName) {
-        res.status(HTTP.BAD_REQUEST).json({
-          success: false,
-          message: COLLECTION_NAME_REQUIRED,
-        });
-        return;
+        throw new BadRequestError(COLLECTION_NAME_REQUIRED);
       }
 
       const count = await adminController.clearCollection(
@@ -279,20 +244,8 @@ router.delete(
         message: `${count} documents cleared successfully`,
       });
     } catch (error) {
-      console.error(
-        'Error in DELETE /admin/collections/:collectionName/clear',
-        error,
-      );
-      if (error instanceof Error && error.message.includes(NOT_AVAILABLE)) {
-        res
-          .status(HTTP.SERVER_ERR)
-          .json({ success: false, message: error.message });
-      } else {
-        res
-          .status(HTTP.SERVER_ERR)
-          .json({ success: false, message: INTERNAL_SERVER_ERROR });
-      }
-    }
+        next(error);  
+  }
   },
 );
 
@@ -316,16 +269,15 @@ router.delete(
  *       500:
  *         description: Server error.
  */
-router.get('/connection-status', (req: Request, res: Response) => {
-  try {
+router.get('/connection-status', (req: Request, res: Response, next: NextFunction) => {
+  try{
     const status = adminController.getConnectionStatus();
     res.status(HTTP.OK).json({
       message: 'Connection status retrieved successfully',
       ...status,
     });
-  } catch (error) {
-    console.error('Error in GET /admin/connection-status', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+  }catch (error) {
+    next(error);  
   }
 });
 
@@ -376,7 +328,7 @@ router.get('/connection-status', (req: Request, res: Response) => {
  *       500:
  *         description: Catalog update failed.
  */
-router.post('/catalogs-update', async (req: Request, res: Response) => {
+router.post('/catalogs-update', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
       academicYear,
@@ -389,11 +341,7 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
     } = req.body || {};
 
     if (!academicYear || typeof academicYear !== 'string') {
-      res.status(HTTP.BAD_REQUEST).json({
-        success: false,
-        message: ACADEMIC_YEAR_REQUIRED,
-      });
-      return;
+      throw new BadRequestError(ACADEMIC_YEAR_REQUIRED);
     }
 
     const result = await runCatalog({
@@ -414,28 +362,22 @@ router.post('/catalogs-update', async (req: Request, res: Response) => {
       success: true,
       data: result,
     });
-  } catch (error) {
-    console.error('Error in POST /admin/catalogs-update', error);
-
-    if (error instanceof CatalogError) {
-      res.status(HTTP.SERVER_ERR).json({
+  }catch (error) {
+    if (error instanceof CatalogError){
+      return res.status(HTTP.SERVER_ERR).json({
         success: false,
         error: error.message,
         inspectionFiles: error.inspectionFiles,
       });
-      return;
     }
-
-    res.status(HTTP.SERVER_ERR).json({
-      success: false,
-      message: INTERNAL_SERVER_ERROR,
-    });
+    next(error);
   }
 });
 
 // GET /admin/seed-data - Seed all degree data
-router.get('/seed-data', async (req: Request, res: Response) => {
-  try {
+router.get('/seed-data', async (req: Request, res: Response, next: NextFunction) => {
+   try{
+
     const result = await seedAllDegreeData();
     await Promise.allSettled([
       cacheDelPattern('GET:/degree*'),
@@ -443,19 +385,17 @@ router.get('/seed-data', async (req: Request, res: Response) => {
     ]);
     res.status(HTTP.OK).json({ message: result });
   } catch (error) {
-    console.error('Error in GET /admin/seed-data', error);
-    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 
-// GET /admin/seed-data/:degreeName - Seed degree data for the degree specified
-router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
-  try {
+// GET /admin/seed-data/:degreeName - Seed degree data for the degree specifie
+router.get('/seed-data/:degreeName', async (req: Request, res: Response, next: NextFunction) => {
+  try{
     const { degreeName } = req.params;
 
     if (!degreeName) {
-      res.status(HTTP.BAD_REQUEST).json({ success: false, message: 'Degree name is required' });
-      return;
+      throw new BadRequestError('Degree name is required');
     }
 
     const result = await seedDegreeData(degreeName as string);
@@ -465,13 +405,12 @@ router.get('/seed-data/:degreeName', async (req: Request, res: Response) => {
     ]);
     res.status(HTTP.OK).json({ message: result });
   } catch (error) {
-    console.error('Error in GET /admin/seed-data/:degreeName', error);
-    res.status(HTTP.SERVER_ERR).json({ success: false, message: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 
 // GET /admin/fetch-backups - Fetch all the backups from backup directory
-router.get('/fetch-backups', async (req: Request, res: Response) => {
+router.get('/fetch-backups', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const backups = await adminController.listBackups(); 
 
@@ -480,13 +419,12 @@ router.get('/fetch-backups', async (req: Request, res: Response) => {
       data: backups,
     });
   } catch (error) {
-    console.error('Error in GET /admin/fetch-backups:', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 
 // POST /admin/create-backup - Create a new backup in the backup directory
-router.post('/create-backup', async (req: Request, res: Response) => {
+router.post('/create-backup', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const backupFileName = await adminController.createBackup(); 
 
@@ -495,13 +433,12 @@ router.post('/create-backup', async (req: Request, res: Response) => {
       data: backupFileName,
     });
   } catch (error) {
-    console.error('Error in GET /admin/create-backup:', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 
 // POST /admin/restore-backup - Restore a backup from backup directory
-router.post('/restore-backup', async (req: Request, res: Response) => {
+router.post('/restore-backup', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { backupName } = req.body;
 
@@ -519,13 +456,12 @@ router.post('/restore-backup', async (req: Request, res: Response) => {
       success: true,
     });
   } catch (error) {
-    console.error('Error in POST /admin/restore-backup:', error);
-    return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 
 // POST /admin/delete-backup - Delete the backup from backup directory
-router.post('/delete-backup', async (req: Request, res: Response) => {
+router.post('/delete-backup', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { backupName } = req.body;
 
@@ -543,8 +479,7 @@ router.post('/delete-backup', async (req: Request, res: Response) => {
       success: true,
     });
   } catch (error) {
-    console.error('Error in GET /admin/delete-backup:', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+    next(error);
   }
 });
 

@@ -5,6 +5,7 @@ const express = require('express');
 const degreeRoutes = require('../routes/degreeRoutes').default;
 const { Degree } = require('../models/degree');
 const { CoursePool } = require('../models/coursepool');
+const { errorHandler } = require('../middleware/errorHandler');
 
 // Increase timeout for mongodb-memory-server binary download/startup
 jest.setTimeout(60000);
@@ -13,6 +14,7 @@ jest.setTimeout(60000);
 const app = express();
 app.use(express.json());
 app.use('/degree', degreeRoutes);
+app.use(errorHandler);
 
 jest.mock('../lib/cache', () => ({
   cacheGet: jest.fn().mockResolvedValue(null),
@@ -74,7 +76,7 @@ describe('Degree Routes', () => {
         .get('/degree/NONEXISTENT')
         .expect(404);
 
-      expect(response.body.error).toBe('Degree with this id does not exist.');
+      expect(response.body.message).toBe('Degree not found');
     });
 
     it('should handle server errors', async () => {
@@ -86,7 +88,7 @@ describe('Degree Routes', () => {
 
       const response = await request(app).get('/degree/COMP').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/degreeController').degreeController.readDegree =
@@ -140,7 +142,7 @@ describe('Degree Routes', () => {
 
       const response = await request(app).get('/degree').expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/degreeController').degreeController.readAllDegrees =
@@ -170,7 +172,7 @@ describe('Degree Routes', () => {
         .get('/degree/NONEXISTENT/credits')
         .expect(404);
 
-      expect(response.body.error).toBe('Degree with this id does not exist.');
+      expect(response.body.message).toBe('Degree not found');
     });
 
     it('should handle server errors', async () => {
@@ -185,7 +187,7 @@ describe('Degree Routes', () => {
         .get('/degree/COMP/credits')
         .expect(500);
 
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       // Restore original method
       require('../controllers/degreeController').degreeController.getCreditsForDegree =
@@ -221,7 +223,7 @@ describe('Degree Routes', () => {
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.message).toContain('Degree not found');
     });
 
     it('should return 400 if id is empty or whitespace', async () => {
@@ -239,7 +241,7 @@ describe('Degree Routes', () => {
 
       const response = await request(app).get('/degree/CS');
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
 
       Degree.findById = originalFindById;
@@ -309,7 +311,7 @@ describe('Degree Routes', () => {
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.message).toContain('Degree not found');
     });
 
    it('should return 400 if id is empty or whitespace', async () => {
@@ -327,7 +329,7 @@ describe('Degree Routes', () => {
 
       const response = await request(app).get('/degree/CS/credits');
 
-      expect(response.status).toBe(404);
+      expect(response.status).toBe(500);
       expect(response.body).toHaveProperty('error');
 
       Degree.findById = originalFindById;
@@ -389,7 +391,7 @@ describe('Degree Routes', () => {
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error).toContain('does not exist');
+      expect(response.body.message).toContain('Degree not found');
     });
 
     it('should return 400 if id is empty or whitespace', async () => {
@@ -408,7 +410,7 @@ describe('Degree Routes', () => {
       const response = await request(app).get('/degree/CS/coursepools');
 
       expect(response.status).toBe(500);
-      expect(response.body.error).toBe('Internal server error');
+      expect(response.body.message).toBe('Internal server error');
 
       degreeController.getCoursePoolsForDegree =
         originalGetCoursePoolsForDegree;
@@ -422,127 +424,6 @@ describe('Degree Routes', () => {
       expect(response.status).toBe(200);
       expect(Array.isArray(response.body)).toBe(true);
       expect(response.body).toEqual([]);
-    });
-  });
-
-  describe('DegreeController - Course Pool Operations (additional cases)', () => {
-    beforeEach(async () => {
-      await Degree.create([
-        {
-          _id: 'CS',
-          name: 'Computer Science',
-          totalCredits: 120,
-          coursePools: [
-            {
-              _id: 'Core',
-              name: 'Core Courses',
-              creditsRequired: 60,
-              courses: ['COMP101', 'COMP201', 'COMP301'],
-            },
-            {
-              _id: 'Elective',
-              name: 'Elective Courses',
-              creditsRequired: 20,
-              courses: ['COMP400', 'COMP401'],
-            },
-          ],
-        },
-        {
-          _id: 'SE',
-          name: 'Software Engineering',
-          totalCredits: 120,
-          coursePools: [
-            {
-              _id: 'Core',
-              name: 'Core Courses',
-              creditsRequired: 60,
-              courses: ['COMP101', 'COMP201'],
-            },
-            {
-              _id: 'Project',
-              name: 'Project Courses',
-              creditsRequired: 30,
-              courses: ['SOEN400', 'SOEN401'],
-            },
-          ],
-        },
-      ]);
-    });
-
-    describe('Controller method edge cases', () => {
-      it('readDegree should reject when findById returns null', async () => {
-        const { degreeController } = require('../controllers/degreeController');
-        const originalFindById = Degree.findById;
-
-        Degree.findById = jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: jest.fn().mockResolvedValue(null),
-            }),
-          }),
-        });
-
-        await expect(degreeController.readDegree('NONEXIST')).rejects.toThrow(
-          'Degree with this id does not exist.',
-        );
-
-        Degree.findById = originalFindById;
-      });
-
-      it('readDegree should reject when findById throws', async () => {
-        const { degreeController } = require('../controllers/degreeController');
-        const originalFindById = Degree.findById;
-
-        Degree.findById = jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: jest.fn().mockRejectedValue(new Error('Database error')),
-            }),
-          }),
-        });
-
-        await expect(degreeController.readDegree('CS')).rejects.toThrow();
-
-        Degree.findById = originalFindById;
-      });
-
-      it('readAllDegrees should reject when find fails', async () => {
-        const { degreeController } = require('../controllers/degreeController');
-        const originalFind = Degree.find;
-
-        Degree.find = jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            sort: jest.fn().mockReturnValue({
-              lean: jest.fn().mockReturnValue({
-                exec: jest.fn().mockRejectedValue(new Error('Database error')),
-              }),
-            }),
-          }),
-        });
-
-        await expect(degreeController.readAllDegrees()).rejects.toThrow();
-
-        Degree.find = originalFind;
-      });
-
-      it('getCreditsForDegree should reject when findById returns null', async () => {
-        const { degreeController } = require('../controllers/degreeController');
-        const originalFindById = Degree.findById;
-
-        Degree.findById = jest.fn().mockReturnValue({
-          select: jest.fn().mockReturnValue({
-            lean: jest.fn().mockReturnValue({
-              exec: jest.fn().mockResolvedValue(null),
-            }),
-          }),
-        });
-
-        await expect(
-          degreeController.getCreditsForDegree('NONEXIST'),
-        ).rejects.toThrow('Degree with this id does not exist.');
-
-        Degree.findById = originalFindById;
-      });
     });
   });
 });

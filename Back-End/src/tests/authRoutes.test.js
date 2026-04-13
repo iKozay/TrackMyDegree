@@ -49,11 +49,14 @@ jest.mock('../services/jwtService', () => ({
 }));
 
 const { jwtService } = require('../services/jwtService');
+const { errorHandler } = require('@middleware/errorHandler');
+const { NotFoundError, UnauthorizedError } = require('@utils/errors');
 
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRoutes);
+app.use(errorHandler); // Use the error handler middleware
 
 describe('Auth Routes (MongoDB)', () => {
   let mongoServer, mongoUri;
@@ -78,7 +81,7 @@ describe('Auth Routes (MongoDB)', () => {
     it('should return 401 if refresh token is missing', async () => {
       const res = await request(app).post('/auth/refresh');
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('Missing refresh token');
+      expect(res.body.message).toBe('Missing refresh token');
     });
 
     it('should return 401 if refresh token is invalid or expired', async () => {
@@ -87,21 +90,23 @@ describe('Auth Routes (MongoDB)', () => {
         .post('/auth/refresh')
         .set('Cookie', ['refresh_token=invalid']);
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('Invalid or expired refresh token');
+      expect(res.body.message).toBe('Invalid or expired refresh token');
     });
 
     it('should return 401 if user does not exist', async () => {
       jwtService.verifyRefreshToken.mockReturnValueOnce({ userId: 'fakeId' });
       jest
         .spyOn(authController, 'getUserById')
-        .mockResolvedValueOnce(undefined);
+        .mockRejectedValueOnce(new UnauthorizedError('Invalid or expired token'));
 
       const res = await request(app)
         .post('/auth/refresh')
         .set('Cookie', ['refresh_token=valid']);
 
+      console.log(res.body);
+        
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('User does not exist');
+      expect(res.body.message).toBe('Invalid or expired token');
     });
 
     it('should refresh tokens and return user successfully', async () => {
@@ -152,7 +157,7 @@ describe('Auth Routes (MongoDB)', () => {
     it('should return 401 if access token is missing', async () => {
       const res = await request(app).get('/auth/me');
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('Missing access token');
+      expect(res.body.message).toBe('Missing access token');
     });
 
     it('should return 401 if access token is invalid or expired', async () => {
@@ -161,21 +166,21 @@ describe('Auth Routes (MongoDB)', () => {
         .get('/auth/me')
         .set('Cookie', ['access_token=invalid']);
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('Invalid or expired access token');
+      expect(res.body.message).toBe('Invalid or expired token');
     });
 
     it('should return 401 if user does not exist', async () => {
       jwtService.verifyAccessToken.mockReturnValueOnce({ userId: 'fakeId' });
       jest
         .spyOn(authController, 'getUserById')
-        .mockResolvedValueOnce(undefined);
+        .mockRejectedValueOnce(new UnauthorizedError('Invalid or expired token'));
 
       const res = await request(app)
         .get('/auth/me')
         .set('Cookie', ['access_token=valid']);
 
       expect(res.status).toBe(401);
-      expect(res.body.error).toBe('User does not exist');
+      expect(res.body.message).toBe('Invalid or expired token');
     });
 
     it('should return user data successfully with valid access token', async () => {
@@ -276,7 +281,7 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(409);
 
-      expect(response.body.error).toBe('User with this email already exists');
+      expect(response.body.message).toBe('User with this email already exists');
     });
 
     it('should return 400 for missing required fields', async () => {
@@ -288,7 +293,7 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(400);
 
-      expect(response.body.error).toBe(
+      expect(response.body.message).toBe(
         'Email, password, fullname, and type are required',
       );
     });
@@ -303,7 +308,7 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(400);
 
-      expect(response.body.error).toBe('Email, password, fullname, and type are required');
+      expect(response.body.message).toBe('Email, password, fullname, and type are required');
     });
   });
 
@@ -338,7 +343,7 @@ describe('Auth Routes (MongoDB)', () => {
         .send({})
         .expect(400);
 
-      expect(response.body.error).toBe('Request body cannot be empty');
+      expect(response.body.message).toBe('Request body cannot be empty');
     });
   });
 
@@ -388,7 +393,7 @@ describe('Auth Routes (MongoDB)', () => {
         })
         .expect(401);
 
-      expect(response.body.error).toBe('Invalid or expired reset link');
+      expect(response.body.message).toBe('Invalid or expired reset link');
     });
 
       it('should return 400 for missing resetToken', async () => {
@@ -399,7 +404,7 @@ describe('Auth Routes (MongoDB)', () => {
               })
               .expect(400);
 
-          expect(response.body.error).toBe('Token and newPassword are required');
+          expect(response.body.message).toBe('Token and newPassword are required');
       });
 
       it('should return 400 for missing newPassword', async () => {
@@ -410,7 +415,7 @@ describe('Auth Routes (MongoDB)', () => {
               })
               .expect(400);
 
-          expect(response.body.error).toBe('Token and newPassword are required');
+          expect(response.body.message).toBe('Token and newPassword are required');
       });
 
       it('should return 400 for empty request body', async () => {
@@ -419,7 +424,7 @@ describe('Auth Routes (MongoDB)', () => {
               .send({})
               .expect(400);
 
-          expect(response.body.error).toBe('Token and newPassword are required');
+          expect(response.body.message).toBe('Token and newPassword are required');
       });
   });
 });

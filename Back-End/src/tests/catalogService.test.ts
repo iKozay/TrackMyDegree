@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import { Course, CoursePool, Degree } from '@models';
 import {
   canWriteInspectionFiles,
-  CatalogError,
   CatalogResult,
   maybeBackfillBaseAcademicYear,
   maybeWritePatch,
@@ -14,6 +13,7 @@ import {
 import { applyCatalogPatch } from '../services/catalog/applyCatalogPatch';
 import { buildCatalogPatchFromSnapshot } from '../services/catalog/buildCatalogPatch';
 import { fetchCatalogSnapshot } from '../services/catalog/fetchCatalogSnapshot';
+import { CatalogError } from '../utils/errors';
 
 jest.mock('node:fs/promises');
 jest.mock('@models', () => ({

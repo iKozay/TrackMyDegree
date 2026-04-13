@@ -1,7 +1,8 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { coursepoolController } from '@controllers/coursepoolController';
 import { cacheGET } from '@middleware/cacheGet';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
 
@@ -9,7 +10,6 @@ const router = express.Router();
 // COURSE POOL ROUTES
 // ==========================
 
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 
 /**
@@ -50,22 +50,22 @@ const COURSEPOOL_CACHE_TTL = 1800; // 30 minutes
 router.get(
   '/:id',
   cacheGET(COURSEPOOL_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const id  = req.params.id as string;
       const academicYear = req.query.academicYear as string | undefined;
+      if (!id || id.trim() === '') {
+        throw new BadRequestError('Course pool ID is required');
+      }
+
       const coursePool = await coursepoolController.getCoursePool(
-        req.params.id as string,
+        id,
         academicYear,
       );
-      if (!coursePool) {
-        return res
-          .status(HTTP.NOT_FOUND)
-          .json({ error: 'Course pool not found' });
-      }
+
       return res.status(HTTP.OK).json(coursePool);
     } catch (error) {
-      console.error('Error fetching course pool:', error);
-      return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      next(error)
     }
   },
 );
@@ -95,15 +95,15 @@ router.get(
 router.get(
   '/',
   cacheGET(COURSEPOOL_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
+
       const academicYear = req.query.academicYear as string | undefined;
       const coursePools =
         await coursepoolController.getAllCoursePools(academicYear);
       return res.status(HTTP.OK).json(coursePools);
     } catch (error) {
-      console.error('Error fetching course pools:', error);
-      return res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      next(error);
     }
   },
 );

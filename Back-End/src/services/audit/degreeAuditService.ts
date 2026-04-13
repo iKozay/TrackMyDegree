@@ -13,6 +13,7 @@ import {
   GenerateAuditParams,
   TimelineCourse, TimelineDocument, TimelineResult, TimelineSemester, CourseStatus,
   CourseData, DegreeData, CoursePoolData } from '@trackmydegree/shared';
+import { NotFoundError, UnauthorizedError } from '@utils/errors';
 import { getTermRanges, isTermInProgress } from '@utils/misc';
 
 interface TimelineWithUser extends TimelineDocument {
@@ -701,11 +702,11 @@ async function fetchAndValidateTimeline(
     .exec();
 
   if (!timeline) {
-    throw new Error('Timeline not found');
+    throw new NotFoundError('Timeline not found');
   }
 
   if (timeline.userId !== userId) {
-    throw new Error('Unauthorized: Timeline does not belong to this user');
+    throw new UnauthorizedError('Timeline does not belong to this user');
   }
 
   return timeline;
@@ -722,7 +723,7 @@ async function fetchAndValidateUser(
     .exec();
 
   if (!user) {
-    throw new Error('User not found');
+    throw new NotFoundError('User not found');
   }
 
   return user;
@@ -867,7 +868,7 @@ export async function generateDegreeAuditForUser(
     .exec();
 
   if (!timeline?._id) {
-    throw new Error('No timeline found for this user');
+    throw new NotFoundError('No timeline found for this user');
   }
 
   return generateDegreeAudit({

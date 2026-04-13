@@ -1,7 +1,7 @@
 // controllers/resultController.ts
 import type { RequestHandler } from 'express';
 import { cacheJobResult, getJobResult } from '../lib/cache';
-
+import { BadRequestError, NotFoundError } from '@utils/errors';
 interface GetResultParams {
   jobId: string;
 }
@@ -13,18 +13,16 @@ export interface CachedJobResult<T = unknown> {
 }
 export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
   res.setHeader('Cache-Control', 'no-store');
-
-  try {
     const { jobId } = req.params;
 
     if (!jobId) {
-      return res.status(404).json({ message: 'Job not passed' });
+      throw new BadRequestError('Job ID not provided');
     }
     // get result from cache
-    const cached = await getJobResult<CachedJobResult>(jobId);
+    const cached = await getJobResult(jobId);
 
     if (!cached) {
-      return res.status(410).json({ error: 'result expired' });
+      throw new NotFoundError('Timeline not found');
     }
 
     if (cached.payload?.status === 'failed') {
@@ -40,10 +38,6 @@ export const getByJobId: RequestHandler<GetResultParams> = async (req, res) => {
       status: cached.payload.status,
       result: cached.payload.data,
     });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error fetching result' });
-  }
 };
 type CachedTimeline = {
   pools: {
@@ -96,19 +90,18 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
   req,
   res,
 ) => {
-  try {
     const { jobId } = req.params;
     const partialUpdate = req.body as TimelinePartialUpdate;
 
     if (!jobId) {
-      return res.status(404).json({ message: 'Job ID not provided' });
+      throw new BadRequestError('Job ID not provided');
     }
 
     // IMPORTANT: generic is the DATA type, not CachedJobResult
     const cached = await getJobResult<CachedTimeline>(jobId);
 
     if (!cached?.payload?.data) {
-      return res.status(404).json({ message: 'Timeline not found' });
+      throw new NotFoundError('Timeline not found');
     }
 
     const timeline = cached.payload.data;
@@ -135,8 +128,4 @@ export const cacheTimelineByJobId: RequestHandler<GetResultParams> = async (
     });
 
     return res.json({ message: 'Timeline updated successfully' });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ message: 'Error caching timeline' });
-  }
 };

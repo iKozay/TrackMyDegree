@@ -1,12 +1,9 @@
-const createError = require('http-errors');
 const Sentry = require('@sentry/node');
-const {
-  notFoundHandler,
-  errorHandler,
-} = require('../../middleware/errorHandler');
+const { notFoundHandler, errorHandler } = require('../../middleware/errorHandler');
+const { APIError, INTERNAL_SERVER_ERROR, NotFoundError } = require('../../utils/errors');
 const HTTP = require('../../utils/httpCodes');
 
-// mock dependencies
+// Mock dependencies
 jest.mock('http-errors');
 jest.mock('@sentry/node');
 jest.mock('../../utils/httpCodes', () => ({
@@ -20,13 +17,14 @@ describe('Error Handler Middleware', () => {
   let mockNext;
   let mockJson;
   let mockStatus;
-  // reset mocks before each test
+
   beforeEach(() => {
     mockJson = jest.fn();
     mockStatus = jest.fn().mockReturnValue({ json: mockJson });
 
     mockReq = {
       originalUrl: '/test/route',
+      method: 'GET',
     };
 
     mockRes = {
@@ -35,134 +33,103 @@ describe('Error Handler Middleware', () => {
     };
 
     mockNext = jest.fn();
-
     jest.clearAllMocks();
   });
-  // tests for notFoundHandler middleware
+
+  // --- notFoundHandler ---
   describe('notFoundHandler', () => {
-    it('creates 404 error and calls next with error', () => {
-      const mockError = new Error('Route /test/route not found');
-      createError.mockReturnValue(mockError);
-
+     it('creates NotFoundError and calls next with it', () => {
       notFoundHandler(mockReq, mockRes, mockNext);
 
-      expect(createError).toHaveBeenCalledWith(
-        HTTP.NOT_FOUND,
-        'Route /test/route not found',
-      );
-      expect(Sentry.captureException).toHaveBeenCalledWith(mockError);
-      expect(mockNext).toHaveBeenCalledWith(mockError);
-    });
+      expect(mockNext).toHaveBeenCalledTimes(1);
 
-    it('handles different originalUrl values', () => {
-      mockReq.originalUrl = '/api/users/123';
-      const mockError = new Error('Route /api/users/123 not found');
-      createError.mockReturnValue(mockError);
+      const err = mockNext.mock.calls[0][0];
 
-      notFoundHandler(mockReq, mockRes, mockNext);
-
-      expect(createError).toHaveBeenCalledWith(
-        HTTP.NOT_FOUND,
-        'Route /api/users/123 not found',
-      );
-      expect(mockNext).toHaveBeenCalledWith(mockError);
+      expect(err).toBeInstanceOf(NotFoundError);
+      expect(err.message).toBe(`Route ${mockReq.originalUrl} not found`);
     });
   });
-  // tests for errorHandler middleware
+
+  // --- errorHandler ---
   describe('errorHandler', () => {
-    it('handles error with status and message', () => {
-      const error = {
+    it('handles APIError (4xx) without sending to Sentry', () => {
+      const error = new APIError('Custom API error', 400);
+
+      errorHandler(error, mockReq, mockRes, mockNext);
+
+      expect(Sentry.captureException).not.toHaveBeenCalled();
+
+      expect(mockStatus).toHaveBeenCalledWith(400);
+      expect(mockJson).toHaveBeenCalledWith({
+        success: false,
+        error: 'APIError',
+        message: 'Custom API error',
         status: 400,
-        message: 'Bad Request',
-      };
+      });
+    });
+
+    it('handles generic error (5xx) and sends to Sentry', () => {
+      const error = new Error('Something went wrong');
 
       errorHandler(error, mockReq, mockRes, mockNext);
 
       expect(Sentry.captureException).toHaveBeenCalledWith(error);
-      expect(mockStatus).toHaveBeenCalledWith(400);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'Bad Request',
-        status: 400,
-      });
-    });
-
-    it('handles error with statusCode instead of status', () => {
-      const error = {
-        statusCode: 401,
-        message: 'Unauthorized',
-      };
-
-      errorHandler(error, mockReq, mockRes, mockNext);
-
-      expect(mockStatus).toHaveBeenCalledWith(401);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'Unauthorized',
-        status: 401,
-      });
-    });
-
-    it('uses default status 500 when no status is provided', () => {
-      const error = {
-        message: 'Something went wrong',
-      };
-
-      errorHandler(error, mockReq, mockRes, mockNext);
 
       expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
       expect(mockJson).toHaveBeenCalledWith({
-        error: 'Something went wrong',
+        success: false,
+        error: 'InternalServerError',
+        message: INTERNAL_SERVER_ERROR,
         status: HTTP.SERVER_ERR,
       });
     });
 
-    it('uses default message when no message is provided', () => {
-      const error = {
-        status: 422,
-      };
+    it('handles unknown error object (treated as 5xx)', () => {
+      const error = { foo: 'bar' };
 
       errorHandler(error, mockReq, mockRes, mockNext);
 
-      expect(mockStatus).toHaveBeenCalledWith(422);
-      expect(mockJson).toHaveBeenCalledWith({
-        error: 'Internal Server Error',
-        status: 422,
-      });
-    });
-
-    it('handles error with no status or message (full defaults)', () => {
-      const error = {};
-
-      errorHandler(error, mockReq, mockRes, mockNext);
+      expect(Sentry.captureException).toHaveBeenCalledWith(error);
 
       expect(mockStatus).toHaveBeenCalledWith(HTTP.SERVER_ERR);
       expect(mockJson).toHaveBeenCalledWith({
-        error: 'Internal Server Error',
+        success: false,
+        error: 'InternalServerError',
+        message: INTERNAL_SERVER_ERROR,
         status: HTTP.SERVER_ERR,
       });
     });
 
-    it('prioritizes status over statusCode when both are present', () => {
-      const error = {
-        status: 403,
-        statusCode: 401,
-        message: 'Forbidden',
-      };
+    it('does not send 403 APIError to Sentry', () => {
+      const error = new APIError('Forbidden', 403);
 
       errorHandler(error, mockReq, mockRes, mockNext);
+
+      expect(Sentry.captureException).not.toHaveBeenCalled();
 
       expect(mockStatus).toHaveBeenCalledWith(403);
       expect(mockJson).toHaveBeenCalledWith({
-        error: 'Forbidden',
+        success: false,
+        error: 'APIError',
+        message: 'Forbidden',
         status: 403,
       });
     });
 
-    it('captures exception in Sentry for all error types', () => {
-      const error = new Error('Test error');
+    it('logs every error to console', () => {
+      const error = new Error('Log test');
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
 
       errorHandler(error, mockReq, mockRes, mockNext);
 
-      expect(Sentry.captureException).toHaveBeenCalledWith(error);
+      expect(consoleSpy).toHaveBeenCalledWith(
+       '[%s] %s →',
+        mockReq.method,
+        mockReq.originalUrl,
+        error
+      );
+
+      consoleSpy.mockRestore();
     });
   });
 });

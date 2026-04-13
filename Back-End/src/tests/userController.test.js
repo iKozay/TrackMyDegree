@@ -94,11 +94,11 @@ describe('UserController', () => {
     it('should reject unsupported user types', async () => {
       await expect(
         userController.createUser({
-          email: 'admin@example.com',
-          fullname: 'Admin',
-          type: 'admin',
+          email: 'user@example.com',
+          fullname: 'User',
+          type: 'badType',
         }),
-      ).rejects.toThrow('User type (admin) is not supported');
+      ).rejects.toThrow('User type (badType) is not supported');
     });
 
   });
@@ -129,7 +129,7 @@ describe('UserController', () => {
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       await expect(userController.getUserById(fakeId)).rejects.toThrow(
-        'User with this id does not exist',
+        'User not found',
       );
     });
 
@@ -228,22 +228,19 @@ describe('UserController', () => {
       const updates = { fullname: 'Updated Name' };
 
       await expect(userController.updateUser(fakeId, updates)).rejects.toThrow(
-        'User with this id does not exist',
+        'User not found',
       );
     });
 
     it('should handle database errors', async () => {
       // Mock userController.updateById to throw an error
       const originalUpdateById = userController.updateById;
-      userController.updateById = jest.fn().mockResolvedValue({
-        success: false,
-        error: 'Database connection failed',
-      });
+      userController.updateById = jest.fn().mockRejectedValue(new Error('Database connection failed'));
 
       const updates = { fullname: 'Updated Name' };
       await expect(
         userController.updateUser(testUser._id.toString(), updates),
-      ).rejects.toThrow('User with this id does not exist');
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       userController.updateById = originalUpdateById;
@@ -258,7 +255,7 @@ describe('UserController', () => {
         fullname: 'Still Allowed Update',
       },
     );
-
+    
     // Allowed fields should update
     expect(result.fullname).toBe('Still Allowed Update');
 
@@ -296,21 +293,18 @@ describe('UserController', () => {
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       await expect(userController.deleteUser(fakeId)).rejects.toThrow(
-        'User with this id does not exist',
+        'User not found',
       );
     });
 
     it('should handle database errors', async () => {
       // Mock userController.deleteById to throw an error
       const originalDeleteById = userController.deleteById;
-      userController.deleteById = jest.fn().mockResolvedValue({
-        success: false,
-        error: 'Database connection failed',
-      });
+      userController.deleteById = jest.fn().mockRejectedValue(new Error('Database connection failed'));
 
       await expect(
         userController.deleteUser(testUser._id.toString()),
-      ).rejects.toThrow('User with this id does not exist');
+      ).rejects.toThrow('Database connection failed');
 
       // Restore original method
       userController.deleteById = originalDeleteById;
@@ -362,7 +356,7 @@ describe('UserController', () => {
     it('should throw error for non-existent user', async () => {
       const fakeId = new mongoose.Types.ObjectId().toString();
       await expect(userController.getUserData(fakeId)).rejects.toThrow(
-        'User with this id does not exist',
+        'User not found',
       );
     });
 
@@ -382,149 +376,4 @@ describe('UserController', () => {
     });
   });
 
-  describe('Additional Edge Cases for Coverage', () => {
-    let testUser;
-
-    beforeEach(async () => {
-      testUser = await User.create({
-        _id: new mongoose.Types.ObjectId().toString(),
-        email: 'test@example.com',
-        fullname: 'Test User',
-        type: 'student',
-      });
-    });
-
-    it('should handle createUser when exists check returns data', async () => {
-      const originalExists = userController.exists;
-      userController.exists = jest.fn().mockResolvedValue({
-        success: true,
-        data: true,
-      });
-
-      const userData = {
-        email: 'duplicate@example.com',
-        password: 'password123',
-        fullname: 'Duplicate User',
-        type: 'student',
-      };
-
-      await expect(userController.createUser(userData)).rejects.toThrow(
-        'User with this email already exists',
-      );
-
-      userController.exists = originalExists;
-    });
-
-    it('should handle createUser when create returns error without message', async () => {
-      const originalExists = userController.exists;
-      const originalCreate = userController.create;
-
-      userController.exists = jest
-        .fn()
-        .mockResolvedValue({ success: true, data: false });
-      userController.create = jest.fn().mockResolvedValue({
-        success: false,
-        error: null,
-      });
-
-      const userData = {
-        email: 'test2@example.com',
-        password: 'password123',
-        fullname: 'Test User 2',
-        type: 'student',
-      };
-
-      await expect(userController.createUser(userData)).rejects.toThrow(
-        'Failed to create user',
-      );
-
-      userController.exists = originalExists;
-      userController.create = originalCreate;
-    });
-
-    it('should handle getAllUsers when findAll returns null data', async () => {
-      const originalFindAll = userController.findAll;
-      userController.findAll = jest.fn().mockResolvedValue({
-        success: true,
-        data: null,
-      });
-
-      const result = await userController.getAllUsers();
-      expect(result).toEqual([]);
-
-      userController.findAll = originalFindAll;
-    });
-
-    it('should handle getAllUsers when findAll returns error without message', async () => {
-      const originalFindAll = userController.findAll;
-      userController.findAll = jest.fn().mockResolvedValue({
-        success: false,
-        error: null,
-      });
-
-      await expect(userController.getAllUsers()).rejects.toThrow(
-        'Failed to fetch users',
-      );
-
-      userController.findAll = originalFindAll;
-    });
-
-    it('should handle getUserData when findById returns error without data', async () => {
-      const originalFindById = userController.findById;
-      userController.findById = jest.fn().mockResolvedValue({
-        success: false,
-        data: null,
-      });
-
-      await expect(userController.getUserData('fake123')).rejects.toThrow(
-        'User with this id does not exist',
-      );
-
-      userController.findById = originalFindById;
-    });
-
-    it('should handle deleteUser when deleteById returns error without message', async () => {
-      const originalDeleteById = userController.deleteById;
-      userController.deleteById = jest.fn().mockResolvedValue({
-        success: false,
-        error: null,
-      });
-
-      await expect(
-        userController.deleteUser(testUser._id.toString()),
-      ).rejects.toThrow('User with this id does not exist');
-
-      userController.deleteById = originalDeleteById;
-    });
-
-    it('should handle updateUser when updateById returns error without message', async () => {
-      const originalUpdateById = userController.updateById;
-      userController.updateById = jest.fn().mockResolvedValue({
-        success: false,
-        error: null,
-      });
-
-      await expect(
-        userController.updateUser(testUser._id.toString(), {
-          fullname: 'Updated',
-        }),
-      ).rejects.toThrow('User with this id does not exist');
-
-      userController.updateById = originalUpdateById;
-    });
-
-    it('should handle getUserById when findById returns error without message', async () => {
-      const originalFindById = userController.findById;
-      userController.findById = jest.fn().mockResolvedValue({
-        success: false,
-        error: null,
-      });
-
-      await expect(userController.getUserById('fake123')).rejects.toThrow(
-        'User with this id does not exist',
-      );
-
-      userController.findById = originalFindById;
-    });
-  });
 });

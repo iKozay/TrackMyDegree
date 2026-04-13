@@ -61,13 +61,13 @@ export async function seedAllDegreeData(): Promise<string> {
 async function saveDegreeRequirementsToDB(
   data: ParseDegreeResponse,
 ): Promise<void> {
-  const degreeCreated = await degreeController.createDegree(data.degree);
-  if (degreeCreated) {
-    console.log(`Degree ${data.degree._id} created successfully.`);
-  } else {
-    await degreeController.updateDegree(data.degree._id, data.degree);
-    console.log(`Degree ${data.degree._id} already exists. Updated existing degree.`);
-  }
+  
+  // Use upsert to create or update the degree and course pools in one operation 
+  await degreeController.upsert(
+    { _id: data.degree._id },
+    data.degree,
+  );
+  console.log(`Degree ${data.degree._id} created/updated successfully.`);
 
   await coursepoolController.bulkCreateCoursePools(data.coursePools);
   console.log(`Course pools for degree ${data.degree.name} created/updated successfully.`);

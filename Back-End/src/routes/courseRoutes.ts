@@ -1,12 +1,12 @@
 import HTTP from '@utils/httpCodes';
-import express, { Request, Response } from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import { courseController } from '@controllers/courseController';
 import { degreeController } from '@controllers/degreeController';
 
 import { cacheGET } from '@middleware/cacheGet';
+import { BadRequestError } from '@utils/errors';
 
 const router = express.Router();
-const INTERNAL_SERVER_ERROR = 'Internal server error';
 // Cache Time To Live
 const COURSE_CACHE_TTL = 900; // 15 minutes
 const COURSE_BY_DEGREE_CACHE_TTL = 1800; // 30 minutes
@@ -86,35 +86,34 @@ const COURSE_BY_DEGREE_CACHE_TTL = 1800; // 30 minutes
 router.get(
   '/',
   cacheGET(COURSE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { pool, search, page, limit, sort, academicYear } = req.query;
+        const { pool, search, page, limit, sort, academicYear } = req.query;
 
-      const courses = await courseController.getAllCourses({
-        pool: pool as string,
-        search: search as string,
-        page: page ? Number.parseInt(page as string) : undefined,
-        limit: limit ? Number.parseInt(limit as string) : undefined,
-        sort: sort as string,
-        academicYear: academicYear as string,
-      });
-      res.status(HTTP.OK).json(courses);
+        const courses = await courseController.getAllCourses({
+          pool: pool as string,
+          search: search as string,
+          page: page ? Number.parseInt(page as string) : undefined,
+          limit: limit ? Number.parseInt(limit as string) : undefined,
+          sort: sort as string,
+          academicYear: academicYear as string,
+        });
+        res.status(HTTP.OK).json(courses);
     } catch (error) {
-      console.error('Error in GET /courses', error);
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+        next(error);
     }
   },
 );
 
-router.get('/all-codes', async (req: Request, res: Response) => {
-  try {
-    const courseCodes = await courseController.getAllCourseCodes();
-    res.status(HTTP.OK).json({ courseCodes });
-  } catch (error) {
-    console.error('Error in GET /courses/all-codes', error);
-    res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-  }
+router.get('/all-codes', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const courseCodes = await courseController.getAllCourseCodes();
+        res.status(HTTP.OK).json({ courseCodes });
+    } catch (error) {
+        next(error);
+    }
 });
+
 
 /**
  * GET /courses/by-degree/:degreeId - Get courses grouped by pools for a degree
@@ -122,17 +121,14 @@ router.get('/all-codes', async (req: Request, res: Response) => {
 router.get(
   '/by-degree/:degreeId',
   cacheGET(COURSE_BY_DEGREE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { degreeId } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
       const cleanDegreeId = `${degreeId ?? ''}`.trim();
 
       if (!cleanDegreeId) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Degree ID is required',
-        });
-        return;
+       throw new BadRequestError('Degree ID is required');
       }
       const coursePools = await degreeController.getCoursePoolsForDegree(
         cleanDegreeId,
@@ -158,8 +154,7 @@ router.get(
 
       res.status(HTTP.OK).json(populatedPools);
     } catch (error) {
-      console.error('Error in GET /courses/by-degree/:degreeId', error);
-      res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
+      next(error);
     }
   },
 );
@@ -204,17 +199,14 @@ router.get(
 router.get(
   '/:code',
   cacheGET(COURSE_CACHE_TTL),
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { code } = req.params;
       const academicYear = req.query.academicYear as string | undefined;
       const cleanCode = `${code ?? ''}`.trim();
 
       if (!cleanCode) {
-        res.status(HTTP.BAD_REQUEST).json({
-          error: 'Course code is required',
-        });
-        return;
+        throw new BadRequestError('Course code is required');
       }
 
       const course = await courseController.getCourseByCode(
@@ -223,12 +215,7 @@ router.get(
       );
       res.status(HTTP.OK).json(course);
     } catch (error) {
-      console.error('Error in GET /courses/:code', error);
-      if (error instanceof Error && error.message.includes('not found')) {
-        res.status(HTTP.NOT_FOUND).json({ error: error.message });
-      } else {
-        res.status(HTTP.SERVER_ERR).json({ error: INTERNAL_SERVER_ERROR });
-      }
+      next(error);
     }
   },
 );
