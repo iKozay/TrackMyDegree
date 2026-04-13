@@ -13,6 +13,9 @@ const mockUsers = [
   { _id: '3', email: 'carol@test.com', fullname: 'Carol White', type: 'student', createdAt: '2024-03-01' },
 ];
 
+// Component calls api.get<ApiResponse<UserDocument[]>> and reads result.data
+const mockUsersResponse = { data: mockUsers };
+
 afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 describe('UserManagementTab', () => {
@@ -23,7 +26,7 @@ describe('UserManagementTab', () => {
   });
 
   it('renders user names and emails', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => {
       expect(screen.getByText('Alice Smith')).toBeInTheDocument();
@@ -40,7 +43,7 @@ describe('UserManagementTab', () => {
   });
 
   it('filters users by search input', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('Alice Smith')).toBeInTheDocument(); });
 
@@ -53,7 +56,7 @@ describe('UserManagementTab', () => {
   });
 
   it('filters users by role', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('Alice Smith')).toBeInTheDocument(); });
 
@@ -64,7 +67,7 @@ describe('UserManagementTab', () => {
   });
 
   it('shows user count', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => {
       expect(screen.getByText(/3 of 3/i)).toBeInTheDocument();
@@ -72,13 +75,13 @@ describe('UserManagementTab', () => {
   });
 
   it('renders Create User button', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('+ Create User')).toBeInTheDocument(); });
   });
 
   it('opens create user modal on button click', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('+ Create User')).toBeInTheDocument(); });
 
@@ -87,13 +90,13 @@ describe('UserManagementTab', () => {
   });
 
   it('renders Invite Admin button', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('Invite Admin')).toBeInTheDocument(); });
   });
 
   it('opens invite admin modal on button click', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getByText('Invite Admin')).toBeInTheDocument(); });
 
@@ -103,8 +106,8 @@ describe('UserManagementTab', () => {
 
   it('calls DELETE endpoint when delete is confirmed', async () => {
     vi.mocked(api.get)
-      .mockResolvedValueOnce(mockUsers as any)
-      .mockResolvedValueOnce(mockUsers as any);
+      .mockResolvedValueOnce(mockUsersResponse as any)
+      .mockResolvedValueOnce(mockUsersResponse as any);
     vi.mocked(api.delete).mockResolvedValueOnce({} as any);
     vi.spyOn(window, 'confirm').mockReturnValue(true);
 
@@ -119,7 +122,7 @@ describe('UserManagementTab', () => {
   });
 
   it('does not call DELETE when delete is cancelled', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     vi.spyOn(window, 'confirm').mockReturnValue(false);
 
     render(<UserManagementTab />);
@@ -130,7 +133,7 @@ describe('UserManagementTab', () => {
   });
 
   it('opens edit modal when Edit is clicked', async () => {
-    vi.mocked(api.get).mockResolvedValueOnce(mockUsers as any);
+    vi.mocked(api.get).mockResolvedValueOnce(mockUsersResponse as any);
     render(<UserManagementTab />);
     await waitFor(() => { expect(screen.getAllByText('Edit')).toHaveLength(3); });
 
@@ -140,8 +143,8 @@ describe('UserManagementTab', () => {
 
   it('submits create user form and reloads', async () => {
     vi.mocked(api.get)
-      .mockResolvedValueOnce(mockUsers as any)
-      .mockResolvedValueOnce(mockUsers as any);
+      .mockResolvedValueOnce(mockUsersResponse as any)
+      .mockResolvedValueOnce(mockUsersResponse as any);
     vi.mocked(api.post).mockResolvedValueOnce({} as any);
 
     render(<UserManagementTab />);
