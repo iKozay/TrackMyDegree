@@ -40,8 +40,8 @@ services:
       - GF_RENDERING_CALLBACK_URL=http://grafana:3000/
     volumes:
       - grafana-data:/var/lib/grafana
-      - ./Back-End/performance/grafana/provisioning:/etc/grafana/provisioning
-      - ./Back-End/performance/grafana/dashboards:/var/lib/grafana/dashboards
+      - ./backend/performance/grafana/provisioning:/etc/grafana/provisioning
+      - ./backend/performance/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - influxdb
       - renderer

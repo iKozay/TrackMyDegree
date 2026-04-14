@@ -2,8 +2,8 @@
   "name": "trackmydegree",
   "private": true,
   "workspaces": [
-    "Back-End/src",
-    "ts-front-end",
+    "backend/src",
+    "frontend",
     "shared"
   ],
   "devDependencies": {
@@ -16,9 +16,9 @@
     "build:shared": "npm --prefix shared run build",
     "dev:all": "concurrently --names \"SHARED,BACKEND-API,BACKEND-WORKER,FRONTEND\" --prefix-colors \"yellow,blue,green,magenta\" \"npm run dev:shared\" \"npm run dev:backend\" \"npm run dev:worker\" \"npm run dev:frontend\"",
     "dev:shared": "npm --prefix shared run build:watch",
-    "dev:backend": "npm --prefix Back-End/src run dev:api",
-    "dev:worker": "npm --prefix Back-End/src run dev:worker",
-    "dev:frontend": "npm --prefix ts-front-end run dev"
+    "dev:backend": "npm --prefix backend/src run dev:api",
+    "dev:worker": "npm --prefix backend/src run dev:worker",
+    "dev:frontend": "npm --prefix frontend run dev"
   },
   "dependencies": {
     "cookie": "^1.1.1",

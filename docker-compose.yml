@@ -3,7 +3,7 @@ version: "3.8"
 services:
   python_utils:
     build:
-      context: ./Back-End/python_utils
+      context: ./backend/python_utils
       dockerfile: Dockerfile
     container_name: python_utils_service
     volumes:

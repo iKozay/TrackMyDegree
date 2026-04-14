@@ -12,9 +12,9 @@ COPY tsconfig.base.json ./
 COPY shared ./shared
 
 # Copy backend source
-COPY Back-End/src/package*.json ./Back-End/src/
-COPY Back-End/src/tsconfig.json ./Back-End/src/
-COPY Back-End/src ./Back-End/src
+COPY backend/src/package*.json ./backend/src/
+COPY backend/src/tsconfig.json ./backend/src/
+COPY backend/src ./backend/src
 
 # Install workspace dependencies (this will link the shared module)
 RUN npm ci --ignore-scripts
@@ -24,7 +24,7 @@ WORKDIR /app/shared
 RUN npm run build
 
 # Build backend
-WORKDIR /app/Back-End/src
+WORKDIR /app/backend/src
 RUN npx ts-patch install -s
 RUN npm run build
 
@@ -41,10 +41,10 @@ WORKDIR /app
 # Copy everything from builder - this includes node_modules with workspace links
 COPY --from=builder --chown=65532:65532 /app/node_modules ./node_modules
 COPY --from=builder --chown=65532:65532 /app/shared       ./shared
-COPY --from=builder --chown=65532:65532 /app/Back-End/src/dist ./dist
+COPY --from=builder --chown=65532:65532 /app/backend/src/dist ./dist
 COPY --from=builder --chown=65532:65532 /app/data         ./data
 COPY --from=builder --chown=65532:65532 /app/tmp          ./tmp
-COPY --from=builder --chown=65532:65532 /app/Back-End/src/public ./dist/Back-End/src/public
+COPY --from=builder --chown=65532:65532 /app/backend/src/public ./dist/backend/src/public
 
 EXPOSE 8000
 

@@ -40,25 +40,25 @@ jobs:
       matrix:
         include:
           - name: python-utils
-            working-directory: Back-End/python_utils
+            working-directory: backend/python_utils
             manifest: requirements.txt
-            dockerfile: ./Back-End/python_utils/Dockerfile
-            context: ./Back-End/python_utils
+            dockerfile: ./backend/python_utils/Dockerfile
+            context: ./backend/python_utils
             image: trackmydegree-python-utils
             runtime: python
             python-version: '3.11'
           - name: backend
-            working-directory: Back-End/src
+            working-directory: backend/src
             manifest: package-lock.json
-            dockerfile: ./Back-End/src/Dockerfile
+            dockerfile: ./backend/src/Dockerfile
             context: .
             image: trackmydegree-backend
             runtime: node
             node-version: '22'
           - name: frontend
-            working-directory: ts-front-end
+            working-directory: frontend
             manifest: package-lock.json
-            dockerfile: ./ts-front-end/Dockerfile
+            dockerfile: ./frontend/Dockerfile
             context: .
             image: trackmydegree-frontend
             runtime: node

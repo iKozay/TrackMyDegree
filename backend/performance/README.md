@@ -139,7 +139,7 @@ This means k6 is generating metrics faster than InfluxDB can ingest them. Under 
 ## File structure
 
 ```
-Back-End/performance/
+backend/performance/
 ├── k6-timeline.js              # Entry point: timeline CRUD flow (options, setup, teardown, default)
 ├── k6-coop-validation.js       # Entry point: coop validation flow (options, setup, teardown, default)
 ├── k6-degree-audit.js          # Entry point: degree audit flow (options, setup, teardown, default)
@@ -278,7 +278,7 @@ docker compose up -d
 docker compose -f docker-compose.test.yml up -d
 
 # Start backend with BullMQ worker
-cd Back-End/src
+cd backend/src
 npm run dev
 ```
 
@@ -286,10 +286,10 @@ npm run dev
 
 ### Running the tests
 
-All tests follow the same command pattern from the `Back-End/performance` directory:
+All tests follow the same command pattern from the `backend/performance` directory:
 
 ```bash
-cd Back-End/performance
+cd backend/performance
 # Default load test - refer to notes below for default VU counts per script
 k6 run --out influxdb=http://localhost:8086/k6 <script>
 ```

@@ -202,7 +202,7 @@ export async function buildFilledCoopSequenceForm(
 ): Promise<CoopFormBuildResult> {
   const templatePath = resolveFormTemplatePath();
   if (!templatePath) {
-    throw new Error('Co-op sequence form template not found in Back-End/src/public.');
+    throw new Error('Co-op sequence form template not found in backend/src/public.');
   }
 
   const templateBytes = await fs.promises.readFile(templatePath);

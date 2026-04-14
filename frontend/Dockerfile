@@ -12,9 +12,9 @@ COPY tsconfig.base.json ./
 COPY shared ./shared
 
 # Copy frontend source
-COPY ts-front-end/package*.json ./ts-front-end/
-COPY ts-front-end/tsconfig*.json ./ts-front-end/
-COPY ts-front-end ./ts-front-end
+COPY frontend/package*.json ./frontend/
+COPY frontend/tsconfig*.json ./frontend/
+COPY frontend ./frontend
 
 # Install workspace dependencies (this will link the shared module)
 RUN npm ci --ignore-scripts
@@ -24,7 +24,7 @@ WORKDIR /app/shared
 RUN npm run build
 
 # Build frontend
-WORKDIR /app/ts-front-end
+WORKDIR /app/frontend
 
 ARG VITE_DEPLOYMENT_VERSION
 ENV VITE_DEPLOYMENT_VERSION=$VITE_DEPLOYMENT_VERSION
@@ -46,8 +46,8 @@ FROM gcr.io/distroless/nodejs22-debian12:nonroot
 WORKDIR /app
 
 COPY --from=serve-deps  --chown=65532:65532 /app/node_modules ./node_modules
-COPY --from=builder     --chown=65532:65532 /app/ts-front-end/dist ./dist
-COPY --chown=65532:65532 ts-front-end/startup.js ./startup.js
+COPY --from=builder     --chown=65532:65532 /app/frontend/dist ./dist
+COPY --chown=65532:65532 frontend/startup.js ./startup.js
 
 EXPOSE 4173
 

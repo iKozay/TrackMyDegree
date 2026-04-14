@@ -164,7 +164,7 @@ describe('buildFilledCoopSequenceForm', () => {
     jest.spyOn(fs, 'existsSync').mockReturnValue(false);
 
     await expect(buildFilledCoopSequenceForm({ semesters: [] })).rejects.toThrow(
-      'Co-op sequence form template not found in Back-End/src/public.',
+      'Co-op sequence form template not found in backend/src/public.',
     );
   });
 

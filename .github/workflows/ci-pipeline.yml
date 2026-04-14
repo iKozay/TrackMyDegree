@@ -45,17 +45,17 @@ jobs:
           npm run build
 
       - name: Install dependencies for frontend
-        working-directory: ./ts-front-end
+        working-directory: ./frontend
         run: |
           npm ci
 
       - name: Run ESLint for frontend
-        working-directory: ./ts-front-end
+        working-directory: ./frontend
         run: |
           npm run lint -- --quiet
 
       - name: Run frontend tests with coverage
-        working-directory: ./ts-front-end
+        working-directory: ./frontend
         env:
           # Setting CI to false to avoid treating warnings as errors
           CI: false
@@ -67,7 +67,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
-          path: ts-front-end/coverage
+          path: frontend/coverage
 
   backend:
     runs-on: ubuntu-latest
@@ -93,17 +93,17 @@ jobs:
           npm run build
 
       - name: Install dependencies for backend
-        working-directory: ./Back-End/src
+        working-directory: ./backend/src
         run: |
           npm ci
 
       - name: Run ESLint for backend
-        working-directory: ./Back-End/src
+        working-directory: ./backend/src
         run: |
           npm run lint
 
       - name: Run backend tests with coverage
-        working-directory: ./Back-End/src
+        working-directory: ./backend/src
         run: |
           npm run build
           npm test -- --coverage --silent
@@ -112,7 +112,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
-          path: Back-End/src/coverage
+          path: backend/src/coverage
 
   python-utils:
     runs-on: ubuntu-latest
@@ -123,7 +123,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run python_utils tests with coverage
-        working-directory: Back-End/python_utils
+        working-directory: backend/python_utils
         run: |
           python3 -m venv venv
           source venv/bin/activate
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: python-utils-coverage
-          path: Back-End/python_utils/coverage.xml
+          path: backend/python_utils/coverage.xml
   
   integration-tests:
     runs-on: ubuntu-latest
@@ -152,12 +152,12 @@ jobs:
           node-version: '22.21'
 
       - name: Install dependencies for backend
-        working-directory: ./Back-End/src
+        working-directory: ./backend/src
         run: |
           npm ci
 
       - name: Run integration tests
-        working-directory: ./Back-End/src
+        working-directory: ./backend/src
         run: |
           npm run test:integration
 
@@ -174,19 +174,19 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: frontend-coverage
-          path: ts-front-end/coverage
+          path: frontend/coverage
 
       - name: Download backend coverage artifact (backend)
         uses: actions/download-artifact@v4
         with:
           name: backend-coverage
-          path: Back-End/src/coverage
+          path: backend/src/coverage
 
       - name: Download python-utils coverage artifact (python-utils)
         uses: actions/download-artifact@v4
         with:
           name: python-utils-coverage
-          path: Back-End/python_utils
+          path: backend/python_utils
 
       - name: Run SonarCloud Scan
         uses: sonarsource/sonarqube-scan-action@v6
@@ -206,16 +206,16 @@ jobs:
       matrix:
         include:
           - name: python-utils
-            context: ./Back-End/python_utils
-            dockerfile: ./Back-End/python_utils/Dockerfile
+            context: ./backend/python_utils
+            dockerfile: ./backend/python_utils/Dockerfile
             image: trackmydegree-python-utils
           - name: backend
             context: .
-            dockerfile: ./Back-End/src/Dockerfile
+            dockerfile: ./backend/src/Dockerfile
             image: trackmydegree-backend
           - name: frontend
             context: .
-            dockerfile: ./ts-front-end/Dockerfile
+            dockerfile: ./frontend/Dockerfile
             image: trackmydegree-frontend
 
     steps:
