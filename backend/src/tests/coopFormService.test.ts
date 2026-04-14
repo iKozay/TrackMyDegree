@@ -73,7 +73,7 @@ describe('buildFilledCoopSequenceForm', () => {
 
   afterAll(() => {
     if (originalNodeEnv === undefined) {
-      delete process.env.NODE_ENV;
+      Reflect.deleteProperty(process.env, 'NODE_ENV');
       return;
     }
 
