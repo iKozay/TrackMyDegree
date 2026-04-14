@@ -1,7 +1,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { PDFDocument } from 'pdf-lib';
-import { buildFilledCoopSequenceForm } from '../services/coop/coopFormService';
+
+type BuildFilledCoopSequenceForm =
+  typeof import('../services/coop/coopFormService').buildFilledCoopSequenceForm;
 
 const FORM_FILENAME = 'SEQUENCE CHANGE REQUEST FORM.pdf';
 
@@ -58,11 +60,24 @@ describe('buildFilledCoopSequenceForm', () => {
     '../public',
     FORM_FILENAME,
   );
+  const originalNodeEnv = process.env.NODE_ENV;
 
   let templateBytes: Uint8Array;
+  let buildFilledCoopSequenceForm: BuildFilledCoopSequenceForm;
 
   beforeAll(async () => {
+    process.env.NODE_ENV = 'development';
+    ({ buildFilledCoopSequenceForm } = await import('../services/coop/coopFormService'));
     templateBytes = await createTemplateBytes();
+  });
+
+  afterAll(() => {
+    if (originalNodeEnv === undefined) {
+      delete process.env.NODE_ENV;
+      return;
+    }
+
+    process.env.NODE_ENV = originalNodeEnv;
   });
 
   afterEach(() => {
