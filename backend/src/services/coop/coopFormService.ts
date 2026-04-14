@@ -3,11 +3,20 @@ import path from 'node:path';
 import { PDFDocument, PDFForm } from 'pdf-lib';
 
 const FORM_TEMPLATE_FILENAME = 'SEQUENCE CHANGE REQUEST FORM.pdf';
-const FORM_TEMPLATE_PATH = path.resolve(
-  __dirname,
-  '../../public',
-  FORM_TEMPLATE_FILENAME,
-);
+let FORM_TEMPLATE_PATH: string;
+if (process.env.NODE_ENV === 'development') {
+  FORM_TEMPLATE_PATH = path.resolve(
+    __dirname,
+    '../../public',
+    FORM_TEMPLATE_FILENAME,
+  );
+} else {
+  FORM_TEMPLATE_PATH = path.resolve(
+    __dirname,
+    '/app/public',
+    FORM_TEMPLATE_FILENAME,
+  );
+}
 const SEASONS: Array<'fall' | 'winter' | 'summer'> = ['fall', 'winter', 'summer'];
 const MAX_FORM_SEMESTERS = 15;
 const MAX_COURSES_PER_SEMESTER = 5;
