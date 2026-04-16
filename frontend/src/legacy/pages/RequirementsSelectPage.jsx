@@ -1,44 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import staticPrograms from '../data/requirementsPrograms';
 import { useAuth } from '../../hooks/useAuth';
-
-const API_SERVER = import.meta.env.VITE_API_SERVER || 'http://localhost:8000/api';
+import { api } from '../../api/http-api-client';
 
 export default function RequirementsSelectPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [programs, setPrograms] = useState(staticPrograms);
+  const [programs, setPrograms] = useState([]);
   const [loading, setLoading] = useState(true);
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     const fetchForms = async () => {
       try {
-        const response = await fetch(`${API_SERVER}/credit-forms`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (data.forms) {
-            // Normalize API forms
-            const normalized = data.forms.map((f) => ({
-              ...f,
-              id: f.id || f.programId,
-            }));
+        const data = await api.get('/credit-forms');
+        if (data.forms) {
+          // Normalize API forms
+          const normalized = data.forms.map((f) => ({
+            ...f,
+            id: f.id || f.programId,
+          }));
 
-            // Merge static forms with API forms
-            // Forms from the API will override static forms with the same ID
-            const mergedMap = new Map();
-            staticPrograms.forEach(p => mergedMap.set(p.id, p));
-            normalized.forEach(p => mergedMap.set(p.id, p));
-
-            setPrograms(Array.from(mergedMap.values()));
-          }
+          setPrograms(normalized);
         }
       } catch (error) {
         console.error('Error fetching credit forms:', error);
-        // Fall back to static programs
+        setPrograms([]);
       } finally {
         setLoading(false);
       }

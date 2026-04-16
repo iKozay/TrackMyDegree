@@ -1,8 +1,7 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import staticPrograms from '../data/requirementsPrograms';
+import { api } from '../../api/http-api-client';
 
-const API_SERVER = import.meta.env.VITE_API_SERVER || 'http://localhost:8000/api';
 const BURGUNDY = '#7a0019';
 
 // Reusable button
@@ -66,31 +65,11 @@ export default function RequirementsFormPage() {
   useEffect(() => {
     const fetchProgram = async () => {
       try {
-        // First try to fetch from API
-        const response = await fetch(`${API_SERVER}/credit-forms/${programId}`, {
-          credentials: 'include',
-        });
-        if (response.ok) {
-          const data = await response.json();
-          setProgram(data);
-        } else {
-          // Fallback to static data
-          const staticProgram = staticPrograms.find((p) => p.id === programId);
-          if (staticProgram) {
-            setProgram({ ...staticProgram, programId: staticProgram.id });
-          } else {
-            setProgram(null);
-          }
-        }
+        const data = await api.get(`/credit-forms/${programId}`);
+        setProgram(data || null);
       } catch (error) {
         console.error('Error fetching program:', error);
-        // Fallback to static data
-        const staticProgram = staticPrograms.find((p) => p.id === programId);
-        if (staticProgram) {
-          setProgram({ ...staticProgram, programId: staticProgram.id });
-        } else {
-          setProgram(null);
-        }
+        setProgram(null);
       } finally {
         setLoading(false);
       }
@@ -124,9 +103,9 @@ export default function RequirementsFormPage() {
   let effectiveSrc = null;
   if (program?.pdf) {
     effectiveSrc = program.pdf;
-    // If the PDF path starts with /api/, it's from our API, prepend the server
+    // If the PDF path starts with /api/, prepend origin for a valid absolute URL.
     if (effectiveSrc.startsWith('/api/')) {
-      effectiveSrc = API_SERVER.replace('/api', '') + effectiveSrc;
+      effectiveSrc = `${globalThis.location?.origin || ''}${effectiveSrc}`;
     }
     if (srcCacheBuster) {
       effectiveSrc += `?v=${srcCacheBuster}`;
